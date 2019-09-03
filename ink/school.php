@@ -35,7 +35,7 @@ function form_add_eleve() {
 	}
 
 // rend NULL ou message d'erreur
-function form_edit_eleve($indix) {
+function form_edit_eleve( $indix, $killflag=0 ) {
 	global $form1;
 	global $db1;
 	$indix = (int)$indix;
@@ -51,7 +51,7 @@ function form_edit_eleve($indix) {
 			}
 		}
 	else	return "erreur base de donnees clef manquante " . $lenom;
-	$form1->show_form( 0 );
+	$form1->show_form( $killflag ? -1 : 0 );
 	}
 
 // rend NULL ou message d'erreur

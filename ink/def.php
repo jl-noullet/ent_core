@@ -22,6 +22,8 @@ $menu1->add( 'bench1.php?op=classes', 'lister les classes' );
 
 $msug = array();
 $msug['save'] = ' Ok ';
+$msug['kill'] = 'Supprimer';
+$msug['abort'] = 'Retour';
 
 $form1 = new form;
 // N.B. le premier item est particulier :

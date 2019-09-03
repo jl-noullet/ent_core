@@ -21,6 +21,8 @@ pre { margin: 0px; }
 .boutest { width: 40px; cursor: pointer }
 .boutup { cursor: pointer } 
 .boutfini { cursor: pointer; padding: 6px 18px; border: solid 2px; border-color: #DA4; background: #FDA; font-weight: bold; } 
+.boutkill { cursor: pointer; padding: 6px 18px; border: solid 2px; border-color: #D00; background: #F88; font-weight: bold; } 
+.boutabt  { cursor: pointer; padding: 6px 18px; border: solid 2px; border-color: #4D4; background: #AFA; font-weight: bold; } 
 .lemenu { font-size: 120% }
 .lerreur { background-color: #c00; color: #fff; font-size: 150%; text-align: center }
 .oblig { color: #f00 }

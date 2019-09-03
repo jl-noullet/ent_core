@@ -68,9 +68,10 @@ function add( $tid, $tdesc, $ttype, $ttopt ) {
 	} */
 
 // option :
-//	$addflag = 1 : form vierge, bouton submit avec prefixe "add_" en vue creation d'une ligne (INSERT)
-//	$addflag = 0 : form initialisees avec valeurs lues dans $this->itsa, , bouton submit avec prefixe "mod_" en vue update
-function show_form( $addflag ) {
+//	$addflag = 1  : form vierge, bouton submit avec prefixe "add_" en vue creation d'une ligne (INSERT)
+//	$addflag = 0  : form initialisees avec valeurs lues dans $this->itsa, , bouton submit avec prefixe "mod_" en vue update
+//	$addflag = -1 : idem plus bouton submit avec prefixe "kill_" en vue suppression
+function show_form( $addflag=0 ) {
 	global $msug;
 	echo "<form action=\"{$_SERVER['PHP_SELF']}\" method=\"POST\">\n";
 	echo "<table>\n";
@@ -81,12 +82,12 @@ function show_form( $addflag ) {
 			{
 			echo "<td align=left>$v->desc";			// description
 			echo '</td><td>';
-			if	( $addflag )				// valeur
+			if	( $addflag > 0 )				// valeur
 				$laval = '';
 			else	$laval = htmlspecialchars( $v->val, ENT_COMPAT, 'UTF-8', true );
 			}
 		// traitement par type
-		if	( ( $v->type == 'R' ) && !$addflag )	// Readonly (implicitement text 1 ligne)
+		if	( ( $v->type == 'R' ) && ( $addflag <= 0 ) )	// Readonly (implicitement text 1 ligne)
 			echo "<input class=\"roin\" type=\"text\" name=\"$k\" id=\"$k\" readonly value=\"{$laval}\"></td>";
 		else if	( $v->type == 'T' )	// Text
 			{
@@ -112,8 +113,14 @@ function show_form( $addflag ) {
 		if	( $v->type != 'H' )	// not Hidden
 			echo "</tr>\n";
 		}	// fin foreach
-	echo "<tr class=\"lastrow\"><td colspan=\"3\" align=\"right\"><input type=\"submit\" class=\"boutfini\" name=\"",
-	     $addflag ? 'add_' : 'mod_', $this->nom, "\" value=\"", $msug['save'], "\"></td></tr>\n";
+	
+	if	( $addflag < 0 )
+		echo "<tr class=\"lastrow\"><td colspan=\"3\" align=\"right\"><input type=\"submit\" class=\"boutkill\" name=\"",
+		     'kill_', $this->nom, "\" value=\"", $msug['kill'], "\"></td></tr>\n";
+	else	echo "<tr class=\"lastrow\"><td colspan=\"3\" align=\"right\"><input type=\"submit\" class=\"boutfini\" name=\"",
+		     ( $addflag > 0 ) ? 'add_' : 'mod_', $this->nom, "\" value=\"", $msug['save'], "\"></td></tr>\n";
+	echo "<tr class=\"lastrow\"><td colspan=\"3\" align=\"right\"><input type=\"submit\" class=\"boutabt\" name=\"",
+		     'abt_', $this->nom, "\" value=\"", $msug['abort'], "\"></td></tr>\n";
 	echo "</table>\n";
 	echo "</form>";
 	}

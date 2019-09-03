@@ -5,6 +5,7 @@ require_once('ink/def.php');
 require_once('ink/head.php');
 
 $db1->connect();
+// traiter les commandes par GET
 if	( isset($_GET['op']) )
 	{
 	if	( $_GET['op'] == 'init' )
@@ -42,12 +43,13 @@ else if	( isset($_GET['e']) )
 	}
 else if	( isset($_GET['k']) )
 	{
-	$retval = $ecole1->kill_eleve($_GET['k']);
+	$ecole1->extract_liste_classes( $form1->itsa['classe']->topt );
+	$retval = $ecole1->form_edit_eleve( $_GET['k'], 1 );
 	if	( $retval )
 		mostra_fatal($retval);
 	}
 
-// traiter retour eventuel par bouton "add_*"
+// traiter les retours de formulaire POST
 else if	( isset( $_POST['add_eleve'] ) )
 	{
 	if	( isset( $_POST['nom'] ) )
@@ -65,8 +67,9 @@ else if	( isset( $_POST['add_eleve'] ) )
 	$retval = $ecole1->add_eleve( $nom, $prenom, $date, $classe );
 	if	( $retval )
 		mostra_fatal($retval);
+	else	echo '<p>ajout effectué</p>';
 	}
-else if	( isset( $_POST['mod_eleve'] ) )
+else if	( isset( $_POST['mod_eleve'] ) || isset( $_POST['kill_eleve'] ) )
 	{
 	if	(
 		( isset( $_POST['indix'] ) ) &&
@@ -76,13 +79,16 @@ else if	( isset( $_POST['mod_eleve'] ) )
 		( isset( $_POST['classe'] ) )
 		)
 		{
-		$retval = $ecole1->mod_eleve( $_POST['indix'], $_POST['nom'], $_POST['prenom'], $_POST['date_n'], $_POST['classe'] );
+		if	( isset( $_POST['kill_eleve'] ) )
+			$retval = $ecole1->kill_eleve($_POST['indix']);
+		else	$retval = $ecole1->mod_eleve( $_POST['indix'], $_POST['nom'], $_POST['prenom'], $_POST['date_n'], $_POST['classe'] );
 		if	( $retval )
 			mostra_fatal($retval);
+		else	echo '<p>modification effectué</p>';
 		}
 	else	mostra_fatal('formulaire incomplet');
 	}
-
+else if	( isset( $_POST['abt_eleve'] ) )
+	echo '<p>opération abandonnée</p>';
 $menu1->display();
-
 ?>
