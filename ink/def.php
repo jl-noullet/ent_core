@@ -1,4 +1,6 @@
 <?php
+$lang='fr';
+require_once('ink/lang_fr.php');
 
 $db1 = new database;
 //$db1->server = 'sourcecojln.mysql.db';
@@ -15,15 +17,12 @@ $ecole1->table_eleves = 'ENT_S1_eleves';
 $ecole1->table_classes = 'ENT_S1_classes';
 
 $menu1 = new menu;
-$menu1->add( 'bench1.php?op=init', 'initialiser la base de donnees' );
-$menu1->add( 'bench1.php?op=add1', 'ajouter 1 eleve' );
-$menu1->add( 'bench1.php?op=add100', 'ajouter 100 eleves' );
-$menu1->add( 'bench1.php?op=classes', 'lister les classes' );
+$menu1->add( 'bench1.php?op=init', 'initialiser la base de données' );
+$menu1->add( 'bench1.php?op=add100', 'ajouter 100 élèves aléatoires' );
+$menu1->add( 'bench1.php?op=add1', 'ajouter 1 élève' );
+$menu1->add( 'bench1.php?op=classes', 'lister les classes (accés aux élèves par classe)' );
+$menu1->add( 'bench1.php?op=eleve', 'chercher un élève' );
 
-$msug = array();
-$msug['save'] = ' Ok ';
-$msug['kill'] = 'Supprimer';
-$msug['abort'] = 'Retour';
 
 $form1 = new form;
 // N.B. le premier item est particulier :

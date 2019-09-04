@@ -1,10 +1,10 @@
 <?php
-header( 'Content-Type: text/html; charset=utf-8' ); 
-?><!DOCTYPE html>
-<html><head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+header( 'Content-Type: text/html; charset=utf-8' );
+echo "<!DOCTYPE html>\n<html lang=\"$lang\">"
+?>
+<head><meta charset="utf-8"/>
 <title>ENT prototype</title>
-<style type="text/css">
+<style>
 /* table { border: 2px solid black; border-collapse:collapse; }
    table td { border: 1px solid green; padding: 5px 6px 5px 8px; }
  */

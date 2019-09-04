@@ -54,6 +54,17 @@ function form_edit_eleve( $indix, $killflag=0 ) {
 	$form1->show_form( $killflag ? -1 : 0 );
 	}
 
+function form_find_eleve() {
+	global $msug;
+	echo "<form action=\"{$_SERVER['PHP_SELF']}\" method=\"POST\">\n";
+	echo "<table>\n";
+	echo "<tr><td align=left>Nom</td><td><input class=\"textin\" type=\"text\" name=\"nom\" id=\"nom\" value=\"\"></td></tr>\n";
+	echo "<tr><td align=left>ou Prénom</td><td><input class=\"textin\" type=\"text\" name=\"prenom\" id=\"prenom\" value=\"\"></td></tr>\n";
+	echo "<tr class=\"lastrow\"><td colspan=\"2\" align=\"right\"><input type=\"submit\" class=\"boutfini\" name=\"find_eleve\" value=\"{$msug['find']}\"></td></tr>\n";
+	echo "</table>\n";
+	echo "</form>";
+	}
+
 // rend NULL ou message d'erreur
 // le matricule sera genere automatiquement (auto-increment)
 function add_eleve( $nom, $prenom, $date, $classe ) {
@@ -175,6 +186,38 @@ function show_1_classe( $classe ) {
 		$prenom = $row['prenom'];
 		$date   = $row['date_n'];
 		$classe = $nom_classe;
+		echo "<tr><td>$mat</td><td>$nom</td><td>$prenom</td><td>$date</td><td>$classe</td><td>",
+		"<a href=\"{$self}e={$mat}\"><img src=\"img/edit.png\" title=\"Editer\"></a> ",
+		"<a href=\"{$self}k={$mat}\"><img src=\"img/kill.png\" title=\"Supprimer\"></a>",
+		"</td></tr>";
+		}
+	echo '</table>';
+	}
+
+// rend NULL ou message d'erreur
+function show_found_eleves( $nom, $prenom ) {
+	global $db1;
+	if	( $nom )
+		$sqlrequest = "SELECT `indix`, `nom`, `prenom`, `date_n`, `classe` FROM `{$this->table_eleves}`" .
+			"WHERE `nom` = '$nom' ORDER BY `prenom`";
+	else if	( $prenom )
+		$sqlrequest = "SELECT `indix`, `nom`, `prenom`, `date_n`, `classe` FROM `{$this->table_eleves}`" .
+			"WHERE `prenom` = '$prenom' ORDER BY `nom`";
+	else	$sqlrequest = "SELECT `indix`, `nom`, `prenom`, `date_n`, `classe` FROM `{$this->table_eleves}` ORDER BY `classe`";
+	$result = $db1->conn->query( $sqlrequest );
+	if	(!$result) return "erreur " . $sqlrequest . "<br>" . mysqli_error($db1->conn);
+	$this->extract_liste_classes( $liste_classes );
+	echo '<table><tr><td>matricule</td><td>nom</td><td>prenom</td><td>date de naissance</td><td>classe</td><td>commande</td></tr>';
+	$self = $_SERVER['PHP_SELF'] . '?';
+	while	( $row = mysqli_fetch_assoc($result) )
+		{
+		$mat    = $row['indix'];
+		$nom    = $row['nom'];
+		$prenom = $row['prenom'];
+		$date   = $row['date_n'];
+		if	( isset($liste_classes[$row['classe']]) )
+			$classe = $liste_classes[$row['classe']];
+		else	$classe = '??';
 		echo "<tr><td>$mat</td><td>$nom</td><td>$prenom</td><td>$date</td><td>$classe</td><td>",
 		"<a href=\"{$self}e={$mat}\"><img src=\"img/edit.png\" title=\"Editer\"></a> ",
 		"<a href=\"{$self}k={$mat}\"><img src=\"img/kill.png\" title=\"Supprimer\"></a>",
