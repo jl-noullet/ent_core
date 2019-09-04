@@ -52,7 +52,6 @@ return $resu;
 }
 
 // cette fonction depend de longage.php et school.php
-// rend NULL ou message d'erreur
 function add_random_eleves( $db, $school, $quant, $verbose=0 ) {
 	if	( $verbose )
 		echo '<pre>';
@@ -79,14 +78,13 @@ function add_random_eleves( $db, $school, $quant, $verbose=0 ) {
 		$date = "$y-$m-$d";
 		if	( $verbose )
 			echo "$nom, $prenom, $date, $classe\n";
-		$retval = $school->add_eleve( $nom, $prenom, $date, $classe );
-		if	($retval) return $retval;
+		$school->add_eleve( $nom, $prenom, $date, $classe );
 		}
 	if	( $verbose )
 		echo '</pre>';
 	$sqlrequest = "SELECT COUNT(*) FROM `{$school->table_eleves}`";
 	$result = $db->conn->query( $sqlrequest );
-	if	(!$result) return "erreur " . $sqlrequest . "<br>" . mysqli_error($db->conn);
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db1->conn) );
 	if	( $row = mysqli_fetch_assoc($result) )
 		{
 		$cnt = $row['COUNT(*)'];

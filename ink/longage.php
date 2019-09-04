@@ -7,7 +7,8 @@ function mostra_erro( $tbuf ) {
 
 function mostra_fatal( $tbuf ) {
 	require_once('head.php');
-	echo '<p class="lerreur">' . $tbuf . '</p></body></html>';
+	echo '<p class="lerreur">Erreur: ', $tbuf, '</p>', 
+	     '<p> <a href="', $_SERVER['PHP_SELF'], '">Retour</a></p></body></html>';
 	exit();
 	}
 
@@ -23,7 +24,7 @@ public $conn;
 function connect() {	// commande de connexion au serveur SQL 'p:' pour persistent connection
 	// $this->conn = mysqli_connect( 'p:' . $this->server, $this->user, $this->pass, $this->base );
 	$this->conn = mysqli_connect( $this->server, $this->user, $this->pass, $this->base );
-        if (!$this->conn) { mostra_fatal("echec connexion serveur et base"); }
+        if (!$this->conn) { mostra_fatal("échec connexion serveur et base"); }
 	}
 
 function close() {

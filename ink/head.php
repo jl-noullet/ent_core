@@ -25,6 +25,7 @@ pre { margin: 0px; }
 .boutabt  { cursor: pointer; padding: 6px 18px; border: solid 2px; border-color: #4D4; background: #AFA; font-weight: bold; } 
 .lemenu { font-size: 120% }
 .lerreur { background-color: #c00; color: #fff; font-size: 150%; text-align: center }
+.resu { background-color: #4f7; color: #040; font-size: 120%; text-align: center }
 .oblig { color: #f00 }
 p.desc { margin: 2px 2px 2px 0px; padding: 3px 2px 3px 2px; background-color: #ddffff; }
 p.val  { margin: 2px 2px 2px 0px; padding: 5px 2px 5px 16px; }
