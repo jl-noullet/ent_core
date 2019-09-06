@@ -12,7 +12,7 @@ function create_tables() {
 	$result = $db1->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db1->conn) );
 	$sqlrequest = "CREATE TABLE `$this->table_eleves`
-		( `indix` INT NOT NULL AUTO_INCREMENT, `nom` VARCHAR(64), `prenom` VARCHAR(64), `date_n` DATE, `classe` VARCHAR(64),
+		( `indix` INT NOT NULL AUTO_INCREMENT, `nom` VARCHAR(64), `prenom` VARCHAR(64), `date_n` BIGINT, `classe` VARCHAR(64),
 		PRIMARY KEY (`indix`), INDEX(`nom`), INDEX(`classe`) )
 		ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";  
 	$result = $db1->conn->query( $sqlrequest );
@@ -154,7 +154,7 @@ function show_liste_classes( &$label ) {
 	}
 
 function show_1_classe( $classe ) {
-	global $db1, $form1;
+	global $db1, $form1, $label;
 	$c = (int)$classe;
 	$sqlrequest = "SELECT `indix`, `nom` FROM `{$this->table_classes}` WHERE `indix` = {$c};";
 	$result = $db1->conn->query( $sqlrequest );
@@ -174,19 +174,18 @@ function show_1_classe( $classe ) {
 		$mat    = $row['indix'];
 		$nom    = $row['nom'];
 		$prenom = $row['prenom'];
-		$date   = $row['date_n'];
+		$date   = date( 'Y-m-d', $row['date_n'] );
 		$classe = $nom_classe;
 		echo "<tr><td>$mat</td><td>$nom</td><td>$prenom</td><td>$date</td><td>$classe</td><td>",
-		"<a href=\"{$self}e={$mat}\"><img src=\"img/edit.png\" title=\"Editer\"></a> ",
-		"<a href=\"{$self}k={$mat}\"><img src=\"img/kill.png\" title=\"Supprimer\"></a>",
+		"<a href=\"{$self}e={$mat}\"><img src=\"img/edit.png\" title=\"{$label['edit']}\"></a> ",
+		"<a href=\"{$self}k={$mat}\"><img src=\"img/kill.png\" title=\"{$label['kill']}\"></a>",
 		"</td></tr>";
 		}
 	echo '</table>';
 	}
 
 function show_found_eleves( $nom, $prenom ) {
-	global $db1;
-	global $form1;
+	global $db1, $form1, $label;
 	if	( $nom )
 		$sqlrequest = "SELECT `indix`, `nom`, `prenom`, `date_n`, `classe` FROM `{$this->table_eleves}`" .
 			"WHERE `nom` = '$nom' ORDER BY `prenom`";
@@ -205,13 +204,13 @@ function show_found_eleves( $nom, $prenom ) {
 		$mat    = $row['indix'];
 		$nom    = $row['nom'];
 		$prenom = $row['prenom'];
-		$date   = $row['date_n'];
+		$date   = date( 'Y-m-d', $row['date_n'] );
 		if	( isset($liste_classes[$row['classe']]) )
 			$classe = $liste_classes[$row['classe']];
 		else	$classe = '??';
 		echo "<tr><td>$mat</td><td>$nom</td><td>$prenom</td><td>$date</td><td>$classe</td><td>",
-		"<a href=\"{$self}e={$mat}\"><img src=\"img/edit.png\" title=\"Editer\"></a> ",
-		"<a href=\"{$self}k={$mat}\"><img src=\"img/kill.png\" title=\"Supprimer\"></a>",
+		"<a href=\"{$self}e={$mat}\"><img src=\"img/edit.png\" title=\"{$label['edit']}\"></a> ",
+		"<a href=\"{$self}k={$mat}\"><img src=\"img/kill.png\" title=\"{$label['kill']}\"></a>",
 		"</td></tr>";
 		}
 	echo '</table>';

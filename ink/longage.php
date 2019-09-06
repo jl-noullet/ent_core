@@ -12,6 +12,34 @@ function mostra_fatal( $tbuf ) {
 	exit();
 	}
 
+function input_date_be( $prefix, $y0, $y1, $yy, $mm, $dd ) {
+	global $monthname;
+	echo "<select name=\"{$prefix}_y\">";
+	for	( $y = $y0; $y < $y1; $y++ )
+		{
+		echo "<option value=\"$y\"";
+		if	( $y == $yy )
+			echo " selected";
+		echo ">$y</option>";
+		}
+	echo "</select>-<select name=\"{$prefix}_m\">";
+	for	( $m = 0; $m < 12; $m++ )
+		{
+		echo "<option value=\"$m\"";
+		if	( $m == $mm )
+			echo " selected";
+		echo ">$monthname[$m]</option>";
+		}
+	echo "</select>-<select name=\"{$prefix}_d\">";
+	for	( $d = 1; $d <= 31; $d++ )
+		{
+		echo "<option value=\"$d\"";
+		if	( $d == $dd )
+			echo " selected";
+		echo ">$d</option>";
+		}
+	}
+
 class database
 {
 public $server;
@@ -58,15 +86,6 @@ public $checkreport;
 function add( $tid, $tdesc, $ttype, $ttopt ) {
 	$this->itsa[$tid] = new formit( $tdesc, $ttype, $ttopt );
 	}
-/* function dump()
-	{
-	echo "<table border=1 cellpadding=3>\n";
-	echo "<tr><td>id</td><td>desc</td><td>type</td><td>lignes</td></tr>\n";
-	foreach ($this->itsa as $k => $v) {
-		echo "<tr><td>$k</td><td>$v->desc</td><td>$v->type</td><td>$v->topt</td></tr>\n";
-		}
-	echo "</table>\n";
-	} */
 
 // option :
 //	$addflag = 1  : form vierge, bouton submit avec prefixe "add_" en vue creation d'une ligne (INSERT)
@@ -105,11 +124,19 @@ function show_form( $addflag=0 ) {
 					{
 					echo "<option value=\"$k2\"";
 					if	( $v->val == $k2 )
-						echo "  selected";
+						echo " selected";
 					echo ">$v2</option>";
 					}
 				}
 			echo "</select>";
+			}
+		else if	( $v->type == 'D' )	// Date (big endian)
+			{
+			if	( $laval )	// unix time
+				$ladate = getdate( $laval );
+			else	$ladate = getdate( 946731600 );
+			$y = $ladate["year"];
+			input_date_be( 'date_n', $y-20, $y+20, $y, $ladate["mon"]-1, $ladate["mday"] );
 			}
 		if	( $v->type != 'H' )	// not Hidden
 			echo "</tr>\n";

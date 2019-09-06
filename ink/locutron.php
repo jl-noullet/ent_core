@@ -52,9 +52,7 @@ return $resu;
 }
 
 // cette fonction depend de longage.php et school.php
-function add_random_eleves( $db, $school, $quant, $verbose=0 ) {
-	if	( $verbose )
-		echo '<pre>';
+function add_random_eleves( $db, $school, $quant ) {
 	for	( $i = 0; $i < $quant; $i++ )
 		{
 		$r = random_int( 0, 65535 );
@@ -75,13 +73,11 @@ function add_random_eleves( $db, $school, $quant, $verbose=0 ) {
 		$d = $m + $cla;
 		if	( $m > 12 )
 			{ $m -= 12; $y += 1; }
-		$date = "$y-$m-$d";
-		if	( $verbose )
-			echo "$nom, $prenom, $date, $classe\n";
-		$school->add_eleve( $nom, $prenom, $date, $classe );
+		// $date = "$y-$m-$d";
+		$utime = mktime( 13, 0, 0, $m+1, $d, $y );
+		// echo "$nom, $prenom, $utime, $classe<br>";
+		$school->add_eleve( $nom, $prenom, $utime, $classe );
 		}
-	if	( $verbose )
-		echo '</pre>';
 	$sqlrequest = "SELECT COUNT(*) FROM `{$school->table_eleves}`";
 	$result = $db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db1->conn) );
