@@ -73,7 +73,7 @@ function add( $tid, $tdesc, $ttype, $ttopt ) {
 //	$addflag = 0  : form initialisees avec valeurs lues dans $this->itsa, , bouton submit avec prefixe "mod_" en vue update
 //	$addflag = -1 : idem plus bouton submit avec prefixe "kill_" en vue suppression
 function show_form( $addflag=0 ) {
-	global $msug;
+	global $label;
 	echo "<form action=\"{$_SERVER['PHP_SELF']}\" method=\"POST\">\n";
 	echo "<table>\n";
 	foreach ($this->itsa as $k => $v)
@@ -81,7 +81,7 @@ function show_form( $addflag=0 ) {
 		// traitement commun a toutes les lignes affichees
 		if	( $v->type != 'H' )	// not Hidden
 			{
-			echo "<tr><td align=left>$v->desc";			// description
+			echo "<tr><td class=\"ag\">$v->desc";			// description
 			echo '</td><td>';
 			if	( $addflag > 0 )				// valeur
 				$laval = '';
@@ -116,12 +116,12 @@ function show_form( $addflag=0 ) {
 		}	// fin foreach
 	
 	if	( $addflag < 0 )
-		echo "<tr class=\"lastrow\"><td colspan=\"2\" align=\"right\"><input type=\"submit\" class=\"boutkill\" name=\"",
-		     'kill_', $this->nom, "\" value=\"", $msug['kill'], "\"></td></tr>\n";
-	else	echo "<tr class=\"lastrow\"><td colspan=\"2\" align=\"right\"><input type=\"submit\" class=\"boutfini\" name=\"",
-		     ( $addflag > 0 ) ? 'add_' : 'mod_', $this->nom, "\" value=\"", $msug['save'], "\"></td></tr>\n";
-	echo "<tr class=\"lastrow\"><td colspan=\"2\" align=\"right\"><input type=\"submit\" class=\"boutabt\" name=\"",
-		     'abt_', $this->nom, "\" value=\"", $msug['abort'], "\"></td></tr>\n";
+		echo "<tr class=\"lastrow\"><td colspan=\"2\" class=\"ar\"><input type=\"submit\" class=\"boutkill\" name=\"",
+		     'kill_', $this->nom, "\" value=\"", $label['kill'], "\"></td></tr>\n";
+	else	echo "<tr class=\"lastrow\"><td colspan=\"2\" class=\"ar\"><input type=\"submit\" class=\"boutfini\" name=\"",
+		     ( $addflag > 0 ) ? 'add_' : 'mod_', $this->nom, "\" value=\"", $label['save'], "\"></td></tr>\n";
+	echo "<tr class=\"lastrow\"><td colspan=\"2\" class=\"ar\"><input type=\"submit\" class=\"boutabt\" name=\"",
+		     'abt_', $this->nom, "\" value=\"", $label['abort'], "\"></td></tr>\n";
 	echo "</table>\n";
 	echo "</form>";
 	}

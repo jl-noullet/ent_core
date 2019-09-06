@@ -1,8 +1,15 @@
 <?php
-// session_start();
+session_start();
 require_once('ink/longage.php');
 require_once('ink/school.php');
 require_once('ink/def.php');
+if	( !isset($_SESSION['lang']) )
+	$_SESSION['lang']='fr';
+if	( ( isset($_GET['op']) ) && ( $_GET['op'] == 'lang' ) )
+	$_SESSION['lang'] = ( $_SESSION['lang'] == 'en' )?'fr':'en';
+if	( $_SESSION['lang'] == 'en' )
+	require_once('ink/lang_en.php');
+else	require_once('ink/lang_fr.php');
 require_once('ink/head.php');
 
 $db1->connect();
@@ -23,7 +30,7 @@ if	( isset($_GET['op']) )
 		$ecole1->form_add_eleve();
 		}
 	else if	( $_GET['op'] == 'classes' )
-		$ecole1->show_liste_classes();
+		$ecole1->show_liste_classes($label);
 	else if	( $_GET['op'] == 'eleve' )
 		$ecole1->form_find_eleve();
 	}
@@ -58,7 +65,7 @@ else if	( isset( $_POST['add_eleve'] ) )
 		$classe = $_POST['classe'];
 	else	$classe = 0;
 	$ecole1->add_eleve( $nom, $prenom, $date, $classe );
-	echo '<p class="resu">ajout effectué</p>';
+	echo "<p class=\"resu\">{$label['added']}</p>";
 	$ecole1->show_1_classe($_POST['classe']);
 	}
 else if	( isset( $_POST['mod_eleve'] ) || isset( $_POST['kill_eleve'] ) )
@@ -74,14 +81,14 @@ else if	( isset( $_POST['mod_eleve'] ) || isset( $_POST['kill_eleve'] ) )
 		if	( isset( $_POST['kill_eleve'] ) )
 			$ecole1->kill_eleve($_POST['indix']);
 		else	$ecole1->mod_eleve( $_POST['indix'], $_POST['nom'], $_POST['prenom'], $_POST['date_n'], $_POST['classe'] );
-		echo '<p class="resu">modification effectuée</p>';
+		echo "<p class=\"resu\">{$label['moded']}</p>";
 		$ecole1->show_1_classe($_POST['classe']);
 		}
 	else	mostra_fatal('formulaire incomplet');
 	}
 else if	( isset( $_POST['abt_eleve'] ) )
 	{
-	echo '<p class="resu">opération abandonnée</p>';
+	echo "<p class=\"resu\">{$label['aborted']}</p>";
 	if	( isset( $_POST['classe'] ) )
 	$ecole1->show_1_classe($_POST['classe']);
 	}

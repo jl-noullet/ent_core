@@ -34,8 +34,7 @@ function form_add_eleve() {
 	}
 
 function form_edit_eleve( $indix, $killflag=0 ) {
-	global $form1;
-	global $db1;
+	global $form1, $db1;
 	$indix = (int)$indix;
 	$sqlrequest = "SELECT * FROM `$this->table_eleves` WHERE `indix` = '{$indix}';";
 	$result = $db1->conn->query( $sqlrequest );
@@ -53,12 +52,12 @@ function form_edit_eleve( $indix, $killflag=0 ) {
 	}
 
 function form_find_eleve() {
-	global $msug;
+	global $label;
 	echo "<form action=\"{$_SERVER['PHP_SELF']}\" method=\"POST\">\n";
 	echo "<table>\n";
-	echo "<tr><td align=left>Nom</td><td><input class=\"textin\" type=\"text\" name=\"nom\" id=\"nom\" value=\"\"></td></tr>\n";
-	echo "<tr><td align=left>ou Prénom</td><td><input class=\"textin\" type=\"text\" name=\"prenom\" id=\"prenom\" value=\"\"></td></tr>\n";
-	echo "<tr class=\"lastrow\"><td colspan=\"2\" align=\"right\"><input type=\"submit\" class=\"boutfini\" name=\"find_eleve\" value=\"{$msug['find']}\"></td></tr>\n";
+	echo "<tr><td class=\"ag\">{$label['lastname']}</td><td><input class=\"textin\" type=\"text\" name=\"nom\" id=\"nom\" value=\"\"></td></tr>\n";
+	echo "<tr><td class=\"ag\">{$label['orfirstname']}</td><td><input class=\"textin\" type=\"text\" name=\"prenom\" id=\"prenom\" value=\"\"></td></tr>\n";
+	echo "<tr class=\"lastrow\"><td colspan=\"2\" class=\"ar\"><input type=\"submit\" class=\"boutfini\" name=\"find_eleve\" value=\"{$label['find']}\"></td></tr>\n";
 	echo "</table>\n";
 	echo "</form>";
 	}
@@ -140,10 +139,10 @@ function extract_effectifs_classes( &$effect_classes, &$total ) {
 		}
 	}
 
-function show_liste_classes() {
+function show_liste_classes( &$label ) {
 	$this->extract_liste_classes( $liste );
 	$this->extract_effectifs_classes( $effectifs, $total );
-	echo '<table><tr><td>classe</td><td>effectif</td></tr>';
+	echo "<table><tr><td>{$label['classe']}</td><td>{$label['effectif']}</td></tr>";
 	$self = $_SERVER['PHP_SELF'] . '?c=';
 	foreach ($liste as $k => $v)
 		{
@@ -155,7 +154,7 @@ function show_liste_classes() {
 	}
 
 function show_1_classe( $classe ) {
-	global $db1;
+	global $db1, $form1;
 	$c = (int)$classe;
 	$sqlrequest = "SELECT `indix`, `nom` FROM `{$this->table_classes}` WHERE `indix` = {$c};";
 	$result = $db1->conn->query( $sqlrequest );
@@ -167,7 +166,8 @@ function show_1_classe( $classe ) {
 			"WHERE `classe` = '$c' ORDER BY `nom`";
 	$result = $db1->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db1->conn) );
-	echo '<table><tr><td>matricule</td><td>nom</td><td>prenom</td><td>date de naissance</td><td>classe</td><td>commande</td></tr>';
+	echo "<table><tr><td>{$form1->itsa['indix']->desc}</td><td>{$form1->itsa['nom']->desc}</td><td>{$form1->itsa['prenom']->desc}</td>",
+		"<td>{$form1->itsa['date_n']->desc}</td><td>{$form1->itsa['classe']->desc}</td><td>Actions</td></tr>";
 	$self = $_SERVER['PHP_SELF'] . '?';
 	while	( $row = mysqli_fetch_assoc($result) )
 		{
@@ -186,6 +186,7 @@ function show_1_classe( $classe ) {
 
 function show_found_eleves( $nom, $prenom ) {
 	global $db1;
+	global $form1;
 	if	( $nom )
 		$sqlrequest = "SELECT `indix`, `nom`, `prenom`, `date_n`, `classe` FROM `{$this->table_eleves}`" .
 			"WHERE `nom` = '$nom' ORDER BY `prenom`";
@@ -196,7 +197,8 @@ function show_found_eleves( $nom, $prenom ) {
 	$result = $db1->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db1->conn) );
 	$this->extract_liste_classes( $liste_classes );
-	echo '<table><tr><td>matricule</td><td>nom</td><td>prenom</td><td>date de naissance</td><td>classe</td><td>commande</td></tr>';
+	echo "<table><tr><td>{$form1->itsa['indix']->desc}</td><td>{$form1->itsa['nom']->desc}</td><td>{$form1->itsa['prenom']->desc}</td>",
+		"<td>{$form1->itsa['date_n']->desc}</td><td>{$form1->itsa['classe']->desc}</td><td>Actions</td></tr>";
 	$self = $_SERVER['PHP_SELF'] . '?';
 	while	( $row = mysqli_fetch_assoc($result) )
 		{
