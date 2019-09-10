@@ -152,7 +152,96 @@ function show_form( $addflag=0 ) {
 	echo "</table>\n";
 	echo "</form>";
 	}
-}
+// lire les valeurs d'une ligne de la BD, les copier dans la form
+function db2form( $db, $table, $indix ) {
+	$sqlrequest = "SELECT * FROM `{$table}` WHERE `indix` = '{$indix}';";
+	$result = $db->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
+	else if ( $row = mysqli_fetch_assoc($result) )
+		{
+		foreach ($this->itsa as $k => $v)
+			{
+			if	( isset($row[$k]) )
+				$v->val = $row[$k];
+			}
+		}
+	else	mostra_fatal( "table {$table} : clef manquante {$indix}" );
+	}
+// lire les valeurs d'un POST, les copier dans la form, attend TOUS les items de la form
+// sauf eventuellement `indix`
+// pas de filtrage de secu a ce niveau
+function post2form_full( $skipindix ) {
+	foreach ($this->itsa as $k => $v)
+		{
+		if	( $v->type == 'D' )	// Date en 3 valeurs, cf function input_date_be()
+			{
+			if	( isset( $_POST[$k.'_y'] ) && isset( $_POST[$k.'_m'] ) && isset( $_POST[$k.'_d'] ) )
+				$v->val = mktime( 13, 0, 0, $_POST[$k.'_m']+1, $_POST[$k.'_d'], $_POST[$k.'_y'] );
+			else	mostra_fatal( "date icomplete, item $k dans le formulaire" );
+			}
+		else if	( ( !$skipindix ) || ( $k != 'indix' ) )
+			{			// simple valeur
+			if	( isset( $_POST[$k] ) )
+				$v->val = $_POST[$k];
+			else	mostra_fatal( "manque item $k dans le formulaire" );
+			}
+		}
+	}
+// copier toutes les valeurs d'une form dans une ligne existante de la table, `indix` doit exister
+// filtrage injection SQL ici (provisoirement addslashes)
+function form2db_update_full( $db, $table ) {
+	$sqlrequest = "UPDATE `{$table}` SET ";
+	$i = -1;	// pour forcer erreur si indix non defini
+	$prem = TRUE;	// pour gerer les virgules
+ 	foreach ($this->itsa as $k => $v)
+		{
+		if	( $k == 'indix' )
+			$i = (int)$v->val;
+		else	{
+			$zeval = addslashes( $v->val );
+			if	( $prem )
+				$prem = FALSE;
+			else	$sqlrequest .= ' ,';
+			$sqlrequest .= "{$k} = '{$zeval}'";
+			}	
+		}
+	$sqlrequest .= "WHERE `indix` = {$i}";
+	$result = $db->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
+	}
+// creer une ligne de la table avec toutes les valeurs d'une form, omettre indix si on veut profiter de l'auto-increment
+// filtrage injection SQL ici (provisoirement addslashes)
+function form2db_insert_full( $db, $table, $skipindix ) {
+	$sqlrequest = "INSERT INTO `{$table}` SET ";
+	$prem = TRUE;	// pour gerer les virgules
+ 	foreach ($this->itsa as $k => $v)
+		{
+		if	( $k == 'indix' )
+			{
+			if	( !$skipindix )
+				{
+				$zeval = (int)$v->val;
+				if	( $prem )
+					$prem = FALSE;
+				else	$sqlrequest .= ' ,';
+				$sqlrequest .= "{$k} = '{$zeval}'";
+				}
+			}
+		else	{
+			$zeval = addslashes( $v->val );
+			if	( $prem )
+				$prem = FALSE;
+			else	$sqlrequest .= ' ,';
+			$sqlrequest .= "{$k} = '{$zeval}'";
+			}	
+		}
+	$result = $db->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
+	}
+
+} // class form
+
+
 
 class menuitem
 {

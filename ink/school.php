@@ -26,8 +26,24 @@ function create_tables() {
 		ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";  
 	$result = $db1->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db1->conn) );
+	$sqlrequest = "DROP TABLE IF EXISTS `{$this->table_activites}`";
+	$result = $db1->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db1->conn) );
+	$sqlrequest = "CREATE TABLE `$this->table_activites`
+		( `indix` INT, `nom` VARCHAR(64), `duree` INT,
+		PRIMARY KEY (`indix`) )
+		ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";  
+	$result = $db1->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db1->conn) );
+	$sqlrequest = "CREATE TABLE `$this->table_events`
+		( `indix` INT, `activite` INT, `week` INT, `offset` INT, `duree` INT, `a_faire` VARCHAR(1024),
+		PRIMARY KEY (`indix`), INDEX(`activite`), INDEX(`week`)  )
+		ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";  
+	$result = $db1->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db1->conn) );
 	}
-
+// // // objet eleve // // //
+// affichage forms
 function form_add_eleve() {
 	global $form1;
 	$form1->show_form( 1 );
@@ -36,18 +52,7 @@ function form_add_eleve() {
 function form_edit_eleve( $indix, $killflag=0 ) {
 	global $form1, $db1;
 	$indix = (int)$indix;
-	$sqlrequest = "SELECT * FROM `$this->table_eleves` WHERE `indix` = '{$indix}';";
-	$result = $db1->conn->query( $sqlrequest );
-	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db1->conn) );
-	else if ( $row = mysqli_fetch_assoc($result) )
-		{
-		foreach ($form1->itsa as $k => $v)
-			{
-			if	( isset($row[$k]) )
-				$v->val = $row[$k];
-			}
-		}
-	else	mostra_fatal( " base de donnees : clef manquante " . $indix );
+	$form1->db2form( $db1, $this->table_eleves, $indix );
 	$form1->show_form( $killflag ? -1 : 0 );
 	}
 
@@ -63,6 +68,7 @@ function form_find_eleve() {
 	}
 
 // le matricule sera genere automatiquement (auto-increment)
+// cette fonction est seulement pour generation automatique, pas pour traitement POST
 function add_eleve( $nom, $prenom, $date, $classe ) {
 	global $db1;
 	$sqlrequest = "INSERT INTO `{$this->table_eleves}` (`nom`, `prenom`, `date_n`, `classe` ) " .
@@ -92,13 +98,6 @@ function exist_classe( $index ) {
 		if	( $i == 0 ) return FALSE;
 		else if	( $i == 1 ) return TRUE;
 		}
-	}
-
-function mod_eleve( $mat, $nom, $prenom, $date, $classe ) {
-	global $db1;
-	$sqlrequest = "UPDATE `{$this->table_eleves}` SET `nom` = '$nom', `prenom` = '$prenom', `date_n` = '$date', `classe` = '$classe' WHERE `indix` = $mat;";
-	$result = $db1->conn->query( $sqlrequest );
-	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db1->conn) );
 	}
 
 function kill_eleve( $mat ) {

@@ -52,48 +52,19 @@ else if	( isset($_GET['k']) )
 // traiter les retours de formulaire POST
 else if	( isset( $_POST['add_eleve'] ) )
 	{
-	if	( isset( $_POST['nom'] ) )
-		$nom = $_POST['nom'];
-	else	$nom = 'noname';
-	if	( isset( $_POST['prenom'] ) )
-		$prenom = $_POST['prenom'];
-	else	$prenom = 'noname';
-	if	(
-		( isset( $_POST['date_n_y'] ) )	&&
-		( isset( $_POST['date_n_m'] ) ) &&
-		( isset( $_POST['date_n_d'] ) )
-		)
-		$utime = mktime( 13, 0, 0, $_POST['date_n_m']+1, $_POST['date_n_d'], $_POST['date_n_y'] );
-	else	$utime = 0;
-	if	( isset( $_POST['classe'] ) )
-		$classe = $_POST['classe'];
-	else	$classe = 0;
-	$ecole1->add_eleve( $nom, $prenom, $utime, $classe );
+	$form1->post2form_full( TRUE );
+	$form1->form2db_insert_full( $db1, $ecole1->table_eleves, TRUE );
 	echo "<p class=\"resu\">{$label['added']}</p>";
 	$ecole1->show_1_classe($_POST['classe']);
 	}
 else if	( isset( $_POST['mod_eleve'] ) || isset( $_POST['kill_eleve'] ) )
 	{
-	if	(
-		( isset( $_POST['indix'] ) ) &&
-		( isset( $_POST['nom'] ) ) &&
-		( isset( $_POST['prenom'] ) ) && 
-		( isset( $_POST['date_n_y'] ) ) &&
-		( isset( $_POST['date_n_m'] ) ) &&
-		( isset( $_POST['date_n_d'] ) ) &&
-		( isset( $_POST['classe'] ) )
-		)
-		{
-		if	( isset( $_POST['kill_eleve'] ) )
-			$ecole1->kill_eleve($_POST['indix']);
-		else	{
-			$utime = mktime( 13, 0, 0, $_POST['date_n_m']+1, $_POST['date_n_d'], $_POST['date_n_y'] );
-			$ecole1->mod_eleve( $_POST['indix'], $_POST['nom'], $_POST['prenom'], $utime, $_POST['classe'] );
-			}
-		echo "<p class=\"resu\">{$label['moded']}</p>";
-		$ecole1->show_1_classe($_POST['classe']);
-		}
-	else	mostra_fatal('formulaire incomplet');
+	$form1->post2form_full( FALSE );
+	if	( isset( $_POST['kill_eleve'] ) )
+		$ecole1->kill_eleve($_POST['indix']);
+	else	$form1->form2db_update_full( $db1, $ecole1->table_eleves );
+	echo "<p class=\"resu\">{$label['moded']}</p>";
+	$ecole1->show_1_classe($_POST['classe']);
 	}
 else if	( isset( $_POST['abt_eleve'] ) )
 	{
