@@ -86,7 +86,11 @@ public $checkreport;
 function add( $tid, $tdesc, $ttype, $ttopt ) {
 	$this->itsa[$tid] = new formit( $tdesc, $ttype, $ttopt );
 	}
-
+// effacer les valeurs
+function clear() {
+	foreach ($this->itsa as $k => $v)
+		$v->val = NULL;
+	}
 // option :
 //	$addflag = 1  : form vierge, bouton submit avec prefixe "add_" en vue creation d'une ligne (INSERT)
 //	$addflag = 0  : form initialisees avec valeurs lues dans $this->itsa, , bouton submit avec prefixe "mod_" en vue update

@@ -6,16 +6,20 @@ $menu1->add( "$self?op=add1", 'add 1 student' );
 $menu1->add( "$self?op=classes", 'list classes (access to students by class)' );
 $menu1->add( "$self?op=eleve", 'find a student' );
 $menu1->add( "$self?op=lang", 'change interface language' );
+$menu1->add( "$self?op=add1c", 'add 1 class' );
 
 // N.B. le premier item est particulier :
 //	son nom DOIT etre 'indix'
 //	il n'est pas editable (R ou H)
 //	il est int et PRIMARY KEY
-$form1->add( 'indix', 'Id #', 'R', 1 );
-$form1->add( 'nom', 'Name', 'T', 1 );
-$form1->add( 'prenom', 'First Name', 'T', 1 );
-$form1->add( 'classe', "Class", 'S', array() );
-$form1->add( 'date_n', 'Birth Date', 'D', 1 );
+$form_s->add( 'indix', 'Id #', 'R', 1 );
+$form_s->add( 'nom', 'Name', 'T', 1 );
+$form_s->add( 'prenom', 'First Name', 'T', 1 );
+$form_s->add( 'classe', "Class", 'S', array() );
+$form_s->add( 'date_n', 'Birth Date', 'D', 1 );
+
+$form_c->add( 'indix', 'Index', 'R', 1 );
+$form_c->add( 'nom', 'Name', 'T', 1 );
 
 // titres
 $label['title'] = 'Digital Workplace Prototype';	// Virtual Learning Environment ?
