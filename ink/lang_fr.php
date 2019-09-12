@@ -4,9 +4,9 @@ $menu1->add( "$self?op=init", 'initialiser la base de données' );
 $menu1->add( "$self?op=add500", 'ajouter 500 élèves aléatoires' );
 $menu1->add( "$self?op=add1", 'ajouter 1 élève' );
 $menu1->add( "$self?op=classes", 'lister les classes (accés aux élèves par classe)' );
+$menu1->add( "$self?op=add1c", 'ajouter 1 classe' );
 $menu1->add( "$self?op=eleve", 'chercher un élève' );
 $menu1->add( "$self?op=lang", 'changer la langue de l\'interface' );
-$menu1->add( "$self?op=add1c", 'ajouter 1 classe' );
 
 // N.B. le premier item est particulier :
 //	son nom DOIT etre 'indix'
@@ -30,6 +30,7 @@ $label['kill'] = 'Supprimer';
 $label['abort'] = 'Retour';
 $label['find'] = 'Chercher';
 $label['edit'] = 'Modifier';
+$label['add1'] = 'Ajouter un élève';
 // labels
 $label['classe'] = 'Classe';
 $label['effectif'] = 'Effectif';

@@ -33,7 +33,9 @@ if	( isset($_GET['op']) )
 	else if	( $_GET['op'] == 'add1' )
 		{
 		$school->extract_liste_classes( $form_s->itsa['classe']->topt );
-		$school->form_add_eleve();
+		if	( isset( $_GET['c'] ) )
+			$school->form_add_eleve( $_GET['c'] );
+		else	$school->form_add_eleve();
 		}
 	else if	( $_GET['op'] == 'classes' )
 		$school->show_liste_classes();
@@ -42,9 +44,9 @@ if	( isset($_GET['op']) )
 	else if	( $_GET['op'] == 'add1c' )
 		$school->form_add_class();
 	}
-else if	( isset($_GET['c']) )
+else if	( isset($_GET['lc']) )
 	{
-	$school->show_1_classe($_GET['c']);
+	$school->show_1_classe($_GET['lc']);
 	}
 else if	( isset($_GET['es']) )
 	{
@@ -83,7 +85,7 @@ else if	( isset( $_POST['abt_eleve'] ) )
 	{
 	echo "<p class=\"resu\">{$label['aborted']}</p>";
 	if	( isset( $_POST['classe'] ) )
-	$school->show_1_classe($_POST['classe']);
+		$school->show_1_classe($_POST['classe']);
 	}
 else if	( isset( $_POST['find_eleve'] ) )
 	{

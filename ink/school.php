@@ -50,16 +50,22 @@ function create_tables() {
 	}
 // // // objet eleve // // //
 // affichage forms
-function form_add_eleve() {
+function form_add_eleve( $class=0 ) {
 	global $form_s;
-	$form_s->show_form( 1 );
+	if	( $class )
+		{
+		$form_s->clear();
+		$form_s->itsa['classe']->val = $class;
+		$form_s->show_form( 1, FALSE, 0 );
+		}
+	else	$form_s->show_form( 1, TRUE, 0 );
 	}
 
 function form_edit_eleve( $indix, $killflag=0 ) {
 	global $form_s;
 	$indix = (int)$indix;
 	$form_s->db2form( $this->db, $this->table_eleves, $indix );
-	$form_s->show_form( $killflag ? -1 : 0 );
+	$form_s->show_form( ( $killflag ? -1 : 0 ), FALSE, 2 );
 	}
 
 function form_find_eleve() {
@@ -115,14 +121,14 @@ function kill_eleve( $mat ) {
 // affichage forms
 function form_add_class() {
 	global $form_c;
-	$form_c->show_form( 1 );
+	$form_c->show_form( 1, TRUE, 0 );
 	}
 
 function form_edit_class( $indix, $killflag=0 ) {
 	global $form_c;
 	$indix = (int)$indix;
 	$form_c->db2form( $this->db, $this->table_classes, $indix );
-	$form_c->show_form( $killflag ? -1 : 0 );
+	$form_c->show_form( ( $killflag ? -1 : 0 ), FALSE, 1 );
 	}
 
 // affichage listes
@@ -135,7 +141,7 @@ function show_liste_classes() {
 	foreach ($liste as $k => $v)
 		{
 		$e = isset($effectifs[$k])?$effectifs[$k]:0;
-		echo "<tr><td><a href=\"{$self}c={$k}\">{$v}</a></td><td>{$e}</td><td>",
+		echo "<tr><td><a href=\"{$self}lc={$k}\">{$v}</a></td><td>{$e}</td><td>",
 		"<a href=\"{$self}ec={$k}\"><img src=\"img/edit.png\" title=\"{$label['edit']}\"></a>",
 		// "<a href=\"{$self}kc={$mat}\"><img src=\"img/kill.png\" title=\"{$label['kill']}\"></a>",
 		"</td></tr>";
@@ -146,6 +152,7 @@ function show_liste_classes() {
 
 function show_1_classe( $classe ) {
 	global $form_s, $label;
+	$self = $_SERVER['PHP_SELF'] . '?';
 	$c = (int)$classe;
 	$sqlrequest = "SELECT `indix`, `nom` FROM `{$this->table_classes}` WHERE `indix` = {$c};";
 	$result = $this->db->conn->query( $sqlrequest );
@@ -153,13 +160,13 @@ function show_1_classe( $classe ) {
 	if	( $row = mysqli_fetch_assoc($result) )
 		$nom_classe = $row['nom'];
 	else	$nom_classe = "??";
+	echo "<h2> {$label['classe']} {$nom_classe} <a href=\"{$self}op=add1&amp;c={$classe}\"><img src=\"img/plus.png\" title=\"{$label['add1']}\"></a></h2>";
 	$sqlrequest = "SELECT `indix`, `nom`, `prenom`, `date_n` FROM `{$this->table_eleves}`" .
 			"WHERE `classe` = '$c' ORDER BY `nom`";
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
 	echo "<table><tr><td>{$form_s->itsa['indix']->desc}</td><td>{$form_s->itsa['nom']->desc}</td><td>{$form_s->itsa['prenom']->desc}</td>",
 		"<td>{$form_s->itsa['date_n']->desc}</td><td>{$form_s->itsa['classe']->desc}</td><td>Actions</td></tr>";
-	$self = $_SERVER['PHP_SELF'] . '?';
 	while	( $row = mysqli_fetch_assoc($result) )
 		{
 		$mat    = $row['indix'];

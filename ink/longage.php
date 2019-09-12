@@ -19,7 +19,7 @@ function input_date_be( $prefix, $y0, $y1, $yy, $mm, $dd ) {
 		{
 		echo "<option value=\"$y\"";
 		if	( $y == $yy )
-			echo " selected";
+			echo ' selected';
 		echo ">$y</option>";
 		}
 	echo "</select>-<select name=\"{$prefix}_m\">";
@@ -27,7 +27,7 @@ function input_date_be( $prefix, $y0, $y1, $yy, $mm, $dd ) {
 		{
 		echo "<option value=\"$m\"";
 		if	( $m == $mm )
-			echo " selected";
+			echo ' selected';
 		echo ">$monthname[$m]</option>";
 		}
 	echo "</select>-<select name=\"{$prefix}_d\">";
@@ -35,9 +35,10 @@ function input_date_be( $prefix, $y0, $y1, $yy, $mm, $dd ) {
 		{
 		echo "<option value=\"$d\"";
 		if	( $d == $dd )
-			echo " selected";
+			echo ' selected';
 		echo ">$d</option>";
 		}
+	echo '</select>';
 	}
 
 class database
@@ -91,61 +92,74 @@ function clear() {
 	foreach ($this->itsa as $k => $v)
 		$v->val = NULL;
 	}
-// option :
-//	$addflag = 1  : form vierge, bouton submit avec prefixe "add_" en vue creation d'une ligne (INSERT)
-//	$addflag = 0  : form initialisees avec valeurs lues dans $this->itsa, , bouton submit avec prefixe "mod_" en vue update
-//	$addflag = -1 : idem plus bouton submit avec prefixe "kill_" en vue suppression
-function show_form( $addflag=0 ) {
+// 3 options traitees independamment (mais conceptuellement liees ;-) :
+//	$addflag = 1  : bouton submit avec prefixe "add_" en vue creation d'une ligne (INSERT)
+//	$addflag = 0  : bouton submit avec prefixe "mod_" en vue update
+//	$addflag = -1 : bouton submit avec prefixe "kill_" en vue suppression
+//	$blankflag : tous les items sont vides, sinon form initialisees avec valeurs lues dans $this->itsa
+//	$indixflag = 0 : indix totalement omis
+//	$indixflag = 1 : indix inclus mais invisible
+//	$indixflag = 2 : indix visible
+function show_form( $addflag, $blankflag, $indixflag ) {
 	global $label;
 	echo "<form action=\"{$_SERVER['PHP_SELF']}\" method=\"POST\">\n";
+	// eventuel "hidden input" en dehors de la table
+	if	( $indixflag == 1 )
+		{
+		$laval = (int)$this->itsa['indix']->val;
+		echo "<input type=\"hidden\" name=\"indix\" id=\"indix\" value=\"{$laval}\">";
+		}
 	echo "<table>\n";
 	foreach ($this->itsa as $k => $v)
 		{
-		// traitement commun a toutes les lignes affichees
-		if	( $v->type != 'H' )	// not Hidden
+		// evaluation visibilite
+		if	( $k == 'indix' )
+			$show = ( $indixflag == 2 );
+		else	$show = ( $v->type != 'H' );
+		if	( $show )	// visible
 			{
-			echo "<tr><td class=\"ag\">$v->desc";			// description
-			echo '</td><td>';
-			if	( $addflag > 0 )				// valeur
+			// traitement commun a toutes les lignes
+			if	( $blankflag )						// valeur
 				$laval = '';
 			else	$laval = htmlspecialchars( $v->val, ENT_COMPAT, 'UTF-8', true );
-			}
-		// traitement par type
-		if	( ( $v->type == 'R' ) && ( $addflag <= 0 ) )	// Readonly (implicitement text 1 ligne)
-			echo "<input class=\"roin\" type=\"text\" name=\"$k\" id=\"$k\" readonly value=\"{$laval}\"></td>";
-		else if	( $v->type == 'T' )	// Text
-			{
-			if	( $v->topt == 1 )
-				echo "<input class=\"textin\" type=\"text\" name=\"$k\" id=\"$k\" value=\"{$laval}\"></td>";
-			else	echo "<textarea class=\"areain\" name=\"$k\" id=\"$k\" rows=\"$v->topt\" >{$laval}</textarea></td>";
-			}
-		else if	( $v->type == 'S' )	// Dropdown list, typiquement $k2 = index de l'item, $v2 = nom affichable
-			{
-			echo "<select name=\"$k\">";
-			if	( is_array( $v->topt ) )
+			echo "<tr><td class=\"ag\">$v->desc</td><td>";			// description
+			// traitement par type
+			if	( $v->type == 'R' )	// Readonly (implicitement text 1 ligne)
 				{
-				foreach ($v->topt as $k2 => $v2)
-					{
-					echo "<option value=\"$k2\"";
-					if	( $v->val == $k2 )
-						echo " selected";
-					echo ">$v2</option>";
-					}
+				echo "<input class=\"roin\" type=\"text\" name=\"$k\" id=\"$k\" readonly value=\"{$laval}\">";
 				}
-			echo "</select>";
+			else if	( $v->type == 'T' )	// Text
+				{
+				if	( $v->topt == 1 )
+					echo "<input class=\"textin\" type=\"text\" name=\"$k\" id=\"$k\" value=\"{$laval}\">";
+				else	echo "<textarea class=\"areain\" name=\"$k\" id=\"$k\" rows=\"$v->topt\" >{$laval}</textarea>";
+				}
+			else if	( $v->type == 'S' )	// Dropdown list, typiquement $k2 = index de l'item, $v2 = nom affichable
+				{
+				echo "<select name=\"$k\">";
+				if	( is_array( $v->topt ) )
+					{
+					foreach ($v->topt as $k2 => $v2)
+						{
+						echo "<option value=\"$k2\"";
+						if	( $v->val == $k2 )
+							echo " selected";
+						echo ">$v2</option>";
+						}
+					}
+				echo "</select>";
+				}
+			else if	( $v->type == 'D' )	// Date (big endian)
+				{
+				if	( $laval )	// unix time
+					$ladate = getdate( $laval );
+				else	$ladate = getdate( 946731600 );
+				$y = $ladate["year"];
+				input_date_be( 'date_n', $y-20, $y+20, $y, $ladate["mon"]-1, $ladate["mday"] );
+				}
+			echo "</td></tr>\n";
 			}
-		else if	( $v->type == 'D' )	// Date (big endian)
-			{
-			if	( $laval )	// unix time
-				$ladate = getdate( $laval );
-			else	$ladate = getdate( 946731600 );
-			$y = $ladate["year"];
-			input_date_be( 'date_n', $y-20, $y+20, $y, $ladate["mon"]-1, $ladate["mday"] );
-			}
-		if	( $v->type != 'H' )	// not Hidden
-			echo "</tr>\n";
 		}	// fin foreach
-	
 	if	( $addflag < 0 )
 		echo "<tr class=\"lastrow\"><td colspan=\"2\" class=\"ar\"><input type=\"submit\" class=\"boutkill\" name=\"",
 		     'kill_', $this->nom, "\" value=\"", $label['kill'], "\"></td></tr>\n";
@@ -239,6 +253,7 @@ function form2db_insert_full( $db, $table, $skipindix ) {
 			$sqlrequest .= "{$k} = '{$zeval}'";
 			}	
 		}
+	// echo "<p>---{$sqlrequest}---</p>";
 	$result = $db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
 	}
