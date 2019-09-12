@@ -12,8 +12,10 @@ if	( $_SESSION['lang'] == 'en' )
 else	require_once('ink/lang_fr.php');
 require_once('ink/head.php');
 
-$school = $ecole1;
+echo '<div id="main">';
+echo '<h1><button type="button" id="openbtn" onclick="openNav()">&#9776;</button>&nbsp; ', $label['header1'], '</h1>';
 
+$school = $ecole1;
 $school->db->connect();
 // traiter les commandes par GET
 if	( isset($_GET['op']) )
@@ -118,10 +120,19 @@ else if	( isset( $_POST['abt_classe'] ) )
 	echo "<p class=\"resu\">{$label['aborted']}</p>";
 	$school->show_liste_classes();
 	}
-
-
-
-
+echo "</div>\n";
+echo '<div id="sidebar"><button type="button" id="closebtn" onclick="closeNav()">&lt;&lt;</button>';
 $menu1->display();
+echo '</div>';
 ?>
+<script>
+function openNav() {
+document.getElementById("sidebar").style.width = "25%";
+document.getElementById("main").style.marginLeft = "25%";
+document.getElementById("openbtn").style.display = "none"; }
+function closeNav() {
+document.getElementById("sidebar").style.width = "0";
+document.getElementById("main").style.marginLeft= "0";
+document.getElementById("openbtn").style.display = "inline"; }
+</script>
 </body></html>

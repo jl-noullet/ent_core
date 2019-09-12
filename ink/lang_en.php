@@ -1,12 +1,12 @@
 <?php
 $self = $_SERVER['PHP_SELF'];
-$menu1->add( "$self?op=init", 'initialize the database' );
-$menu1->add( "$self?op=add500", 'add 500 random students' );
-$menu1->add( "$self?op=add1", 'add 1 student' );
-$menu1->add( "$self?op=classes", 'list classes (access to students by class)' );
-$menu1->add( "$self?op=add1c", 'add 1 class' );
-$menu1->add( "$self?op=eleve", 'find a student' );
-$menu1->add( "$self?op=lang", 'change interface language' );
+$menu1->add( "$self?op=init", 'Initialize the database' );
+$menu1->add( "$self?op=add500", 'Add 500 random students' );
+$menu1->add( "$self?op=add1", 'Add 1 student' );
+$menu1->add( "$self?op=classes", 'List classes (access to students by class)' );
+$menu1->add( "$self?op=add1c", 'Add 1 class' );
+$menu1->add( "$self?op=eleve", 'Find a student' );
+$menu1->add( "$self?op=lang", 'Change interface language' );
 
 // N.B. le premier item est particulier :
 //	son nom DOIT etre 'indix'

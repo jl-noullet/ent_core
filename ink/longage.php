@@ -280,13 +280,11 @@ function add( $turl, $tdesc ) {
 	$this->itsa[] = new menuitem( $turl, $tdesc );
 	}
 function display() {
-	echo "<ul class=\"lemenu\">\n";
 	foreach ($this->itsa as &$v) {
 		if   ( $v->url == $_SERVER['PHP_SELF'] ) 
-		     echo "<li class=\"current\"><a href=\"$v->url\">$v->desc</a></li>\n";
-		else echo "<li class=\"\"><a href=\"$v->url\">$v->desc</a></li>\n";
+		     echo "<a class=\"current\" href=\"$v->url\">$v->desc</a>\n";
+		else echo "<a href=\"$v->url\">$v->desc</a>\n";
 		}
-	echo "</ul>\n";
 	}
 }
 
