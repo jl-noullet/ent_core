@@ -56,16 +56,16 @@ function form_add_eleve( $class=0 ) {
 		{
 		$form_s->clear();
 		$form_s->itsa['classe']->val = $class;
-		$form_s->show_form( 1, FALSE, 0 );
+		$form_s->show_form( 'add', FALSE, 0 );
 		}
-	else	$form_s->show_form( 1, TRUE, 0 );
+	else	$form_s->show_form( 'add', TRUE, 0 );
 	}
 
 function form_edit_eleve( $indix, $killflag=0 ) {
 	global $form_s;
 	$indix = (int)$indix;
 	$form_s->db2form( $this->db, $this->table_eleves, $indix );
-	$form_s->show_form( ( $killflag ? -1 : 0 ), FALSE, 2 );
+	$form_s->show_form( ( $killflag ? 'kill' : 'mod' ), FALSE, 2 );
 	}
 
 function form_find_eleve() {
@@ -74,7 +74,7 @@ function form_find_eleve() {
 	echo "<table>\n";
 	echo "<tr><td class=\"ag\">{$label['lastname']}</td><td><input class=\"textin\" type=\"text\" name=\"nom\" id=\"nom\" value=\"\"></td></tr>\n";
 	echo "<tr><td class=\"ag\">{$label['orfirstname']}</td><td><input class=\"textin\" type=\"text\" name=\"prenom\" id=\"prenom\" value=\"\"></td></tr>\n";
-	echo "<tr class=\"lastrow\"><td colspan=\"2\" class=\"ar\"><input type=\"submit\" class=\"boutfini\" name=\"find_eleve\" value=\"{$label['find']}\"></td></tr>\n";
+	echo "<tr class=\"lastrow\"><td colspan=\"2\" class=\"ar\"><input type=\"submit\" class=\"boutfind\" name=\"eleve_find\" value=\"{$label['find']}\"></td></tr>\n";
 	echo "</table>\n";
 	echo "</form>";
 	}
@@ -121,14 +121,14 @@ function kill_eleve( $mat ) {
 // affichage forms
 function form_add_class() {
 	global $form_c;
-	$form_c->show_form( 1, TRUE, 0 );
+	$form_c->show_form( 'add', TRUE, 0 );
 	}
 
 function form_edit_class( $indix, $killflag=0 ) {
 	global $form_c;
 	$indix = (int)$indix;
 	$form_c->db2form( $this->db, $this->table_classes, $indix );
-	$form_c->show_form( ( $killflag ? -1 : 0 ), FALSE, 1 );
+	$form_c->show_form( ( $killflag ? 'kill' : 'mod' ), FALSE, 1 );
 	}
 
 // affichage listes

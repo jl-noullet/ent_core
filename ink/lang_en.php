@@ -25,10 +25,11 @@ $form_c->add( 'nom', 'Name', 'T', 1 );
 $label['title'] = 'Digital Workplace Prototype';	// Virtual Learning Environment ?
 $label['header1'] = 'Experimental Digital Workplace';
 // boutons
-$label['save'] = ' Ok ';
-$label['kill'] = 'Remove';
+$label['mod']   = ' Ok ';
+$label['add']   = ' Add ';
+$label['kill']  = 'Remove';
+$label['find']  = 'Find';
 $label['abort'] = 'Return';
-$label['find'] = 'Find';
 $label['edit'] = 'Edit';
 $label['add1'] = 'Add a student';
 // labels

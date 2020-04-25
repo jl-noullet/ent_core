@@ -25,10 +25,11 @@ $form_c->add( 'nom', 'Nom', 'T', 1 );
 $label['title'] = 'ENT prototype';
 $label['header1'] = 'ENT Expérimental';
 // boutons
-$label['save'] = ' Ok ';
-$label['kill'] = 'Supprimer';
+$label['mod']   = ' Ok ';
+$label['add']   = 'Ajouter';
+$label['kill']  = 'Supprimer';
+$label['find']  = 'Chercher';
 $label['abort'] = 'Retour';
-$label['find'] = 'Chercher';
 $label['edit'] = 'Modifier';
 $label['add1'] = 'Ajouter un élève';
 // labels

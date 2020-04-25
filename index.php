@@ -67,29 +67,29 @@ else if	( isset($_GET['ks']) )
 
 // traiter les retours de formulaire POST
 // POSTS relatifs a l'objet eleve
-else if	( isset( $_POST['add_eleve'] ) )
+else if	( isset( $_POST['eleve_add'] ) )
 	{
 	$form_s->post2form_full( TRUE );
 	$form_s->form2db_insert_full( $school->db, $school->table_eleves, TRUE );
 	echo "<p class=\"resu\">{$label['added']}</p>";
 	$school->show_1_classe($_POST['classe']);
 	}
-else if	( isset( $_POST['mod_eleve'] ) || isset( $_POST['kill_eleve'] ) )
+else if	( isset( $_POST['eleve_mod'] ) || isset( $_POST['eleve_kill'] ) )
 	{
 	$form_s->post2form_full( FALSE );
-	if	( isset( $_POST['kill_eleve'] ) )
+	if	( isset( $_POST['eleve_kill'] ) )
 		$school->kill_eleve($_POST['indix']);
 	else	$form_s->form2db_update_full( $school->db, $school->table_eleves );
 	echo "<p class=\"resu\">{$label['moded']}</p>";
 	$school->show_1_classe($_POST['classe']);
 	}
-else if	( isset( $_POST['abt_eleve'] ) )
+else if	( isset( $_POST['eleve_abt'] ) )
 	{
 	echo "<p class=\"resu\">{$label['aborted']}</p>";
 	if	( isset( $_POST['classe'] ) )
 		$school->show_1_classe($_POST['classe']);
 	}
-else if	( isset( $_POST['find_eleve'] ) )
+else if	( isset( $_POST['eleve_find'] ) )
 	{
 	if	(
 		( isset( $_POST['nom'] ) ) &&
@@ -98,14 +98,14 @@ else if	( isset( $_POST['find_eleve'] ) )
 		$school->show_found_eleves( $_POST['nom'], $_POST['prenom'] );
 	}
 // POSTS relatifs a l'objet classe
-else if	( isset( $_POST['add_classe'] ) )
+else if	( isset( $_POST['classe_add'] ) )
 	{
 	$form_c->post2form_full( TRUE );
 	$form_c->form2db_insert_full( $school->db, $school->table_classes, TRUE );
 	echo "<p class=\"resu\">{$label['added']}</p>";
 	$school->show_liste_classes();
 	}
-else if	( isset( $_POST['mod_classe'] ) )
+else if	( isset( $_POST['classe_mod'] ) )
 	{
 	$form_c->post2form_full( FALSE );
 	//if	( isset( $_POST['kill_classe'] ) )
@@ -115,7 +115,7 @@ else if	( isset( $_POST['mod_classe'] ) )
 	echo "<p class=\"resu\">{$label['moded']}</p>";
 	$school->show_liste_classes();
 	}
-else if	( isset( $_POST['abt_classe'] ) )
+else if	( isset( $_POST['classe_abt'] ) )
 	{
 	echo "<p class=\"resu\">{$label['aborted']}</p>";
 	$school->show_liste_classes();

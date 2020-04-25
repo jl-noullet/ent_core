@@ -92,15 +92,18 @@ function clear() {
 	foreach ($this->itsa as $k => $v)
 		$v->val = NULL;
 	}
-// 3 options traitees independamment (mais conceptuellement liees ;-) :
-//	$addflag = 1  : bouton submit avec prefixe "add_" en vue creation d'une ligne (INSERT)
-//	$addflag = 0  : bouton submit avec prefixe "mod_" en vue update
-//	$addflag = -1 : bouton submit avec prefixe "kill_" en vue suppression
+// 3 options traitees independamment :
+//	$opcode : va servir de suffixe pour le 'name' du bouton submit principal, et pour
+//	le nom de classe CSS du bouton, et d'index dans $label[] pour la 'value' du bouton
+//	(exemples : "add", "mod", "kill")
+//	N.B. le second bouton est cree automatiquement avec l'opcode "abort"
+//	N.B. l'index d'entree dans $_POST[] sera le 'name' du bouton, constitue du nom de la form
+//	     suivi d'un '_' et de l'opcode, la 'value' du bouton est juste pour display 
 //	$blankflag : tous les items sont vides, sinon form initialisees avec valeurs lues dans $this->itsa
 //	$indixflag = 0 : indix totalement omis
 //	$indixflag = 1 : indix inclus mais invisible
 //	$indixflag = 2 : indix visible
-function show_form( $addflag, $blankflag, $indixflag ) {
+function show_form( $opcode, $blankflag, $indixflag ) {
 	global $label;
 	echo "<form action=\"{$_SERVER['PHP_SELF']}\" method=\"POST\">\n";
 	// eventuel "hidden input" en dehors de la table
@@ -160,13 +163,10 @@ function show_form( $addflag, $blankflag, $indixflag ) {
 			echo "</td></tr>\n";
 			}
 		}	// fin foreach
-	if	( $addflag < 0 )
-		echo "<tr class=\"lastrow\"><td colspan=\"2\" class=\"ar\"><input type=\"submit\" class=\"boutkill\" name=\"",
-		     'kill_', $this->nom, "\" value=\"", $label['kill'], "\"></td></tr>\n";
-	else	echo "<tr class=\"lastrow\"><td colspan=\"2\" class=\"ar\"><input type=\"submit\" class=\"boutfini\" name=\"",
-		     ( $addflag > 0 ) ? 'add_' : 'mod_', $this->nom, "\" value=\"", $label['save'], "\"></td></tr>\n";
-	echo "<tr class=\"lastrow\"><td colspan=\"2\" class=\"ar\"><input type=\"submit\" class=\"boutabt\" name=\"",
-		     'abt_', $this->nom, "\" value=\"", $label['abort'], "\"></td></tr>\n";
+	echo '<tr class="lastrow"><td colspan="2" class="ar"><input type="submit" class="bout', $opcode,
+	     '" name="', $this->nom, '_', $opcode, '" value="', $label[$opcode], "\"></td></tr>\n";
+	echo '<tr class="lastrow"><td colspan="2" class="ar"><input type="submit" class="boutabt',
+	     '" name="', $this->nom, '_abt',       '" value="', $label['abort'], "\"></td></tr>\n";
 	echo "</table>\n";
 	echo "</form>";
 	}
