@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once('ink/longage.php');
-require_once('ink/school.php');
 require_once('ink/def.php');
 if	( !isset($_SESSION['lang']) )
 	$_SESSION['lang']='fr';
@@ -10,10 +9,18 @@ if	( ( isset($_GET['op']) ) && ( $_GET['op'] == 'lang' ) )
 if	( $_SESSION['lang'] == 'en' )
 	require_once('ink/lang_en.php');
 else	require_once('ink/lang_fr.php');
+require_once('ink/school.php');
 require_once('ink/head.php');
 
 echo '<div id="main">';
 echo '<h1><button type="button" id="openbtn" onclick="openNav()">&#9776;</button>&nbsp; ', $label['header1'], '</h1>';
+
+$ecole1 = new school;
+$ecole1->db = $db1;
+$ecole1->table_eleves = 'ENT_S1_eleves';
+$ecole1->table_classes = 'ENT_S1_classes';
+// $ecole1->table_activites = 'ENT_S1_activites';
+// $ecole1->table_events = 'ENT_S1_events';
 
 $school = $ecole1;
 $school->db->connect();

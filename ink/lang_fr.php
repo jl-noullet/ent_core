@@ -12,14 +12,15 @@ $menu1->add( "$self?op=lang", 'Changer la langue de l\'interface' );
 //	son nom DOIT etre 'indix'
 //	il n'est pas editable (R ou H)
 //	il est int et PRIMARY KEY
-$form_s->add( 'indix', 'Matricule', 'R', 1 );
-$form_s->add( 'nom', 'Nom', 'T', 1 );
-$form_s->add( 'prenom', 'Prénom', 'T', 1 );
-$form_s->add( 'classe', "Classe", 'S', array() );
-$form_s->add( 'date_n', 'Date de Naissance', 'D', 1 );
 
-$form_c->add( 'indix', 'Index', 'R', 1 );
-$form_c->add( 'nom', 'Nom', 'T', 1 );
+$form_s->add( 'indix', 'Matricule', 'R' );
+$form_s->add( 'nom', 'Nom', 'T', 1, true );
+$form_s->add( 'prenom', 'Prénom', 'T' );
+$form_s->add( 'classe', "Classe", 'S', array(), true );
+$form_s->add( 'date_n', 'Date de Naissance', 'D' );
+
+$form_c->add( 'indix', 'Index', 'R' );
+$form_c->add( 'nom', 'Nom', 'T', 1, true );
 
 // titres
 $label['title'] = 'ENT prototype';

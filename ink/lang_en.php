@@ -12,14 +12,14 @@ $menu1->add( "$self?op=lang", 'Change interface language' );
 //	son nom DOIT etre 'indix'
 //	il n'est pas editable (R ou H)
 //	il est int et PRIMARY KEY
-$form_s->add( 'indix', 'Id #', 'R', 1 );
-$form_s->add( 'nom', 'Name', 'T', 1 );
-$form_s->add( 'prenom', 'First Name', 'T', 1 );
-$form_s->add( 'classe', "Class", 'S', array() );
-$form_s->add( 'date_n', 'Birth Date', 'D', 1 );
+$form_s->add( 'indix', 'Id #', 'R' );
+$form_s->add( 'nom', 'Name', 'T', 1, true );
+$form_s->add( 'prenom', 'First Name', 'T' );
+$form_s->add( 'classe', "Class", 'S', array(), true );
+$form_s->add( 'date_n', 'Birth Date', 'D' );
 
-$form_c->add( 'indix', 'Index', 'R', 1 );
-$form_c->add( 'nom', 'Name', 'T', 1 );
+$form_c->add( 'indix', 'Index', 'R' );
+$form_c->add( 'nom', 'Name', 'T', 1, true );
 
 // titres
 $label['title'] = 'Digital Workplace Prototype';	// Virtual Learning Environment ?

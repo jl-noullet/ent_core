@@ -8,6 +8,7 @@ public $table_classes;
 
 // cree toutes les tables d'une school de base
 function create_tables() {
+/*
 	$sqlrequest = "DROP TABLE IF EXISTS `{$this->table_eleves}`";
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
@@ -18,6 +19,13 @@ function create_tables() {
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
 
+	echo "<p>flat $sqlrequest</p>\n";
+*/
+
+	global $form_s;
+	$form_s->mk_table( $this->db, $this->table_eleves, true );
+
+/*
 	$sqlrequest = "DROP TABLE IF EXISTS `{$this->table_classes}`";
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
@@ -28,6 +36,13 @@ function create_tables() {
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
 
+	echo "<p>flat $sqlrequest</p>\n";
+*/
+
+	global $form_c;
+	$form_c->mk_table( $this->db, $this->table_classes, true );
+
+/*
 	$sqlrequest = "DROP TABLE IF EXISTS `{$this->table_activites}`";
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
@@ -47,7 +62,10 @@ function create_tables() {
 		ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";  
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+*/
 	}
+
+
 // // // objet eleve // // //
 // affichage forms
 function form_add_eleve( $class=0 ) {

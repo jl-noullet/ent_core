@@ -66,13 +66,15 @@ class formit
 public $desc;
 public $type='T'; 	//  Text, Link, Check, Image, Document, Readonly, Hidden
 public $topt=1;
+public $indexflag=false;
 public $val;
 public $check;		// 0 = unchecked, -1 = err, 1 = checked ok
 
-function __construct( $tdesc, $ttype, $ttopt ) {
+function __construct( $tdesc, $ttype, $ttopt, $tindexflag ) {
 	$this->desc = $tdesc;	// nom long, avec accents, espaces etc
 	$this->type = $ttype;	// type pour longage
 	$this->topt = $ttopt;	// option specifique du type
+	$this->indexflag = $tindexflag;	// flag pour index
 	$this->check = 0;
 	}
 }
@@ -84,8 +86,8 @@ public $uploadpath;	// pour les fichiers de donnees
 public $checkreport;
 // fonction pour creer un item (normalement appelee dans def.php) 
 // $tid est la clef qui va servir a indexer le formit - cela peut et doit etre un nom court
-function add( $tid, $tdesc, $ttype, $ttopt ) {
-	$this->itsa[$tid] = new formit( $tdesc, $ttype, $ttopt );
+function add( $tid, $tdesc, $ttype, $ttopt=1, $tindexflag=false ) {
+	$this->itsa[$tid] = new formit( $tdesc, $ttype, $ttopt, $tindexflag );
 	}
 // effacer les valeurs
 function clear() {
@@ -254,6 +256,47 @@ function form2db_insert_full( $db, $table, $skipindix ) {
 			}	
 		}
 	// echo "<p>---{$sqlrequest}---</p>";
+	$result = $db->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
+	}
+
+// creer la table pour une form
+function mk_table( $db, $table, $dropflag ) {
+	if	( $dropflag )
+		{
+		$sqlrequest = "DROP TABLE IF EXISTS `{$table}`";
+		$result = $db->conn->query( $sqlrequest );
+		if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
+		}
+	$sqlrequest = "CREATE TABLE `{$table}` ( ";
+	foreach ($this->itsa as $k => $v) {		// noms et type SQL des colonnes
+		$colu = "`$k` ";
+		if	( $k == 'indix' )
+			$colu .= 'INT NOT NULL AUTO_INCREMENT';
+		else if	( $v->type == 'S' )
+			$colu .= 'VARCHAR(32)';
+		else if	( $v->type == 'D' )
+			$colu .= 'BIGINT';
+		else	{	// types texte : 'T', 'R', 'H'
+			if	( $v->topt == 1 )
+				$colu .= 'VARCHAR(128)';
+			else	$colu .= 'TEXT';
+			}
+		$colu .= ', ';
+		$sqlrequest .= $colu;
+		}  // foreach
+	$sqlrequest .= 'PRIMARY KEY (`indix`)';		// pas de virgule ici, cela pourrait etre la fin
+	foreach ($this->itsa as $k => $v) {		// indexes optionnels
+		if	( $v->indexflag )
+			{
+			$sqlrequest .= ', ';	// maniere d'eviter une virgule a la fin
+			$sqlrequest .= "INDEX(`{$k}`)";
+			}
+		}  // foreach
+	$sqlrequest .= ' ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;';
+	// CHARSET case-sensitive : utf8mb4_bin
+	// CHARSET case-insensitive : utf8mb4_general_ci, utf8mb4_unicode_ci
+	echo "<p>$sqlrequest</p>\n";
 	$result = $db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
 	}
