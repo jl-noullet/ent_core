@@ -18,7 +18,7 @@ $liste_3imacs = array(
 'Doly Joffrey',
 'Doutriaux Eliott',
 'Dumas-Grollier Solene',
-'Edinson Marina',
+'Marina Edinso',
 'Edouaa Mohamed',
 'El Hachimi Asmae',
 'El Hammoumi El Mehdi',

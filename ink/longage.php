@@ -12,6 +12,7 @@ function mostra_fatal( $tbuf ) {
 	exit();
 	}
 
+// be comme big-endian je suppose
 function input_date_be( $prefix, $y0, $y1, $yy, $mm, $dd ) {
 	global $monthname;
 	echo "<select name=\"{$prefix}_y\">";
@@ -94,6 +95,8 @@ function clear() {
 	foreach ($this->itsa as $k => $v)
 		$v->val = NULL;
 	}
+
+// show_form(): affiche l'objet form sous forme de form HTML editable, compatible avec post2form_full()
 // 3 options traitees independamment :
 //	$opcode : va servir de suffixe pour le 'name' du bouton submit principal, et pour
 //	le nom de classe CSS du bouton, et d'index dans $label[] pour la 'value' du bouton
@@ -172,6 +175,93 @@ function show_form( $opcode, $blankflag, $indixflag ) {
 	echo "</table>\n";
 	echo "</form>";
 	}
+
+// form2tr(): affiche l'objet form sous forme de ligne de table HTML
+//	$boutflag commande l'affichage de boutons edit (poids 1) et kill (poids 2)
+//	Le bit de poids 4 permet de supprimer le </tr> a la fin, pour ajouter des boutons custom
+//	les boutons engendrent des <a> avec ?op=nomform_edit&ind=xx ou ?op=nomform_kill&ind=xx
+//	$indixflag = 0 : indix totalement omis
+//	$indixflag = 2 : indix visible
+//	$maxlen : limite de longueur pour les textes
+function form2tr( $indixflag, $boutflag, $maxlen ) {
+	echo '<tr>';
+	foreach ($this->itsa as $k => $v)
+		{
+		// evaluation visibilite
+		if	( $k == 'indix' )
+			$show = ( $indixflag == 2 );
+		else	$show = ( $v->type != 'H' );
+		if	( $show )	// visible
+			{
+			// traitement commun a toutes les lignes
+			echo '<td>';
+			// traitement par type
+			if	(
+				( $v->type == 'R' ) ||	// Readonly (implicitement text 1 ligne)
+				( $v->type == 'T' )	// Text
+				)
+				{
+				$laval = htmlspecialchars( $v->val, ENT_COMPAT, 'UTF-8', true );
+				if	( strlen($laval) > $maxlen )
+					$laval = substr( $laval, 0, ($maxlen-3) ) . '...';
+				echo $laval;
+				}
+			else if	( $v->type == 'S' )	// Dropdown list, $v->val = index de l'item dans $v->topt
+				{
+				if	( is_array( $v->topt ) )
+					{
+					$laval = htmlspecialchars( $v->topt[$v->val], ENT_COMPAT, 'UTF-8', true );
+					echo $laval;
+					}
+				}
+			else if	( $v->type == 'D' )	// Date (big endian)
+				{
+				$laval = date( 'Y-m-d', $v->val );
+				echo $laval;
+				}
+			echo '</td>';
+			}
+		}	// fin foreach
+	if	( $boutflag & 3 )
+		{
+		global $label;
+		echo '<td>';
+		$indix = $this->itsa['indix']->val;
+		if	( $boutflag & 1 )
+			echo "<a href=\"{$_SERVER['PHP_SELF']}?op={$this->nom}_edit&ind={$indix}\"><img src=\"img/edit.png\" title=\"{$label['edit']}\"></a> ";
+			//echo '<a href="', $_SERVER['PHP_SELF'], '?op=', $this->nom, '_edit&ind=', $indix, '"><img src="img/edit.png" title="', $label['edit'], '"></a> ';
+		if	( $boutflag & 2 )
+			echo "<a href=\"{$_SERVER['PHP_SELF']}?op={$this->nom}_kill&ind={$indix}\"><img src=\"img/kill.png\" title=\"{$label['kill']}\"></a>";
+		echo '</td>';
+		}
+	if	( ( $boutflag & 4 ) == 0 )
+		echo "</tr>\n";
+	}
+
+// form2th(): affiche une ligne de header de table HTML pour servir avant form2tr()
+//	$boutflag commande l'affichage de boutons edit et kill
+//	$indixflag = 0 : indix totalement omis
+//	$indixflag = 2 : indix visible
+function form2th( $indixflag, $boutflag ) {
+	global $label;
+	echo '<tr>';
+	foreach ($this->itsa as $k => $v)
+		{
+		// evaluation visibilite
+		if	( $k == 'indix' )
+			$show = ( $indixflag == 2 );
+		else	$show = ( $v->type != 'H' );
+		if	( $show )	// visible
+			{
+			echo "<td>$v->desc</td>";	// description
+			}
+		}	// fin foreach
+	if	( $boutflag & 3 )
+		echo "<th>Actions</th>";
+	if	( ( $boutflag & 4 ) == 0 )
+		echo "</tr>\n";
+	}
+
 // lire les valeurs d'une ligne de la BD, les copier dans la form
 function db2form( $db, $table, $indix ) {
 	$sqlrequest = "SELECT * FROM `{$table}` WHERE `indix` = '{$indix}';";

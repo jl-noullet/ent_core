@@ -32,6 +32,22 @@ function kill_binome( $indix ) {
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
 	}
+
+// affichage liste
+function list_binomes() {
+	global $form_bi;
+	$sqlrequest = "SELECT `indix` FROM `{$this->table_binomes}`"; // . "WHERE `groupe` = '$g'";
+	$result = $this->db->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+	echo "<table>\n";
+	$form_bi->form2th( 2, 3 );
+	while	( $row = mysqli_fetch_assoc($result) )
+		{
+		$form_bi->db2form( $this->db, $this->table_binomes, $row['indix'] );
+		$form_bi->form2tr( 2, 3, 30 );
+		}
+	echo '</table>';
+	}
 } // class boodle
 
 ?>

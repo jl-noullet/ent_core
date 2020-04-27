@@ -19,18 +19,26 @@ if  	( !isset( $_SESSION['usuario'] ) )
 if  	( !isset($_SESSION['usuario']) )
 	mostra_fatal('access denied');
 
-require_once('ink/liste_3imacs.php');
-
+/*
 $imacs = new boodle;
 $imacs->db = $db1;
 $imacs->table_binomes = 'BOO_IMACS_binomes';
+require_once('ink/liste_3imacs.php');	// va creer un array $liste_3imacs
 $imacs->liste_eleves = $liste_3imacs;
+$boodle = $imacs;
+*/
+
+$mic = new boodle;
+$mic->db = $db1;
+$mic->table_binomes = 'BOO_MIC_binomes';
+require_once('ink/liste_3mic.php');	// va creer un array $liste_3mic
+$mic->liste_eleves = $liste_3mic;
+$boodle = $mic;
 
 
 echo '<div id="main">';
 echo '<h1><button type="button" id="openbtn" onclick="openNav()">&#9776;</button>&nbsp; ', $label['header1'], '</h1>';
 
-$boodle = $imacs;
 $form_bi->itsa['eleve1']->topt = $boodle->liste_eleves;
 $form_bi->itsa['eleve2']->topt = $boodle->liste_eleves;
 $form_bi->itsa['eleve3']->topt = $boodle->liste_eleves;
@@ -44,9 +52,21 @@ if	( isset($_GET['op']) )
 		$boodle->create_tables();
 		echo "<p class=\"resu\">{$label['moded']}</p>";
 		}
-	else if	( $_GET['op'] == 'addbin' )
+	else if	( $_GET['op'] == 'binome_add' )
 		{
 		$boodle->form_add_binome();
+		}
+	else if	( $_GET['op'] == 'binome_edit' )
+		{
+		$boodle->form_edit_binome( $_GET['ind'], false );
+		}
+	else if	( $_GET['op'] == 'binome_kill' )
+		{
+		$boodle->form_edit_binome( $_GET['ind'], true );
+		}
+	else if	( $_GET['op'] == 'binome_list' )
+		{
+		$boodle->list_binomes();
 		}
 	else if	( $_GET['op'] == 'logout' )
 		{
@@ -62,7 +82,21 @@ else if	( isset( $_POST['binome_add'] ) )
 	$form_bi->post2form_full( TRUE );
 	$form_bi->form2db_insert_full( $boodle->db, $boodle->table_binomes, TRUE );
 	echo "<p class=\"resu\">{$label['added']}</p>";
-	// $school->show_1_classe($_POST['classe']);
+	$boodle->list_binomes();
+	}
+else if	( isset( $_POST['binome_mod'] ) )
+	{
+	$form_bi->post2form_full( FALSE );
+	$form_bi->form2db_update_full( $boodle->db, $boodle->table_binomes );
+	echo "<p class=\"resu\">{$label['moded']}</p>";
+	$boodle->list_binomes();
+	}
+else if	( isset( $_POST['binome_kill'] ) )
+	{
+	if	( isset( $_POST['indix'] ) )
+		$boodle->kill_binome( $_POST['indix'] );
+	echo "<p class=\"resu\">{$label['moded']}</p>";
+	$boodle->list_binomes();
 	}
 else if	( isset( $_POST['binome_abt'] ) )
 	{

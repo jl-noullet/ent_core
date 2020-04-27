@@ -17,8 +17,8 @@ $form_bi->add( 'groupe', 'GROUPE', 'S', array( 'C', 'D', 'E' ), true );
 $menu1 = new menu;
 $self = $_SERVER['PHP_SELF'];
 $menu1->add( "$self?op=init", 'Initialiser la base de données' );
-$menu1->add( "$self?op=addbin", 'Ajouter un binome' );
-$menu1->add( "$self?op=edbin", 'Editer liste des binomes' );
+$menu1->add( "$self?op=binome_add", 'Ajouter un binome' );
+$menu1->add( "$self?op=binome_list", 'Editer liste des binomes' );
 $menu1->add( "$self?op=logout", 'Logout' );
 
 $label = array();
@@ -28,6 +28,9 @@ $label['add']   = 'Ajouter';
 $label['kill']  = 'Supprimer';
 $label['find']  = 'Chercher';
 $label['abort'] = 'Retour';
+$label['edit']  = 'Modifier';
+$label['select'] = 'Choisir';
+
 // messages de completion
 $label['added'] = 'ajout effectué';
 $label['moded'] = 'modification effectuée';
