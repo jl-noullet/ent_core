@@ -319,7 +319,7 @@ function form2db_update_full( $db, $table ) {
 			$sqlrequest .= "{$k} = '{$zeval}'";
 			}	
 		}
-	$sqlrequest .= "WHERE `indix` = {$i}";
+	$sqlrequest .= " WHERE `indix` = {$i}";
 	// echo "<p>---{$sqlrequest}---</p>";
 	$result = $db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
@@ -370,6 +370,9 @@ function form2db_insert_full( $db, $table, $skipindix ) {
 	}
 
 // creer la table pour une form
+/*
+0123456789----------0123456789----------0123456789----------0123456789-----80-->0123456789----100-->0123456789----120-->
+*/
 function mk_table( $db, $table, $dropflag, $autoflag=true ) {
 	if	( $dropflag )
 		{

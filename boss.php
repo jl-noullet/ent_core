@@ -2,6 +2,7 @@
 session_start();
 
 require_once('ink/longage.php');
+require_once('ink/db.php');
 require_once('ink/def.php');
 require_once('ink/boodle.php');
 require_once('ink/boodladm.php');
@@ -9,45 +10,41 @@ require_once('ink/head.php');
 
 // zone de login rudimentaire pour dev.
 
-if  	( !isset( $_SESSION['usuario'] ) )
+if  	( !isset($_SESSION['cacique']) )
 	{	// traiter login
-	if	( isset( $_GET['login'] ) )
+	if	( ( isset( $_REQUEST['id_1136'] ) ) && ( isset( $_REQUEST['id_1137'] ) ) )
 		{
-		$_SESSION['usuario'] = $_GET['login'];
+		if	( $_REQUEST['id_1137'] == 'risc' )
+			{
+			if	( $_REQUEST['id_1136'] == 'harward' )
+				$_SESSION['cacique'] = $_REQUEST['id_1136'];
+			}
 		}
 	}
 
-if  	( !isset( $_SESSION['usuario'] ) )
-	mostra_fatal('access denied');
+if  	( !isset($_SESSION['cacique']) )
+	{	// proposer login
+	$self = $_SERVER['PHP_SELF'];
+	echo "<form method=\"post\" action=\"{$self}\">"
+	?>
+	<table class="login"><tr><td>login :</td><td><input size="30" name="id_1136" type="text"></td></tr>
+	<tr><td>mot de passe :</td><td><input size="30" name="id_1137" type="password"></td></tr>
+	</table>
+	<input value="Go!" size="20" type="submit">
+	</form></body></html>
+	<?php
+	exit();
+	}
 
 $menua = new menu;
 $menua->add( "$self?op=init", 'Initialiser la base de données' );
 $menua->add( "$self?op=binome_add", 'Ajouter un binome' );
 $menua->add( "$self?op=binome_list_k", 'Editer liste des binomes' );
-$menua->add( "$self?op=exp1_edit", 'Formulaire expérience 1' );
+$menua->add( "$self?op=login_list", 'Editer liste des logins' );
 $menua->add( "$self?op=logout", 'Logout' );
 
-
-/*
-$imacs = new boodladm;
-$imacs->db = $db1;
-$imacs->table_logins  = 'BOO_IMACS_logins';
-$imacs->table_binomes = 'BOO_IMACS_binomes';
-$imacs->table_exp1    = 'BOO_IMACS_exp1';
-require_once('ink/liste_3imacs.php');	// va creer un array $liste_3imacs
-$imacs->liste_eleves = $liste_3imacs;
-$boodle = $imacs;
-*/
-
-$mic = new boodladm;
-$mic->db = $db1;
-$mic->table_logins  = 'BOO_MIC_logins';
-$mic->table_binomes = 'BOO_MIC_binomes';
-$mic->table_exp1    = 'BOO_MIC_exp1';
-require_once('ink/liste_3mic.php');	// va creer un array $liste_3mic
-$mic->liste_eleves = $liste_3mic;
-$boodle = $mic;
-
+$boodle = new boodladm;
+$boodle->init( 'mic' );
 
 echo '<div id="main">';
 echo '<h1><button type="button" id="openbtn" onclick="openNav()">&#9776;</button>&nbsp; ', $label['header1'], '</h1>';
@@ -73,20 +70,31 @@ if	( isset($_GET['op']) )
 		}
 	else if	( $_GET['op'] == 'binome_edit' )
 		{
-		$boodle->form_edit_binome( $_GET['ind'], false );
+		$boodle->form_edit_binome( $_GET['ind'], FALSE );
 		}
 	else if	( $_GET['op'] == 'binome_kill' )
 		{
-		$boodle->form_edit_binome( $_GET['ind'], true );
+		$boodle->form_edit_binome( $_GET['ind'], TRUE );
 		}
 	else if	( $_GET['op'] == 'binome_list_k' )
 		{
 		$boodle->list_binomes( true );
 		}
+	else if	( $_GET['op'] == 'login_list' )
+		{
+		$boodle->list_logins();
+		}
+	else if	( $_GET['op'] == 'login_kill' )
+		{
+		if	( isset($_GET['confirmed']) )
+			$boodle->kill_login( $_GET['ind'], TRUE );
+		else	$boodle->kill_login( $_GET['ind'], FALSE );
+		}
 	else if	( $_GET['op'] == 'logout' )
 		{
 		session_unset();
-		echo "<p class=\"resu\">Bye Bye</p>";
+		echo "<p class=\"resu\">Bye Bye</p></body></html>";
+		exit();
 		}
 	}
 

@@ -1,5 +1,5 @@
 <?php
-$liste_3mic = array(
+$liste_3 = array(
 '--',
 'Afonso Perrine',
 'Ahamdy Jdihadi',

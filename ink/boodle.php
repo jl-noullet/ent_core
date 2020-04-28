@@ -5,10 +5,19 @@ class boodle
 public $db;
 public $table_binomes;
 public $table_logins;
-public $table_exp1;
+public $table_exp;
 public $liste_eleves;
 
-
+function init( $po ) {
+	global $db1;
+	$this->db = $db1;
+	$this->table_logins  = "boo_{$po}_logins";
+	$this->table_binomes = "boo_{$po}_binomes";
+	for	( $i = 1; $i <= 5; $i++ )
+		$this->table_exp[$i]  = "boo_{$po}_exp{$i}";
+	require_once("ink/liste_3{$po}.php");	// va creer un array $liste_3
+	$this->liste_eleves = $liste_3;
+	}
 // // // objet login // // //
 
 // rend l'index du binome ou -1 si pas trouve
@@ -46,15 +55,26 @@ function form_edit_binome( $indix, $killflag=0 ) {
 // affichage liste
 function list_binomes( $killable=false ) {
 	global $form_bi;
-	$sqlrequest = "SELECT `indix` FROM `{$this->table_binomes}`"; // . "WHERE `groupe` = '$g'";
+	$sqlrequest = "SELECT `indix` FROM `{$this->table_binomes}`"; // . " WHERE `groupe` = '$g'";
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
 	echo "<table>\n";
-	$form_bi->form2th( 2, 3 );
-	while	( $row = mysqli_fetch_assoc($result) )
+	if	( $killable )
 		{
-		$form_bi->db2form( $this->db, $this->table_binomes, $row['indix'] );
-		$form_bi->form2tr( 2, ($killable?3:1), 30 );
+		$form_bi->form2th( 2, 3 );
+		while	( $row = mysqli_fetch_assoc($result) )
+			{
+			$form_bi->db2form( $this->db, $this->table_binomes, $row['indix'] );
+			$form_bi->form2tr( 2, 3, 30 );
+			}
+		}
+	else	{
+		$form_bi->form2th( 0, 3 );
+		while	( $row = mysqli_fetch_assoc($result) )
+			{
+			$form_bi->db2form( $this->db, $this->table_binomes, $row['indix'] );
+			$form_bi->form2tr( 0, 1, 30 );
+			}
 		}
 	echo '</table>';
 	}
@@ -77,15 +97,29 @@ function list_1binome( $binome ) {
 
 // objet experience
 function exp_edit( $expid, $binome ) {
-	global $form1;
-	$latable = $this->table_exp1;
-	$laform = $form1;
+	global $formexp;
+	$latable = $this->table_exp[$expid];
+	$laform = $formexp[$expid];
 	if	( $laform->db2form( $this->db, $latable, $binome ) )
 		$laform->show_form( 'mod', FALSE, 1 );
 	else	{
 		$laform->itsa['indix']->val = $binome;
 		$laform->show_form( 'add', TRUE, 1 );
 		}
+	}
+
+function exp_insert( $expid ) {
+	global $formexp; global $label;
+	$formexp[$expid]->post2form_full( FALSE );
+	$formexp[$expid]->form2db_insert_full( $this->db, $this->table_exp[$expid], FALSE );
+	echo "<p class=\"resu\">{$label['added']}</p>";
+	}
+
+function exp_mod( $expid ) {
+	global $formexp; global $label; 
+	$formexp[$expid]->post2form_full( FALSE );
+	$formexp[$expid]->form2db_update_full( $this->db, $this->table_exp[$expid] );
+	echo "<p class=\"resu\">{$label['moded']}</p>";
 	}
 
 } // class boodle

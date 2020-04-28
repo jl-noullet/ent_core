@@ -19,8 +19,9 @@ function create_tables() {
 	global $form_bi;
 	$form_bi->mk_table( $this->db, $this->table_binomes, true );
 	// tables des experiences
-	global $form1;
-	$form1->mk_table( $this->db, $this->table_exp1, true, false );
+	global $formexp;
+	for	( $i = 1; $i <= 5; $i++ )
+		$formexp[$i]->mk_table( $this->db, $this->table_exp[$i], true, false );
 	}
 
 // // // objet binome // // //
@@ -31,6 +32,39 @@ function kill_binome( $indix ) {
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
 	}
+
+// // // objet login // // //
+function list_logins() {
+	$sqlrequest = "SELECT * FROM `{$this->table_logins}`";
+	$result = $this->db->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+	echo "<table>\n";
+	while	( $row = mysqli_fetch_assoc($result) )
+		{
+		$login = $row['uchave'];
+		echo '<tr><td>', $login, '</td><td>';
+		$this->list_1binome( $row['binome'] ); echo '</td><td>';
+		echo "<a href=\"{$_SERVER['PHP_SELF']}?op=login_kill&ind={$login}\"><img src=\"img/kill.png\" title=\"kill\"></a>";
+		echo "</td></tr>\n";
+		}
+	echo '</table>';
+	}
+function kill_login( $login, $confirm ) {
+	if	( $confirm )
+		{
+		$sqlrequest = "DELETE FROM `{$this->table_logins}` WHERE `uchave` = '{$login}';";
+		$result = $this->db->conn->query( $sqlrequest );
+		if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+		global $label;
+		echo "<p class=\"resu\">{$label['moded']}</p>";
+		}
+	else	{
+		echo	"Kill {$login} ?<ul>",
+			"<li><a href=\"{$_SERVER['PHP_SELF']}?op=login_kill&ind={$login}&confirmed=1\">yes</a></li>",
+			"<li><a href=\"{$_SERVER['PHP_SELF']}\"> no </a></li></ul>\n";
+		}
+	}
+
 
 } // class boodladm
 

@@ -8,19 +8,15 @@ if	( isset($_SESSION['lang']) )
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?php echo $label['title']; ?></title>
 <style>
-#sidebar { height: 100%; width: 25%; position: fixed; z-index: 1; top: 0; left: 0; padding-top: 50px;
-background-color: #8BF;
-overflow-x: hidden; transition: 0.15s; }
+#sidebar { height: 100%; width: 18%; position: fixed; z-index: 1; top: 0; left: 0; padding-top: 50px;
+	background-color: #8BF; overflow-x: hidden; transition: 0.15s; }
 #sidebar a { padding: 8px 8px 8px 20px; text-decoration: none;
-color: #000;
-display: block; transition: 0.15s; }
+	color: #000; display: block; transition: 0.15s; }
 #closebtn { position: absolute; top: 0; right: 0; font-size: 20px; margin-left: 50px; padding: 0px 10px;
-background-color: #111; color: #f00;
-border: none; cursor: pointer; }
-#openbtn { font-size: 20px; padding: 10px 15px;
-background-color: #111; color: #0f0;
-border: none; cursor: pointer; display: none; }
-#main { margin-left: 25%; transition: margin-left 0.15s; }
+	background-color: #111; color: #f00; border: none; cursor: pointer; }
+#openbtn { font-size: 20px; padding: 10px 15px; background-color: #111; color: #0f0;
+	border: none; cursor: pointer; display: none; }
+#main { margin-left: 18%; transition: margin-left 0.15s; }
 a.current { font-weight: bold; }
 table { border: 0; border-collapse:collapse; }
 table td { padding: 5px 6px 5px 8px; }
@@ -32,8 +28,8 @@ li { margin: 10px 0px 10px 0px; }
 pre { margin: 0px; }
 .ag { text-align: left }
 .ar { text-align: right }
-.roin, .textin, .linkin { width: 300px }
-.areain { width: 340px }
+.roin, .textin, .linkin { width: 400px }
+.areain { width: 400px }
 .boutest { width: 40px; cursor: pointer }
 .boutup { cursor: pointer } 
 .boutmod  { cursor: pointer; padding: 6px 18px; border: solid 2px; border-color: #DA4; background: #FDA; font-weight: bold; } 

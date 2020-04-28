@@ -2,6 +2,7 @@
 session_start();
 
 require_once('ink/longage.php');
+require_once('ink/db.php');
 require_once('ink/def.php');
 require_once('ink/boodle.php');
 require_once('ink/head.php');
@@ -19,26 +20,9 @@ if  	( !isset( $_SESSION['usuario'] ) )
 if  	( !isset( $_SESSION['usuario'] ) )
 	mostra_fatal('access denied');
 
-/*
-$imacs = new boodle;
-$imacs->db = $db1;
-$imacs->table_logins  = 'BOO_IMACS_logins';
-$imacs->table_binomes = 'BOO_IMACS_binomes';
-$imacs->table_exp1    = 'BOO_IMACS_exp1';
-require_once('ink/liste_3imacs.php');	// va creer un array $liste_3imacs
-$imacs->liste_eleves = $liste_3imacs;
-$boodle = $imacs;
-*/
 
-$mic = new boodle;
-$mic->db = $db1;
-$mic->table_logins  = 'BOO_MIC_logins';
-$mic->table_binomes = 'BOO_MIC_binomes';
-$mic->table_exp1    = 'BOO_MIC_exp1';
-require_once('ink/liste_3mic.php');	// va creer un array $liste_3mic
-$mic->liste_eleves = $liste_3mic;
-$boodle = $mic;
-
+$boodle = new boodle;
+$boodle->init( 'mic' );
 
 echo '<div id="main">';
 echo '<h1><button type="button" id="openbtn" onclick="openNav()">&#9776;</button>&nbsp; ', $label['header1'], '</h1>';
@@ -67,10 +51,11 @@ if	( isset($_GET['op']) )
 		{
 		$boodle->list_binomes();
 		}
-	else if	( $_GET['op'] == 'exp1_edit' )
-		{
-		$boodle->exp_edit( 1, $_SESSION['lebin'] );
-		}
+	else if	( $_GET['op'] == 'exp1_edit' )	$boodle->exp_edit( 1, $_SESSION['lebin'] );
+	else if	( $_GET['op'] == 'exp2_edit' )	$boodle->exp_edit( 2, $_SESSION['lebin'] );
+	else if	( $_GET['op'] == 'exp3_edit' )	$boodle->exp_edit( 3, $_SESSION['lebin'] );
+	else if	( $_GET['op'] == 'exp4_edit' )	$boodle->exp_edit( 4, $_SESSION['lebin'] );
+	else if	( $_GET['op'] == 'exp5_edit' )	$boodle->exp_edit( 5, $_SESSION['lebin'] );
 	else if	( $_GET['op'] == 'logout' )
 		{
 		session_unset();
@@ -109,18 +94,16 @@ else if	( isset( $_POST['binome_abt'] ) )
 	{
 	echo "<p class=\"resu\">{$label['aborted']}</p>";
 	}
-else if	( isset( $_POST['exp1_add'] ) )
-	{
-	$form1->post2form_full( FALSE );
-	$form1->form2db_insert_full( $boodle->db, $boodle->table_exp1, FALSE );
-	echo "<p class=\"resu\">{$label['added']}</p>";
-	}
-else if	( isset( $_POST['exp1_mod'] ) )
-	{
-	$form1->post2form_full( FALSE );
-	$form1->form2db_update_full( $boodle->db, $boodle->table_exp1 );
-	echo "<p class=\"resu\">{$label['moded']}</p>";
-	}
+else if	( isset( $_POST['exp1_add'] ) )	$boodle->exp_insert(1);
+else if	( isset( $_POST['exp2_add'] ) )	$boodle->exp_insert(2);
+else if	( isset( $_POST['exp3_add'] ) )	$boodle->exp_insert(3);
+else if	( isset( $_POST['exp4_add'] ) )	$boodle->exp_insert(4);
+else if	( isset( $_POST['exp5_add'] ) )	$boodle->exp_insert(5);
+else if	( isset( $_POST['exp1_mod'] ) )	$boodle->exp_mod(1);
+else if	( isset( $_POST['exp2_mod'] ) )	$boodle->exp_mod(2);
+else if	( isset( $_POST['exp3_mod'] ) )	$boodle->exp_mod(3);
+else if	( isset( $_POST['exp4_mod'] ) )	$boodle->exp_mod(4);
+else if	( isset( $_POST['exp5_mod'] ) )	$boodle->exp_mod(5);
 
 // traiter entree sans op ni POST
 else if	( !isset($_SESSION['lebin']) )
