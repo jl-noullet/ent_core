@@ -127,7 +127,7 @@ function show_form( $opcode, $blankflag, $indixflag ) {
 		if	( $show )	// visible
 			{
 			// traitement commun a toutes les lignes
-			if	( $blankflag )						// valeur
+			if	( ( $blankflag ) && ( $k != 'indix' ) )						// valeur
 				$laval = '';
 			else	$laval = htmlspecialchars( $v->val, ENT_COMPAT, 'UTF-8', true );
 			echo "<tr><td class=\"ag\">$v->desc</td><td>";			// description
@@ -263,19 +263,23 @@ function form2th( $indixflag, $boutflag ) {
 	}
 
 // lire les valeurs d'une ligne de la BD, les copier dans la form
+// retourne false si indix non trouve
 function db2form( $db, $table, $indix ) {
 	$sqlrequest = "SELECT * FROM `{$table}` WHERE `indix` = '{$indix}';";
 	$result = $db->conn->query( $sqlrequest );
+	// echo "<p>---{$sqlrequest}---</p>";
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
 	else if ( $row = mysqli_fetch_assoc($result) )
 		{
+		// print_r( $row );
 		foreach ($this->itsa as $k => $v)
 			{
 			if	( isset($row[$k]) )
 				$v->val = $row[$k];
 			}
 		}
-	else	mostra_fatal( "table {$table} : clef manquante {$indix}" );
+	else	return FALSE;	// mostra_fatal( "table {$table} : clef manquante {$indix}" );
+	return TRUE;
 	}
 // lire les valeurs d'un POST, les copier dans la form, attend TOUS les items de la form
 // sauf eventuellement `indix`
@@ -316,6 +320,7 @@ function form2db_update_full( $db, $table ) {
 			}	
 		}
 	$sqlrequest .= "WHERE `indix` = {$i}";
+	// echo "<p>---{$sqlrequest}---</p>";
 	$result = $db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
 	}
@@ -365,7 +370,7 @@ function form2db_insert_full( $db, $table, $skipindix ) {
 	}
 
 // creer la table pour une form
-function mk_table( $db, $table, $dropflag ) {
+function mk_table( $db, $table, $dropflag, $autoflag=true ) {
 	if	( $dropflag )
 		{
 		$sqlrequest = "DROP TABLE IF EXISTS `{$table}`";
@@ -376,7 +381,7 @@ function mk_table( $db, $table, $dropflag ) {
 	foreach ($this->itsa as $k => $v) {		// noms et type SQL des colonnes
 		$colu = "`$k` ";
 		if	( $k == 'indix' )
-			$colu .= 'INT NOT NULL AUTO_INCREMENT';
+			$colu .= ($autoflag?'INT NOT NULL AUTO_INCREMENT':'INT NOT NULL');
 		else if	( $v->type == 'S' )
 			$colu .= 'VARCHAR(32)';
 		else if	( $v->type == 'D' )

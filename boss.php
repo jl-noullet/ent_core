@@ -4,6 +4,7 @@ session_start();
 require_once('ink/longage.php');
 require_once('ink/def.php');
 require_once('ink/boodle.php');
+require_once('ink/boodladm.php');
 require_once('ink/head.php');
 
 // zone de login rudimentaire pour dev.
@@ -19,8 +20,16 @@ if  	( !isset( $_SESSION['usuario'] ) )
 if  	( !isset( $_SESSION['usuario'] ) )
 	mostra_fatal('access denied');
 
+$menua = new menu;
+$menua->add( "$self?op=init", 'Initialiser la base de données' );
+$menua->add( "$self?op=binome_add", 'Ajouter un binome' );
+$menua->add( "$self?op=binome_list_k", 'Editer liste des binomes' );
+$menua->add( "$self?op=exp1_edit", 'Formulaire expérience 1' );
+$menua->add( "$self?op=logout", 'Logout' );
+
+
 /*
-$imacs = new boodle;
+$imacs = new boodladm;
 $imacs->db = $db1;
 $imacs->table_logins  = 'BOO_IMACS_logins';
 $imacs->table_binomes = 'BOO_IMACS_binomes';
@@ -30,7 +39,7 @@ $imacs->liste_eleves = $liste_3imacs;
 $boodle = $imacs;
 */
 
-$mic = new boodle;
+$mic = new boodladm;
 $mic->db = $db1;
 $mic->table_logins  = 'BOO_MIC_logins';
 $mic->table_binomes = 'BOO_MIC_binomes';
@@ -49,13 +58,16 @@ $form_bi->itsa['eleve3']->topt = $boodle->liste_eleves;
 
 $boodle->db->connect();
 
-if	( isset($_SESSION['lebin']) )	// provisoire, a mettre en footer
-	{ echo '<h3>', $boodle->list_1binome( $_SESSION['lebin'] ), "</h3>\n"; }
 
 // traiter les commandes par GET
 if	( isset($_GET['op']) )
 	{
-	if	( $_GET['op'] == 'binome_add' )
+	if	( $_GET['op'] == 'init' )
+		{
+		$boodle->create_tables();
+		echo "<p class=\"resu\">{$label['moded']}</p>";
+		}
+	else if	( $_GET['op'] == 'binome_add' )
 		{
 		$boodle->form_add_binome();
 		}
@@ -63,13 +75,13 @@ if	( isset($_GET['op']) )
 		{
 		$boodle->form_edit_binome( $_GET['ind'], false );
 		}
-	else if	( $_GET['op'] == 'binome_list' )
+	else if	( $_GET['op'] == 'binome_kill' )
 		{
-		$boodle->list_binomes();
+		$boodle->form_edit_binome( $_GET['ind'], true );
 		}
-	else if	( $_GET['op'] == 'exp1_edit' )
+	else if	( $_GET['op'] == 'binome_list_k' )
 		{
-		$boodle->exp_edit( 1, $_SESSION['lebin'] );
+		$boodle->list_binomes( true );
 		}
 	else if	( $_GET['op'] == 'logout' )
 		{
@@ -85,64 +97,32 @@ else if	( isset( $_POST['binome_add'] ) )
 	$form_bi->post2form_full( TRUE );
 	$curbin = $form_bi->form2db_insert_full( $boodle->db, $boodle->table_binomes, TRUE );
 	echo "<p class=\"resu\">{$label['added']}</p>";
-	if	( !isset($_SESSION['lebin']) )
-		{
-		echo '<p>'; $boodle->list_1binome( $curbin ); echo '</p>';
-		$_SESSION['lebin'] = $curbin;
-		$boodle->add_login( $_SESSION['usuario'], $curbin );
-		}
+	$boodle->list_binomes( true );
 	}
 else if	( isset( $_POST['binome_mod'] ) )
 	{
 	$form_bi->post2form_full( FALSE );
 	$form_bi->form2db_update_full( $boodle->db, $boodle->table_binomes );
 	echo "<p class=\"resu\">{$label['moded']}</p>";
-	if	( !isset($_SESSION['lebin']) )
-		{
-		$curbin = $form_bi->itsa['indix']->val;
-		echo '<p>'; $boodle->list_1binome( $curbin ); echo '</p>';
-		$_SESSION['lebin'] = $curbin;
-		$boodle->add_login( $_SESSION['usuario'], $curbin );
-		}
+	$boodle->list_binomes( true );
+	}
+else if	( isset( $_POST['binome_kill'] ) )
+	{
+	if	( isset( $_POST['indix'] ) )
+		$boodle->kill_binome( $_POST['indix'] );
+	echo "<p class=\"resu\">{$label['moded']}</p>";
+	$boodle->list_binomes( true );
 	}
 else if	( isset( $_POST['binome_abt'] ) )
 	{
 	echo "<p class=\"resu\">{$label['aborted']}</p>";
 	}
-else if	( isset( $_POST['exp1_add'] ) )
-	{
-	$form1->post2form_full( FALSE );
-	$form1->form2db_insert_full( $boodle->db, $boodle->table_exp1, FALSE );
-	echo "<p class=\"resu\">{$label['added']}</p>";
-	}
-else if	( isset( $_POST['exp1_mod'] ) )
-	{
-	$form1->post2form_full( FALSE );
-	$form1->form2db_update_full( $boodle->db, $boodle->table_exp1 );
-	echo "<p class=\"resu\">{$label['moded']}</p>";
-	}
 
 // traiter entree sans op ni POST
-else if	( !isset($_SESSION['lebin']) )
-	{
-	$curbin = $boodle->find_login( $_SESSION['usuario'] );
-	if	( $curbin < 0 )
-		{
-		echo "<p class=\"resu\">Bonjour {$_SESSION['usuario']}<br>",
-		     'Vous devez appartenir à un binôme pour continuer</p>';
-		}
-	else	{
-		echo "<p class=\"resu\">Bonjour {$_SESSION['usuario']} de <br>";
-		$boodle->list_1binome( $curbin ); echo '</p>';
-		$_SESSION['lebin'] = $curbin;
-		}
-	}
 
 echo "</div>\n";
 echo '<div id="sidebar"><button type="button" id="closebtn" onclick="closeNav()">&lt;&lt;</button>';
-if	( isset($_SESSION['lebin']) )
-	$menu = $menu1;
-else	$menu = $menu0;
+$menu = $menua;
 $menu->display();
 echo '</div>';
 ?>
