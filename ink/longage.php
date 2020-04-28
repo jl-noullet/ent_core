@@ -319,7 +319,9 @@ function form2db_update_full( $db, $table ) {
 	$result = $db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
 	}
-// creer une ligne de la table avec toutes les valeurs d'une form, omettre indix si on veut profiter de l'auto-increment
+// creer une ligne de la table avec toutes les valeurs d'une form,
+// $skipindix pour omettre indix si on veut profiter de l'auto-increment
+// dans ce cas, retourne la valeur d'indix generee automatiquement 
 // filtrage injection SQL ici (provisoirement addslashes)
 function form2db_insert_full( $db, $table, $skipindix ) {
 	$sqlrequest = "INSERT INTO `{$table}` SET ";
@@ -348,6 +350,18 @@ function form2db_insert_full( $db, $table, $skipindix ) {
 	// echo "<p>---{$sqlrequest}---</p>";
 	$result = $db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
+	if	( $skipindix )
+		{	// LAST_INSERT_ID() est "per connection", i.e. on ne reference pas la table !!
+		$sqlrequest = 'SELECT LAST_INSERT_ID()';
+		$result = $db->conn->query( $sqlrequest );
+		if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($db->conn) );
+		if	( $row = mysqli_fetch_assoc($result) )
+			{
+			// print_r($row);
+			return $row['LAST_INSERT_ID()'];
+			}
+		}
+	return -1;
 	}
 
 // creer la table pour une form
