@@ -62,7 +62,7 @@ $self = $_SERVER['PHP_SELF'];
 $menu0 = new menu;
 $menu0->add( "$self?op=binome_add", 'Créer votre binôme' );
 $menu0->add( "$self?op=binome_list", 'Rejoindre un binôme existant' );
-$menu0->add( "$self?op=logout", 'Logout' );
+$menu0->add( "$self?logout=1", 'Logout' );
 
 
 $menu1 = new menu;
@@ -71,7 +71,7 @@ $menu1->add( "$self?op=exp2_edit", 'Formulaire exp 2' );
 $menu1->add( "$self?op=exp3_edit", 'Formulaire exp 3' );
 $menu1->add( "$self?op=exp4_edit", 'Formulaire exp 4' );
 $menu1->add( "$self?op=exp5_edit", 'Formulaire exp 5' );
-$menu1->add( "$self?op=logout", 'Logout' );
+$menu1->add( "$self?logout=1", 'Logout' );
 
 $label = array();
 // boutons

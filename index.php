@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 require_once('ink/longage.php');
 require_once('ink/db.php');
@@ -7,8 +6,8 @@ require_once('ink/def.php');
 require_once('ink/boodle.php');
 require_once('ink/head.php');
 
-// zone de login rudimentaire pour dev.
-
+/* zone de login rudimentaire pour dev. *
+session_start();
 if  	( !isset( $_SESSION['usuario'] ) )
 	{	// traiter login
 	if	( isset( $_GET['login'] ) )
@@ -16,10 +15,35 @@ if  	( !isset( $_SESSION['usuario'] ) )
 		$_SESSION['usuario'] = $_GET['login'];
 		}
 	}
-
 if  	( !isset( $_SESSION['usuario'] ) )
 	mostra_fatal('access denied');
 
+//*/
+
+/* zone CAS */
+$phpcas_path = './LECAS';// relative path to dir containing CAS.php & the CAS directory
+$cas_host = 'cas.insa-toulouse.fr';// Full Hostname of your CAS Server
+$cas_context = '/cas';// Context of the CAS Server
+$cas_port = 443;// Port of your CAS server. Normally for a https server it's 443
+require_once $phpcas_path . '/CAS.php';// Load the CAS lib
+// phpCAS::setDebug();// Enable debugging (fichier phpCAS.log)
+// Initialize phpCAS
+phpCAS::client(CAS_VERSION_2_0, $cas_host, $cas_port, $cas_context);
+// For quick testing you can disable SSL validation of the CAS server.
+phpCAS::setNoCasServerValidation();
+
+if	( isset($_REQUEST['logout']) )
+	phpCAS::logout();
+
+// force CAS authentication
+phpCAS::forceAuthentication();	// cette fonction bloque tant que l'user n'est pas logué
+$lenom = phpCAS::getUser();
+echo '<p>Le Nom : ' . $lenom . '</p>';
+// quelques verifications de parano
+if	( session_status() != PHP_SESSION_ACTIVE )
+	mostra_fatal('erreur improbable, pas de session apres phpCAS');
+$_SESSION['usuario'] = $lenom;
+//*/
 
 $boodle = new boodle;
 $boodle->init( 'mic' );
@@ -56,11 +80,6 @@ if	( isset($_GET['op']) )
 	else if	( $_GET['op'] == 'exp3_edit' )	$boodle->exp_edit( 3, $_SESSION['lebin'] );
 	else if	( $_GET['op'] == 'exp4_edit' )	$boodle->exp_edit( 4, $_SESSION['lebin'] );
 	else if	( $_GET['op'] == 'exp5_edit' )	$boodle->exp_edit( 5, $_SESSION['lebin'] );
-	else if	( $_GET['op'] == 'logout' )
-		{
-		session_unset();
-		echo "<p class=\"resu\">Bye Bye</p>";
-		}
 	}
 
 // traiter les retours de formulaire POST (c'est le else de if	( isset($_GET[...]) ) )
