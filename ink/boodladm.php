@@ -74,6 +74,42 @@ function kill_login( $login, $confirm ) {
 		}
 	}
 
+// // // objet experience // // //
+
+// pour 1 question, afficher les reponses de tous les binomes d'un groupe
+function liste_reponse( $expid, $question, $groupe ) {
+	global $formexp;
+	// d'abord le libelle de la question
+	echo '<h3>', $formexp[$expid]->itsa[$question]->desc, "</h3>\n";
+	// puis trier les binomes
+	global $form_bi;
+	$bins = array();
+	$sqlrequest = "SELECT `indix` FROM `{$this->table_binomes}` WHERE `groupe` = '$groupe'";
+	$result = $this->db->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+	while	( $row = mysqli_fetch_assoc($result) )
+		{
+		$bins[] = $row['indix'];
+		}
+	// puis lire les reponses
+	echo "<table>\n";
+	foreach	( $bins as $lebin )
+		{
+		echo '<tr><td>'; $this->list_1binome( $lebin ); echo "</td></tr>\n";
+		$sqlrequest = "SELECT `{$question}` FROM `{$this->table_exp[$expid]}` WHERE `indix` = '{$lebin}'";
+		$result = $this->db->conn->query( $sqlrequest );
+		if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+		if	( $row = mysqli_fetch_assoc($result) )
+			{
+			echo '<tr><td>';
+			//print_r($row);
+			echo $row[$question];
+			echo "</td></tr>\n";
+			}
+		}
+	echo "</table>\n";
+	
+	}
 
 } // class boodladm
 

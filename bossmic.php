@@ -41,12 +41,34 @@ if	( preg_match( '/(mic|imacs)[.]php$/', $self, $apo ) == 0 )
 	mostra_fatal('access denied');
 	}
 
-
 $menua = new menu;
 // $menua->add( "$self?op=init", 'Initialiser la base de données' );
 $menua->add( "$self?op=binome_add", 'Ajouter un binome' );
 $menua->add( "$self?op=binome_list_k", 'Editer liste des binomes' );
 $menua->add( "$self?op=login_list", 'Editer liste des logins' );
+$menua->add( "$self?op=reponse&e=1&g=1&q=Q1A1", 'reponses Q1A1' );
+$menua->add( "$self?op=reponse&e=1&g=1&q=Q1A2", 'reponses Q1A2' );
+$menua->add( "$self?op=reponse&e=1&g=1&q=Q1A3", 'reponses Q1A3' );
+$menua->add( "$self?op=reponse&e=1&g=1&q=Q1A4", 'reponses Q1A4' );
+$menua->add( "$self?op=reponse&e=1&g=1&q=Q1X1", 'reponses Q1X1' );
+$menua->add( "$self?op=reponse&e=1&g=1&q=Q1X2", 'reponses Q1X2' );
+$menua->add( "$self?op=reponse&e=1&g=1&q=Q1X3", 'reponses Q1X3' );
+$menua->add( "$self?op=reponse&e=1&g=1&q=Q1X4", 'reponses Q1X4' );
+$menua->add( "$self?op=reponse&e=1&g=1&q=Q1Y1", 'reponses Q1Y1' );
+$menua->add( "$self?op=reponse&e=1&g=1&q=Q1Y2", 'reponses Q1Y2' );
+
+$menua->add( "$self?op=reponse&e=2&g=1&q=Q2A1", 'reponses Q2A1' );
+$menua->add( "$self?op=reponse&e=2&g=1&q=Q2A2", 'reponses Q2A2' );
+$menua->add( "$self?op=reponse&e=2&g=1&q=Q2A4", 'reponses Q2A4' );
+$menua->add( "$self?op=reponse&e=2&g=1&q=Q2X1", 'reponses Q2X1' );
+$menua->add( "$self?op=reponse&e=2&g=1&q=Q2X2", 'reponses Q2X2' );
+$menua->add( "$self?op=reponse&e=2&g=1&q=Q2X4", 'reponses Q2X4' );
+$menua->add( "$self?op=reponse&e=2&g=1&q=Q2X5", 'reponses Q2X5' );
+$menua->add( "$self?op=reponse&e=2&g=1&q=Q2X6", 'reponses Q2X6' );
+$menua->add( "$self?op=reponse&e=2&g=1&q=Q2X7", 'reponses Q2X7' );
+$menua->add( "$self?op=reponse&e=2&g=1&q=Q2Y1", 'reponses Q2Y1' );
+$menua->add( "$self?op=reponse&e=2&g=1&q=Q2Y2", 'reponses Q2Y2' );
+
 $menua->add( "$self?op=logout", 'Logout' );
 
 $boodle = new boodladm;
@@ -95,6 +117,10 @@ if	( isset($_GET['op']) )
 		if	( isset($_GET['confirmed']) )
 			$boodle->kill_login( $_GET['ind'], TRUE );
 		else	$boodle->kill_login( $_GET['ind'], FALSE );
+		}
+	else if	( $_GET['op'] == 'reponse' )
+		{
+		$boodle->liste_reponse( $_GET['e'], $_GET['q'], $_GET['g'] );
 		}
 	else if	( $_GET['op'] == 'logout' )
 		{
