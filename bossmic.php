@@ -67,7 +67,7 @@ if	( isset($_GET['op']) )
 	{
 	if	( $_GET['op'] == 'init' )
 		{
-		$boodle->create_tables();
+		$boodle->create_tables( $_GET['tab'] );
 		echo "<p class=\"resu\">{$label['moded']}</p>";
 		}
 	else if	( $_GET['op'] == 'binome_add' )
