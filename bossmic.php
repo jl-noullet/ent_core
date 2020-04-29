@@ -8,15 +8,13 @@ require_once('ink/boodle.php');
 require_once('ink/boodladm.php');
 require_once('ink/head.php');
 
-// zone de login rudimentaire pour dev.
-
 if  	( !isset($_SESSION['cacique']) )
 	{	// traiter login
 	if	( ( isset( $_REQUEST['id_1136'] ) ) && ( isset( $_REQUEST['id_1137'] ) ) )
 		{
 		if	( $_REQUEST['id_1137'] == 'risc' )
 			{
-			if	( $_REQUEST['id_1136'] == 'harward' )
+			if	( $_REQUEST['id_1136'] == 'stanford' )
 				$_SESSION['cacique'] = $_REQUEST['id_1136'];
 			}
 		}
@@ -36,18 +34,26 @@ if  	( !isset($_SESSION['cacique']) )
 	exit();
 	}
 
+$self = $_SERVER['PHP_SELF'];
+if	( preg_match( '/(mic|imacs)[.]php$/', $self, $apo ) == 0 )
+	{
+	echo "<p>[ {$_SERVER['PHP_SELF']} ]</p>";
+	mostra_fatal('access denied');
+	}
+
+
 $menua = new menu;
-$menua->add( "$self?op=init", 'Initialiser la base de données' );
+// $menua->add( "$self?op=init", 'Initialiser la base de données' );
 $menua->add( "$self?op=binome_add", 'Ajouter un binome' );
 $menua->add( "$self?op=binome_list_k", 'Editer liste des binomes' );
 $menua->add( "$self?op=login_list", 'Editer liste des logins' );
 $menua->add( "$self?op=logout", 'Logout' );
 
 $boodle = new boodladm;
-$boodle->init( 'mic' );
+$boodle->init( $apo[1] );
 
 echo '<div id="main">';
-echo '<h1><button type="button" id="openbtn" onclick="openNav()">&#9776;</button>&nbsp; ', $label['header1'], '</h1>';
+echo '<h2><button type="button" id="openbtn" onclick="openNav()">&#9776;</button>&nbsp; ', $label['header1'] . $apo[1], '</h2>';
 
 $form_bi->itsa['eleve1']->topt = $boodle->liste_eleves;
 $form_bi->itsa['eleve2']->topt = $boodle->liste_eleves;

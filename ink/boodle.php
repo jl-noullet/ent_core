@@ -67,6 +67,7 @@ function list_binomes( $killable=false ) {
 			$form_bi->db2form( $this->db, $this->table_binomes, $row['indix'] );
 			$form_bi->form2tr( 2, 3, 30 );
 			}
+		echo '</table>';
 		}
 	else	{
 		$form_bi->form2th( 0, 3 );
@@ -75,8 +76,9 @@ function list_binomes( $killable=false ) {
 			$form_bi->db2form( $this->db, $this->table_binomes, $row['indix'] );
 			$form_bi->form2tr( 0, 1, 30 );
 			}
+		echo '</table>';
+		echo '<p><i>Cliquez sur <img src="img/edit.png"> du binôme choisi, puis Ok pour confirmer</i></p>';
 		}
-	echo '</table>';
 	}
 
 // affichage 1 binome sur 1 ligne

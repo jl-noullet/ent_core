@@ -67,10 +67,10 @@ $menu0->add( "$self?logout=1", 'Logout' );
 
 $menu1 = new menu;
 $menu1->add( "$self?op=exp1_edit", 'Formulaire exp 1' );
-$menu1->add( "$self?op=exp2_edit", 'Formulaire exp 2' );
-$menu1->add( "$self?op=exp3_edit", 'Formulaire exp 3' );
-$menu1->add( "$self?op=exp4_edit", 'Formulaire exp 4' );
-$menu1->add( "$self?op=exp5_edit", 'Formulaire exp 5' );
+//$menu1->add( "$self?op=exp2_edit", 'Formulaire exp 2' );
+//$menu1->add( "$self?op=exp3_edit", 'Formulaire exp 3' );
+//$menu1->add( "$self?op=exp4_edit", 'Formulaire exp 4' );
+//$menu1->add( "$self?op=exp5_edit", 'Formulaire exp 5' );
 $menu1->add( "$self?logout=1", 'Logout' );
 
 $label = array();
@@ -89,6 +89,6 @@ $label['moded'] = 'modification effectuée';
 $label['aborted'] = 'opération abandonnée';
 // titres
 $label['title'] = 'BOODLE prototype';
-$label['header1'] = 'TP ARCHI ARM/X86';
+$label['header1'] = 'TP Archi ARM/X86 -- 3';
 
 ?>
