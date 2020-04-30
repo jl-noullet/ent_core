@@ -7,7 +7,7 @@ require_once('ink/boodle.php');
 require_once('ink/head.php');
 
 $self = $_SERVER['PHP_SELF'];
-if	( preg_match( '/(mic|imacs)[.]php$/', $self, $apo ) == 0 )
+if	( preg_match( '/(mic|imacs|pro)[.]php$/', $self, $apo ) == 0 )
 	{
 	echo "<p>[ {$_SERVER['PHP_SELF']} ]</p>";
 	mostra_fatal('access denied');
@@ -162,8 +162,8 @@ echo '</div>';
 ?>
 <script>
 function openNav() {
-document.getElementById("sidebar").style.width = "25%";
-document.getElementById("main").style.marginLeft = "25%";
+document.getElementById("sidebar").style.width = "<?php echo $menuwidth; ?>";
+document.getElementById("main").style.marginLeft = "<?php echo $menuwidth; ?>";
 document.getElementById("openbtn").style.display = "none"; }
 function closeNav() {
 document.getElementById("sidebar").style.width = "0";

@@ -35,7 +35,7 @@ if  	( !isset($_SESSION['cacique']) )
 	}
 
 $self = $_SERVER['PHP_SELF'];
-if	( preg_match( '/(mic|imacs)[.]php$/', $self, $apo ) == 0 )
+if	( preg_match( '/(mic|imacs|pro)[.]php$/', $self, $apo ) == 0 )
 	{
 	echo "<p>[ {$_SERVER['PHP_SELF']} ]</p>";
 	mostra_fatal('access denied');
@@ -87,7 +87,7 @@ $boodle->db->connect();
 // traiter les commandes par GET
 if	( isset($_GET['op']) )
 	{
-	if	( $_GET['op'] == 'init' )
+	if	( $_GET['op'] == 'init' )	// URL ?op=init&tab=logins | binomes | 1-5
 		{
 		$boodle->create_tables( $_GET['tab'] );
 		echo "<p class=\"resu\">{$label['moded']}</p>";
@@ -118,7 +118,7 @@ if	( isset($_GET['op']) )
 			$boodle->kill_login( $_GET['ind'], TRUE );
 		else	$boodle->kill_login( $_GET['ind'], FALSE );
 		}
-	else if	( $_GET['op'] == 'reponse' )
+	else if	( $_GET['op'] == 'reponse' )	// URL ?op=reponse&g=1&e=1&q=Q1A1
 		{
 		$boodle->liste_reponse( $_GET['e'], $_GET['q'], $_GET['g'] );
 		}
@@ -168,8 +168,8 @@ echo '</div>';
 ?>
 <script>
 function openNav() {
-document.getElementById("sidebar").style.width = "25%";
-document.getElementById("main").style.marginLeft = "25%";
+document.getElementById("sidebar").style.width = "<?php echo $menuwidth; ?>";
+document.getElementById("main").style.marginLeft = "<?php echo $menuwidth; ?>";
 document.getElementById("openbtn").style.display = "none"; }
 function closeNav() {
 document.getElementById("sidebar").style.width = "0";

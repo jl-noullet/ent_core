@@ -8,7 +8,7 @@ if	( isset($_SESSION['lang']) )
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?php echo $label['title']; ?></title>
 <style>
-#sidebar { height: 100%; width: 18%; position: fixed; z-index: 1; top: 0; left: 0; padding-top: 50px;
+#sidebar { height: 100%; width: <?php echo $menuwidth; ?>; position: fixed; z-index: 1; top: 0; left: 0; padding-top: 50px;
 	background-color: #8BF; overflow-x: hidden; transition: 0.15s; }
 #sidebar a { padding: 8px 8px 8px 20px; text-decoration: none;
 	color: #000; display: block; transition: 0.15s; }
@@ -16,12 +16,16 @@ if	( isset($_SESSION['lang']) )
 	background-color: #111; color: #f00; border: none; cursor: pointer; }
 #openbtn { font-size: 20px; padding: 10px 15px; background-color: #111; color: #0f0;
 	border: none; cursor: pointer; display: none; }
-#main { margin-left: 18%; transition: margin-left 0.15s; }
+#main { margin-left: <?php echo $menuwidth; ?>; transition: margin-left 0.15s; }
 a.current { font-weight: bold; }
 table { border: 0; border-collapse:collapse; }
 table td { padding: 5px 6px 5px 8px; }
 td img { padding-left: 6px; padding-right: 6px; margin-left: 4px; margin-right: 4px; }
 tr:nth-child(even) { background-color: #f2f2f2; }
+tr.bin { font-size: 80%; background-color: #FC9; }
+tr.bin td { padding: 3px 6px 3px 8px; }
+tr.rep { background-color: #FF9; }
+tr.rep td { padding: 6px 6px 6px 8px; }
 tr.errtr { border-style: solid; border-color: red; border-width: 2px }
 ul { margin: 2px 15px 2px 0px; }
 li { margin: 10px 0px 10px 0px; }

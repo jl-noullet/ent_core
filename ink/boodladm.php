@@ -95,17 +95,19 @@ function liste_reponse( $expid, $question, $groupe ) {
 	echo "<table>\n";
 	foreach	( $bins as $lebin )
 		{
-		echo '<tr><td>'; $this->list_1binome( $lebin ); echo "</td></tr>\n";
 		$sqlrequest = "SELECT `{$question}` FROM `{$this->table_exp[$expid]}` WHERE `indix` = '{$lebin}'";
 		$result = $this->db->conn->query( $sqlrequest );
 		if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+		echo '<tr class="bin"><td>'; $this->list_1binome( $lebin ); echo "</td></tr>\n";
 		if	( $row = mysqli_fetch_assoc($result) )
 			{
-			echo '<tr><td>';
 			//print_r($row);
-			echo $row[$question];
-			echo "</td></tr>\n";
+			$reponse = $row[$question];
+			if	( strlen( $reponse ) == 0 )
+				$reponse = '&nbsp;';
 			}
+		else	$reponse = '&nbsp;';
+		echo '<tr class="rep"><td>', $reponse, "</td></tr>\n";
 		}
 	echo "</table>\n";
 	
