@@ -161,7 +161,7 @@ if	( isset($_SESSION['lebin']) )
 	$menu = $menu1;
 	}
 else	{
-	echo '<p><i>', $_SESSION['usuario'], '</i><p>\n';
+	echo '<p><i>', $_SESSION['usuario'], '</i></p>';
 	$menu = $menu0;
 	}
 $menu->display();

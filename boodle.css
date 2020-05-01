@@ -1,11 +1,11 @@
-#main { margin-left: 18%; transition: margin-left 0.1s; }
-#sidebar { width: 18%; transition: width 0.1s; height: 100%; position: fixed; z-index: 1; top: 0; left: 0;
+#main { margin-left: 18%; }
+#sidebar { width: 18%; height: 100%; position: fixed; z-index: 1; top: 0; left: 0;
 	padding-top: 36px; background-color: #8BF; overflow-x: hidden; }
 #sidebar a { padding: 6px 6px 6px 16px; text-decoration: none; color: #000; display: block; }
 #sidebar p { margin: 3px 6px 3px 6px; padding: 6px 6px 6px 10px; color: #00E; background-color: #fff; }
 #closebtn { position: absolute; top: 0; right: 0; font-size: 20px; margin-left: 50px; padding: 0px 10px;
 	background-color: #111; color: #f00; border: none; cursor: pointer; }
-#openbtn { font-size: 20px; padding: 10px 15px; background-color: #111; color: #0f0;
+#openbtn { font-size: 20px; padding: 0px 5px 1px 5px; background-color: #111; color: #0f0;
 	border: none; cursor: pointer; display: none; }
 a.current { font-weight: bold; }
 table { border: 0; border-collapse:collapse; }

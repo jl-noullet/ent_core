@@ -27,6 +27,7 @@ $liste_3 = array(
 'Fercoq Nicolas',
 'Frances Marcos',
 'Frouin Mathis',
+'Galloo Augustin',
 'Gilbert Valentin',
 'Giusti Laura',
 'Gueye Alassane',

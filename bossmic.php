@@ -41,37 +41,22 @@ if	( preg_match( '/(mic|imacs|pro)[.]php$/', $self, $apo ) == 0 )
 	mostra_fatal('access denied');
 	}
 
-$menua = new menu;
-// $menua->add( "$self?op=init", 'Initialiser la base de données' );
-$menua->add( '', '<p>Danger<br>Careful!</p>' );
-$menua->add( "$self?op=binome_add", 'Ajouter un binome' );
-$menua->add( "$self?op=binome_list_k", 'Editer liste des binomes' );
-$menua->add( "$self?op=login_list", 'Editer liste des logins' );
-$menua->add( '', '' );
-$menua->add( "$self?op=reponse&e=1&g=1&q=Q1A1", 'reponses Q1A1' );
-$menua->add( "$self?op=reponse&e=1&g=1&q=Q1A2", 'reponses Q1A2' );
-$menua->add( "$self?op=reponse&e=1&g=1&q=Q1A3", 'reponses Q1A3' );
-$menua->add( "$self?op=reponse&e=1&g=1&q=Q1A4", 'reponses Q1A4' );
-$menua->add( "$self?op=reponse&e=1&g=1&q=Q1X1", 'reponses Q1X1' );
-$menua->add( "$self?op=reponse&e=1&g=1&q=Q1X2", 'reponses Q1X2' );
-$menua->add( "$self?op=reponse&e=1&g=1&q=Q1X3", 'reponses Q1X3' );
-$menua->add( "$self?op=reponse&e=1&g=1&q=Q1X4", 'reponses Q1X4' );
-$menua->add( "$self?op=reponse&e=1&g=1&q=Q1Y1", 'reponses Q1Y1' );
-$menua->add( "$self?op=reponse&e=1&g=1&q=Q1Y2", 'reponses Q1Y2' );
 
-$menua->add( "$self?op=reponse&e=2&g=1&q=Q2A1", 'reponses Q2A1' );
-$menua->add( "$self?op=reponse&e=2&g=1&q=Q2A2", 'reponses Q2A2' );
-$menua->add( "$self?op=reponse&e=2&g=1&q=Q2A4", 'reponses Q2A4' );
-$menua->add( "$self?op=reponse&e=2&g=1&q=Q2X1", 'reponses Q2X1' );
-$menua->add( "$self?op=reponse&e=2&g=1&q=Q2X2", 'reponses Q2X2' );
-$menua->add( "$self?op=reponse&e=2&g=1&q=Q2X4", 'reponses Q2X4' );
-$menua->add( "$self?op=reponse&e=2&g=1&q=Q2X5", 'reponses Q2X5' );
-$menua->add( "$self?op=reponse&e=2&g=1&q=Q2X6", 'reponses Q2X6' );
-$menua->add( "$self?op=reponse&e=2&g=1&q=Q2X7", 'reponses Q2X7' );
-$menua->add( "$self?op=reponse&e=2&g=1&q=Q2Y1", 'reponses Q2Y1' );
-$menua->add( "$self?op=reponse&e=2&g=1&q=Q2Y2", 'reponses Q2Y2' );
 
-$menua->add( "$self?op=logout", 'Logout' );
+$expnums = array( 1 => '1', '2', '3', '4', '5' );
+
+$form_scope = new form;
+$form_scope->nom = 'scope';
+$form_scope->add( 'groupe', 'Groupe', 'S', $groupes, FALSE );
+$form_scope->add( 'expe', 'Expérience', 'S', $expnums, FALSE );
+
+// contexte par defaut
+if	( !isset($_SESSION['scope_group']) )
+	$_SESSION['scope_group'] = 0;
+if	( !isset($_SESSION['scope_exp']) )
+	$_SESSION['scope_exp'] = 1;
+$form_scope->itsa['groupe']->val = $_SESSION['scope_group'];
+$form_scope->itsa['expe']->val   = $_SESSION['scope_exp'];
 
 $boodle = new boodladm;
 $boodle->init( $apo[1] );
@@ -127,6 +112,10 @@ if	( isset($_GET['op']) )
 		{
 		$boodle->liste_reponse( $_GET['e'], $_GET['q'], $_GET['g'] );
 		}
+	else if	( $_GET['op'] == 'context_edit' )
+		{
+		$form_scope->show_form( 'mod', FALSE, 0 );
+		}
 	else if	( $_GET['op'] == 'logout' )
 		{
 		session_unset();
@@ -162,11 +151,39 @@ else if	( isset( $_POST['binome_abt'] ) )
 	{
 	echo "<p class=\"resu\">{$label['aborted']}</p>";
 	}
+else if	( isset( $_POST['scope_mod'] ) )
+	{
+	$_SESSION['scope_group'] = $_POST['groupe'];
+	$_SESSION['scope_exp'] = $_POST['expe'];
+	echo "<p class=\"resu\">{$label['moded']}</p>";
+	}
 
 // traiter entree sans op ni POST
 
 echo "</div>\n";
+
+// sidebar
+
+$menua = new menu;
+// $menua->add( "$self?op=init", 'Initialiser la base de données' );
+$menua->add( "$self?op=context_edit", 'Changer contexte' );
+$menua->add( '', '' );
+$menua->add( "$self?op=logout", 'Logout' );
+$menua->add( "$self?op=login_list", 'Liste des logins' );
+$menua->add( "$self?op=binome_list_k", 'Liste des binomes' );
+// $menua->add( "$self?op=binome_add", 'Ajouter un binome' );
+$menua->add( '', '' );
+$eexxpp = $_SESSION['scope_exp'];
+$ggrrpp = $_SESSION['scope_group'];
+foreach	( $formexp[$eexxpp]->itsa as $k => $v )
+	{
+	if	( substr( $k, 0, 1 ) == 'Q' )
+		$menua->add( "$self?op=reponse&e={$eexxpp}&g={$ggrrpp}&q={$k}", "réponses {$k}" );
+	}
+
 echo '<div id="sidebar"><button type="button" id="closebtn" onclick="closeNav()">&lt;&lt;</button>';
+echo '<p>Contexte:<br>Groupe ', $groupes[$_SESSION['scope_group']], '<br>Expérience ', $_SESSION['scope_exp'], '</p>';
+
 $menu = $menua;
 $menu->display();
 echo '</div>';

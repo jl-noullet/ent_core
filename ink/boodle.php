@@ -55,7 +55,7 @@ function form_edit_binome( $indix, $killflag=0 ) {
 // affichage liste
 function list_binomes( $killable=false ) {
 	global $form_bi;
-	$sqlrequest = "SELECT `indix` FROM `{$this->table_binomes}`"; // . " WHERE `groupe` = '$g'";
+	$sqlrequest = "SELECT `indix` FROM `{$this->table_binomes}` ORDER BY `groupe`"; // . " WHERE `groupe` = '$g'";
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
 	echo "<table>\n";
