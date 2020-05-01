@@ -3,7 +3,7 @@
 class boodladm extends boodle
 {
 // cree toutes les tables d'un boodle de base
-function create_tables( $tab ) {
+function create_tables( $tab, $binfirst=1 ) {
 	// table des logins (non editable sous longage)
 	if	( $tab == 'logins' )
 		{
@@ -23,6 +23,11 @@ function create_tables( $tab ) {
 		{
 		global $form_bi;
 		$form_bi->mk_table( $this->db, $this->table_binomes, true );
+		// fixer le numero du premier binome pour isoler les promos
+		$sqlrequest = "ALTER TABLE `{$this->table_binomes}` AUTO_INCREMENT={$binfirst}";
+		$result = $this->db->conn->query( $sqlrequest );
+		if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+		echo "<p>$sqlrequest</p>\n";
 		}
 	// tables des experiences
 	else 	{

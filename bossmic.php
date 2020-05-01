@@ -89,7 +89,10 @@ if	( isset($_GET['op']) )
 	{
 	if	( $_GET['op'] == 'init' )	// URL ?op=init&tab=logins | binomes | 1-5
 		{
-		$boodle->create_tables( $_GET['tab'] );
+		if	( $apo[1] == 'mic' )   $binfirst = 1;
+		else if	( $apo[1] == 'imacs' ) $binfirst = 200;
+		else if	( $apo[1] == 'pro' )   $binfirst = 500;
+		$boodle->create_tables( $_GET['tab'], $binfirst );
 		echo "<p class=\"resu\">{$label['moded']}</p>";
 		}
 	else if	( $_GET['op'] == 'binome_add' )
