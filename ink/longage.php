@@ -436,9 +436,13 @@ function add( $turl, $tdesc ) {
 	}
 function display() {
 	foreach ($this->itsa as &$v) {
-		if   ( $v->url == $_SERVER['PHP_SELF'] ) 
-		     echo "<a class=\"current\" href=\"$v->url\">$v->desc</a>\n";
-		else echo "<a href=\"$v->url\">$v->desc</a>\n";
+		if	( strlen( $v->url ) > 0 )
+			echo "<a href=\"$v->url\">$v->desc</a>";
+		else	{
+			if	( strlen( $v->desc ) > 0 )
+				echo "$v->desc";
+			else	echo '<hr>';
+			}
 		}
 	}
 }

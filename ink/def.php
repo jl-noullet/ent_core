@@ -81,22 +81,23 @@ $formexp[5]->add( 'Q56', "Q5.6 Trouver une méthode pour forcer l'exécution de 
 $formexp[5]->add( 'Q57', "Q5.7 Variante: proposer une modification minimale du code pour lui faire accepter cette clef", 'T', 2 );
 $formexp[5]->add( 'Q58', "Q5.8 proposer un principe de solution pour protéger un programme contre ce type d'action", 'T', 2 );
 
-$menuwidth = '18%';
-
 $self = $_SERVER['PHP_SELF'];
 $menu0 = new menu;
+$menu0->add( "$self?logout=1", '<i>Logout</i>' );
+$menu0->add( '', '' );
 $menu0->add( "$self?op=binome_add", 'Créer votre binôme' );
 $menu0->add( "$self?op=binome_list", 'Rejoindre un binôme existant' );
-$menu0->add( "$self?logout=1", 'Logout' );
-
+$menu0->add( '', '' );
 
 $menu1 = new menu;
+$menu1->add( "$self?logout=1", '<i>Logout</i>' );
+$menu1->add( '', '' );
 $menu1->add( "$self?op=exp1_edit", 'Formulaire exp 1' );
 $menu1->add( "$self?op=exp2_edit", 'Formulaire exp 2' );
 $menu1->add( "$self?op=exp3_edit", 'Formulaire exp 3' );
 $menu1->add( "$self?op=exp4_edit", 'Formulaire exp 4' );
 $menu1->add( "$self?op=exp5_edit", 'Formulaire exp 5' );
-$menu1->add( "$self?logout=1", 'Logout' );
+$menu1->add( '', '' );
 
 $label = array();
 // boutons

@@ -67,8 +67,6 @@ $form_bi->itsa['eleve3']->topt = $boodle->liste_eleves;
 
 $boodle->db->connect();
 
-if	( isset($_SESSION['lebin']) )	// provisoire, a mettre en footer
-	{ echo '<h3>', $_SESSION['usuario'], ' ', $boodle->list_1binome( $_SESSION['lebin'] ), "</h3>\n"; }
 
 // traiter les commandes par GET
 if	( isset($_GET['op']) )
@@ -154,20 +152,19 @@ else if	( !isset($_SESSION['lebin']) )
 
 echo "</div>\n";
 echo '<div id="sidebar"><button type="button" id="closebtn" onclick="closeNav()">&lt;&lt;</button>';
+
 if	( isset($_SESSION['lebin']) )
+	{
+	echo '<p><i>', $_SESSION['usuario'], '</i><br>';
+	$boodle->list_1binome( $_SESSION['lebin'], '<br>' );
+	echo "</p>\n";
 	$menu = $menu1;
-else	$menu = $menu0;
+	}
+else	{
+	echo '<p><i>', $_SESSION['usuario'], '</i><p>\n';
+	$menu = $menu0;
+	}
 $menu->display();
 echo '</div>';
 ?>
-<script>
-function openNav() {
-document.getElementById("sidebar").style.width = "<?php echo $menuwidth; ?>";
-document.getElementById("main").style.marginLeft = "<?php echo $menuwidth; ?>";
-document.getElementById("openbtn").style.display = "none"; }
-function closeNav() {
-document.getElementById("sidebar").style.width = "0";
-document.getElementById("main").style.marginLeft= "0";
-document.getElementById("openbtn").style.display = "inline"; }
-</script>
 </body></html>

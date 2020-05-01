@@ -43,9 +43,11 @@ if	( preg_match( '/(mic|imacs|pro)[.]php$/', $self, $apo ) == 0 )
 
 $menua = new menu;
 // $menua->add( "$self?op=init", 'Initialiser la base de données' );
+$menua->add( '', '<p>Danger<br>Careful!</p>' );
 $menua->add( "$self?op=binome_add", 'Ajouter un binome' );
 $menua->add( "$self?op=binome_list_k", 'Editer liste des binomes' );
 $menua->add( "$self?op=login_list", 'Editer liste des logins' );
+$menua->add( '', '' );
 $menua->add( "$self?op=reponse&e=1&g=1&q=Q1A1", 'reponses Q1A1' );
 $menua->add( "$self?op=reponse&e=1&g=1&q=Q1A2", 'reponses Q1A2' );
 $menua->add( "$self?op=reponse&e=1&g=1&q=Q1A3", 'reponses Q1A3' );
@@ -169,14 +171,4 @@ $menu = $menua;
 $menu->display();
 echo '</div>';
 ?>
-<script>
-function openNav() {
-document.getElementById("sidebar").style.width = "<?php echo $menuwidth; ?>";
-document.getElementById("main").style.marginLeft = "<?php echo $menuwidth; ?>";
-document.getElementById("openbtn").style.display = "none"; }
-function closeNav() {
-document.getElementById("sidebar").style.width = "0";
-document.getElementById("main").style.marginLeft= "0";
-document.getElementById("openbtn").style.display = "inline"; }
-</script>
 </body></html>

@@ -81,20 +81,26 @@ function list_binomes( $killable=false ) {
 		}
 	}
 
-// affichage 1 binome sur 1 ligne
-function list_1binome( $binome ) {
+// affichage 1 binome sur 1 ligne, ou plusieurs selon $sep
+function list_1binome( $binome, $sep=NULL ) {
 	global $form_bi; global $groupes;
 	$form_bi->db2form( $this->db, $this->table_binomes, $binome );
-	$eleve = $form_bi->itsa['eleve1']->val;
-	if	( $eleve > 0 )
-		echo '[ ', $this->liste_eleves[$eleve], ' ]';
-	$eleve = $form_bi->itsa['eleve2']->val;
-	if	( $eleve > 0 )
-		echo '[ ', $this->liste_eleves[$eleve], ' ]';
-	$eleve = $form_bi->itsa['eleve3']->val;
-	if	( $eleve > 0 )
-		echo '[ ', $this->liste_eleves[$eleve], ' ]';
-	echo ', gr. ', $groupes[$form_bi->itsa['groupe']->val];
+	$eleve1 = $form_bi->itsa['eleve1']->val;
+	$eleve2 = $form_bi->itsa['eleve2']->val;
+	$eleve3 = $form_bi->itsa['eleve3']->val;
+	if	( $sep )
+		{
+		if	( $eleve1 > 0 )	echo $this->liste_eleves[$eleve1], $sep;
+		if	( $eleve2 > 0 )	echo $this->liste_eleves[$eleve2], $sep;
+		if	( $eleve3 > 0 )	echo $this->liste_eleves[$eleve3], $sep;
+		echo 'gr. ', $groupes[$form_bi->itsa['groupe']->val];
+		}
+	else	{
+		if	( $eleve1 > 0 )	echo '[ ', $this->liste_eleves[$eleve1], ' ]';
+		if	( $eleve2 > 0 )	echo '[ ', $this->liste_eleves[$eleve2], ' ]';
+		if	( $eleve3 > 0 )	echo '[ ', $this->liste_eleves[$eleve3], ' ]';
+		echo ', gr. ', $groupes[$form_bi->itsa['groupe']->val];
+		}
 	}
 
 // objet experience
