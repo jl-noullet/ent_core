@@ -42,6 +42,7 @@ function create_tables( $tab, $binfirst=1 ) {
 
 // action BD hors longage
 function kill_binome( $indix ) {
+	$indix = (int)$indix;
 	$sqlrequest = "DELETE FROM `{$this->table_binomes}` WHERE `indix` = $indix;";
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
@@ -66,6 +67,7 @@ function list_logins() {
 function kill_login( $login, $confirm ) {
 	if	( $confirm )
 		{
+		$login = addslashes($login);
 		$sqlrequest = "DELETE FROM `{$this->table_logins}` WHERE `uchave` = '{$login}';";
 		$result = $this->db->conn->query( $sqlrequest );
 		if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
@@ -84,17 +86,22 @@ function kill_login( $login, $confirm ) {
 // pour 1 question, afficher les reponses de tous les binomes d'un groupe
 function liste_reponse( $expid, $question, $groupe ) {
 	global $formexp;
+	// prevention SQL injection sur $question 
+	if	( strlen( $question ) > 4 )
+		return;
 	// d'abord le libelle de la question
 	echo '<h3>', $formexp[$expid]->itsa[$question]->desc, "</h3>\n";
 	// puis trier les binomes
 	global $form_bi;
 	$bins = array();
+	// prevention SQL injection sur $groupe
+	$groupe = (int)$groupe;
 	$sqlrequest = "SELECT `indix` FROM `{$this->table_binomes}` WHERE `groupe` = '$groupe'";
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
 	while	( $row = mysqli_fetch_assoc($result) )
 		{
-		$bins[] = $row['indix'];
+		$bins[] = (int)$row['indix'];
 		}
 	// puis lire les reponses
 	echo "<table>\n";
@@ -110,6 +117,10 @@ function liste_reponse( $expid, $question, $groupe ) {
 			$reponse = $row[$question];
 			if	( strlen( $reponse ) == 0 )
 				$reponse = '&nbsp;';
+			else	{
+				$reponse = htmlspecialchars( $reponse, ENT_COMPAT, 'UTF-8', true );
+				$reponse = preg_replace( '/\R+/', '<br>', $reponse );
+				}
 			}
 		else	$reponse = '&nbsp;';
 		echo '<tr class="rep"><td>', $reponse, "</td></tr>\n";

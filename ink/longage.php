@@ -7,8 +7,11 @@ function mostra_erro( $tbuf ) {
 
 function mostra_fatal( $tbuf ) {
 	require_once('head.php');
-	echo '<p class="lerreur">Erreur: ', $tbuf, '</p>', 
-	     '<p> <a href="', $_SERVER['PHP_SELF'], '">Retour</a></p></body></html>';
+	global $verbose_error;
+	if	( $verbose_error )
+		echo '<p class="lerreur">Erreur: ', $tbuf, '</p>';
+	else	echo '<p class="lerreur">Erreur</p>';
+	echo '<p><a href="', $_SERVER['PHP_SELF'], '">Retour</a></p></body></html>';
 	exit();
 	}
 
@@ -265,6 +268,7 @@ function form2th( $indixflag, $boutflag ) {
 // lire les valeurs d'une ligne de la BD, les copier dans la form
 // retourne false si indix non trouve
 function db2form( $db, $table, $indix ) {
+	$indix = (int)$indix;
 	$sqlrequest = "SELECT * FROM `{$table}` WHERE `indix` = '{$indix}';";
 	$result = $db->conn->query( $sqlrequest );
 	// echo "<p>---{$sqlrequest}---</p>";

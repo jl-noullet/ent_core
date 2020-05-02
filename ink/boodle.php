@@ -22,6 +22,7 @@ function init( $po ) {
 
 // rend l'index du binome ou -1 si pas trouve
 function find_login( $login ) {
+	$login = addslashes( $login );
 	$sqlrequest = "SELECT `binome` FROM `{$this->table_logins}` WHERE `uchave` = '{$login}'";
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
@@ -32,11 +33,12 @@ function find_login( $login ) {
 
 // ajoute le login dans la table
 function add_login( $login, $binome ) {
+	$login = addslashes( $login );
+	$binome = (int)$binome;
 	$sqlrequest = "INSERT INTO `{$this->table_logins}` SET `uchave` = '{$login}', `binome` = '{$binome}'";
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
 	}
-
 
 // // // objet binome // // //
 // affichage forms

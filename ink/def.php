@@ -1,4 +1,5 @@
 <?php
+$verbose_error = 1;
 
 $groupes = array( 'C', 'D', 'E' );
 
