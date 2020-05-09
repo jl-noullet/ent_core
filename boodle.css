@@ -12,8 +12,11 @@ table { border: 0; border-collapse:collapse; }
 table td { padding: 5px 6px 5px 8px; }
 td img { padding-left: 6px; padding-right: 6px; margin-left: 4px; margin-right: 4px; }
 tr:nth-child(even) { background-color: #f2f2f2; }
-tr.bin { font-size: 80%; background-color: #FC9; }
-tr.bin td { padding: 3px 6px 3px 8px; }
+td.bin { font-size: 80%; background-color: #FC9; }
+td.bin { padding: 3px 6px 2px 8px; }
+td.rad1 { background-color: #F00; width: 21px; padding: 0 }
+td.rad2 { background-color: #FB0; width: 21px; padding: 0 }
+td.rad3 { background-color: #0E6; width: 21px; padding: 0 }
 tr.rep { background-color: #FF9; }
 tr.rep td { padding: 6px 6px 6px 8px; }
 tr.errtr { border-style: solid; border-color: red; border-width: 2px }

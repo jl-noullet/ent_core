@@ -86,16 +86,16 @@ function kill_login( $login, $confirm ) {
 // pour 1 question, afficher les reponses de tous les binomes d'un groupe
 function liste_reponse( $expid, $question, $groupe ) {
 	global $formexp;
-	// prevention SQL injection sur $question 
+	// prevention SQL injection sur les 3 arguments
+	$expid = (int)$expid;
 	if	( strlen( $question ) > 4 )
 		return;
+	$groupe = (int)$groupe;
 	// d'abord le libelle de la question
 	echo '<h3>', $formexp[$expid]->itsa[$question]->desc, "</h3>\n";
-	// puis trier les binomes
+	// puis trier les binomes 
 	global $form_bi;
 	$bins = array();
-	// prevention SQL injection sur $groupe
-	$groupe = (int)$groupe;
 	$sqlrequest = "SELECT `indix` FROM `{$this->table_binomes}` WHERE `groupe` = '$groupe'";
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
@@ -103,14 +103,14 @@ function liste_reponse( $expid, $question, $groupe ) {
 		{
 		$bins[] = (int)$row['indix'];
 		}
-	// puis lire les reponses
-	echo "<table>\n";
+	// puis creer une table, 1 ligne sur 2 etant la designation du binome, l'autre sa reponse
+	echo '<form action="', $_SERVER['PHP_SELF'], '" method="POST">', "<table>\n";
 	foreach	( $bins as $lebin )
 		{
+		// chercher la reponse
 		$sqlrequest = "SELECT `{$question}` FROM `{$this->table_exp[$expid]}` WHERE `indix` = '{$lebin}'";
 		$result = $this->db->conn->query( $sqlrequest );
 		if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
-		echo '<tr class="bin"><td>'; $this->list_1binome( $lebin ); echo "</td></tr>\n";
 		if	( $row = mysqli_fetch_assoc($result) )
 			{
 			//print_r($row);
@@ -123,10 +123,20 @@ function liste_reponse( $expid, $question, $groupe ) {
 				}
 			}
 		else	$reponse = '&nbsp;';
-		echo '<tr class="rep"><td>', $reponse, "</td></tr>\n";
+		// creer les 2 lignes dans la table
+		echo '<tr class="bin"><td class="bin">'; $this->list_1binome( $lebin ); echo "</td>";
+		echo '<td class="rad1"><input type="radio" name="', $lebin, '" value="1"></td>';
+		echo '<td class="rad2"><input type="radio" name="', $lebin, '" value="2"></td>';
+		echo '<td class="rad3"><input type="radio" name="', $lebin, '" value="3"></td>';
+		echo "</tr>\n", '<tr class="rep"><td colspan="4">', $reponse, "</td></tr>\n";
 		}
+	echo	'<tr class="lastrow"><td colspan="4" class="ar">',
+		'<input type="hidden" name="G" value="', $groupe, '">',
+		'<input type="hidden" name="Q" value="', $question, '">',
+		'<input type="submit" class="boutmod" name="notes_mod" value="Sauver Notes"',
+		"</td></tr>\n";
 	echo "</table>\n";
-	
+	echo "</form>\n";
 	}
 
 } // class boodladm

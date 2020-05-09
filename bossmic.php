@@ -157,8 +157,26 @@ else if	( isset( $_POST['scope_mod'] ) )
 	$_SESSION['scope_exp'] = $_POST['expe'];
 	echo "<p class=\"resu\">{$label['moded']}</p>";
 	}
+else if	( isset( $_POST['notes_mod'] ) )
+	{
+	if	( isset( $_POST['G'] ) )
+		$groupe = (int)$_POST['G'];
+	else	$groupe = -1;
+	if	( isset( $_POST['Q'] ) )
+		$question = $_POST['Q'];
+	else	$question = '';
+	foreach	( $_POST as $k => $v )
+		{
+		$bin = (int)$k;
+		if	( $bin > 0 )
+			{
+			$note = (int)$v;
+			echo "bin {$bin} (groupe {$groupe}), question {$question} -> {$note}<br>\n";
+			}
+		}
+	}
 
-// traiter entree sans op ni POST
+// traiter entree sans op ni POST si il y en a
 
 echo "</div>\n";
 
