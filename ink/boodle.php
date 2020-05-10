@@ -5,6 +5,7 @@ class boodle
 public $db;
 public $table_binomes;
 public $table_logins;
+public $table_notes;
 public $table_exp;
 public $liste_eleves;
 
@@ -13,6 +14,7 @@ function init( $po ) {
 	$this->db = $db1;
 	$this->table_logins  = "boo_{$po}_logins";
 	$this->table_binomes = "boo_{$po}_binomes";
+	$this->table_notes   = "boo_{$po}_notes";
 	for	( $i = 1; $i <= 5; $i++ )
 		$this->table_exp[$i]  = "boo_{$po}_exp{$i}";
 	require_once("ink/liste_3{$po}.php");	// va creer un array $liste_3

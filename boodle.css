@@ -12,13 +12,20 @@ table { border: 0; border-collapse:collapse; }
 table td { padding: 5px 6px 5px 8px; }
 td img { padding-left: 6px; padding-right: 6px; margin-left: 4px; margin-right: 4px; }
 tr:nth-child(even) { background-color: #f2f2f2; }
-td.bin { font-size: 80%; background-color: #FC9; }
+td.bin { font-size: 80%; background-color: #666; color: #fff }
 td.bin { padding: 3px 6px 2px 8px; }
-td.rad1 { background-color: #F00; width: 21px; padding: 0 }
-td.rad2 { background-color: #FB0; width: 21px; padding: 0 }
-td.rad3 { background-color: #0E6; width: 21px; padding: 0 }
-tr.rep { background-color: #FF9; }
-tr.rep td { padding: 6px 6px 6px 8px; }
+td.rad1n { background-color: #FAA; width: 21px; padding: 0 }
+td.rad2n { background-color: #FD9; width: 21px; padding: 0 }
+td.rad3n { background-color: #9FA; width: 21px; padding: 0 }
+/*
+td.rad1c { background-color: #F00; width: 21px; padding: 0 }
+td.rad2c { background-color: #FB0; width: 21px; padding: 0 }
+td.rad3c { background-color: #0F6; width: 21px; padding: 0 }
+*/
+tr.rep { background-color: #F0F0FF; }
+tr.rep1 { background-color: #FAA; }
+tr.rep2 { background-color: #FD9; }
+tr.rep3 { background-color: #9FA; }
 tr.errtr { border-style: solid; border-color: red; border-width: 2px }
 ul { margin: 2px 15px 2px 0px; }
 li { margin: 10px 0px 10px 0px; }
