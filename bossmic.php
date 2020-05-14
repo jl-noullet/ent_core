@@ -108,6 +108,10 @@ if	( isset($_GET['op']) )
 			$boodle->kill_login( $_GET['ind'], TRUE );
 		else	$boodle->kill_login( $_GET['ind'], FALSE );
 		}
+	else if	( $_GET['op'] == 'eleves_check' )
+		{
+		$boodle->check_eleves();
+		}
 	else if	( $_GET['op'] == 'reponse' )	// URL ?op=reponse&g=1&e=1&q=Q1A1
 		{
 		if	( isset( $_POST['notes_mod'] ) )	// ici cumul GET + POST !!! (mais pas de POST tout seul)
@@ -185,6 +189,7 @@ $menua->add( "$self?op=logout", 'Logout' );
 $menua->add( "$self?op=login_list", 'Liste des logins' );
 $menua->add( "$self?op=binome_list_k", 'Liste des binomes' );
 // $menua->add( "$self?op=binome_add", 'Ajouter un binome' );
+$menua->add( "$self?op=eleves_check", 'Verif. des élèves' );
 $menua->add( '', '' );
 $eexxpp = $_SESSION['scope_exp'];
 $ggrrpp = $_SESSION['scope_group'];

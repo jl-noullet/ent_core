@@ -227,6 +227,56 @@ function liste_reponse( $expid, $question, $groupe ) {
 	echo "</form>\n";
 	}
 
+// cette fonction rend un tableau qui pour chaque élève donne l'array des binomes auxquel il appartient
+// les eleves sont designes par un index dans $liste_eleves (il n'y a pas de table d'élèves dans la BD)
+function scan_eleves() {
+	$resu = array();
+	foreach ( $this->liste_eleves as $k => $v )
+		{
+		if	( $k )
+			{
+			$sqlrequest = "SELECT `indix` FROM `{$this->table_binomes}` WHERE
+			`eleve1` = '{$k}' OR
+			`eleve2` = '{$k}' OR
+			`eleve3` = '{$k}'";
+			$result = $this->db->conn->query( $sqlrequest );
+			if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+			$resu[$k] = array();
+			while	( $row = mysqli_fetch_assoc($result) )
+				$resu[$k][] = $row['indix'];
+			}
+		}
+	return $resu;
+	}
+
+// cette fonction affiche 2 listes : eleves sans binome, eleves avec plus d'un binome
+function check_eleves() {
+	$scanned = $this->scan_eleves();
+	// print_r( $scanned );
+	echo "<h3>Elèves sans binôme (donc sans réponses)</h3>\n<pre>";
+	foreach ( $scanned as $k => $v )
+		{
+		$cnt = count($v);
+		if	( $cnt == 0 )
+			echo $this->liste_eleves[$k], "\n";
+		}
+	echo '</pre>';
+	echo "<h3>Elèves appartenant à plus d'un binôme</h3>\n<pre>";
+	foreach ( $scanned as $k => $v )
+		{
+		$cnt = count($v);
+		if	( $cnt > 1 )
+			{
+			echo $this->liste_eleves[$k], "\n";
+			foreach ( $v as $k2 => $v2 )
+				{ echo "\t"; $this->list_1binome( $v2 ); echo "\n"; }
+			}
+
+		}
+	echo '</pre>';
+	}
+
+
 } // class boodladm
 
 ?>
