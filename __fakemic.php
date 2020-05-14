@@ -16,7 +16,7 @@ if	( preg_match( '/(mic|imacs|pro)[.]php$/', $self, $apo ) == 0 )
 
 
 /* zone de login rudimentaire pour dev. 
-*
+*/
 session_start();
 if  	( !isset( $_SESSION['usuario'] ) )
 	{	// traiter login
@@ -30,7 +30,7 @@ if  	( !isset( $_SESSION['usuario'] ) )
 //*/
 
 /* zone CAS
-*/
+*
 $phpcas_path = './LECAS';		// relative path to dir containing CAS.php & the CAS directory
 $cas_host = 'cas.insa-toulouse.fr';	// Full Hostname of your CAS Server
 $cas_context = '/cas';			// Context of the CAS Server
