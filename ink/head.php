@@ -32,8 +32,8 @@ var ww, restyle_text;
 ww = document.documentElement.clientWidth;
 inputwidth = Math.floor(ww/2);
 menuwidth = Math.floor(ww/5);
-if	( menuwidth > 180 )
-	menuwidth = 180;
+if	( menuwidth > 180 )	menuwidth = 180;
+if	( menuwidth < 96  )	menuwidth =  96;
 restyle_text  = "#sidebar { width: " + menuwidth + "px; } #main { margin-left: " + menuwidth + "px; } ";
 restyle_text += ".roin, .textin, .linkin { width: " + inputwidth + "px; } .areain { width: " + inputwidth + "px; }";
 // alert( restyle_text );

@@ -45,18 +45,11 @@ if	( preg_match( '/(mic|imacs|pro)[.]php$/', $self, $apo ) == 0 )
 
 $expnums = array( 1 => '1', '2', '3', '4', '5' );
 
-$form_scope = new form;
-$form_scope->nom = 'scope';
-$form_scope->add( 'groupe', 'Groupe', 'S', $groupes, FALSE );
-$form_scope->add( 'expe', 'Expérience', 'S', $expnums, FALSE );
-
 // contexte par defaut
 if	( !isset($_SESSION['scope_group']) )
 	$_SESSION['scope_group'] = 0;
 if	( !isset($_SESSION['scope_exp']) )
 	$_SESSION['scope_exp'] = 1;
-$form_scope->itsa['groupe']->val = $_SESSION['scope_group'];
-$form_scope->itsa['expe']->val   = $_SESSION['scope_exp'];
 
 $boodle = new boodladm;
 $boodle->init( $apo[1] );
@@ -129,9 +122,12 @@ if	( isset($_GET['op']) )
 			}
 		$boodle->liste_reponse( $_GET['e'], $_GET['q'], $_GET['g'] );
 		}
-	else if	( $_GET['op'] == 'context_edit' )
+	else if	( $_GET['op'] == 'context_set' )
 		{
-		$form_scope->show_form( 'mod', FALSE, 0 );
+		if	( isset($_GET['g']) )
+			$_SESSION['scope_group'] = (int)$_GET['g'];
+		if	( isset($_GET['e']) )
+			$_SESSION['scope_exp'] = (int)$_GET['e'];
 		}
 	else if	( $_GET['op'] == 'logout' )
 		{
@@ -168,22 +164,13 @@ else if	( isset( $_POST['binome_abt'] ) )
 	{
 	echo "<p class=\"resu\">{$label['aborted']}</p>";
 	}
-else if	( isset( $_POST['scope_mod'] ) )
-	{
-	$_SESSION['scope_group'] = $_POST['groupe'];
-	$_SESSION['scope_exp'] = $_POST['expe'];
-	echo "<p class=\"resu\">{$label['moded']}</p>";
-	}
 
 // traiter entree sans op ni POST si il y en a
 
 echo "</div>\n";
 
-// sidebar
-
+// generation menu pour sidebar
 $menua = new menu;
-// $menua->add( "$self?op=init", 'Initialiser la base de données' );
-$menua->add( "$self?op=context_edit", 'Changer contexte' );
 $menua->add( '', '' );
 $menua->add( "$self?op=logout", 'Logout' );
 $menua->add( "$self?op=login_list", 'Liste des logins' );
@@ -191,17 +178,33 @@ $menua->add( "$self?op=binome_list_k", 'Liste des binomes' );
 // $menua->add( "$self?op=binome_add", 'Ajouter un binome' );
 $menua->add( "$self?op=eleves_check", 'Verif. des élèves' );
 $menua->add( '', '' );
-$eexxpp = $_SESSION['scope_exp'];
-$ggrrpp = $_SESSION['scope_group'];
-foreach	( $formexp[$eexxpp]->itsa as $k => $v )
+$expp = $_SESSION['scope_exp'];
+if	( ( $expp < 1 ) || ( $expp > 5 ) )
+	$expp = 1;
+$grpp = $_SESSION['scope_group'];
+if	( ( $grpp < 0 ) || ( $grpp > 2 ) )
+	$grpp = 0;
+foreach	( $formexp[$expp]->itsa as $k => $v )
 	{
 	if	( substr( $k, 0, 1 ) == 'Q' )
-		$menua->add( "$self?op=reponse&e={$eexxpp}&g={$ggrrpp}&q={$k}", "réponses {$k}" );
+		$menua->add( "$self?op=reponse&e={$expp}&g={$grpp}&q={$k}", "réponses {$k}" );
 	}
-
+// layout sidebar
 echo '<div id="sidebar"><button type="button" id="closebtn" onclick="closeNav()">&lt;&lt;</button>';
-echo '<p>Contexte:<br>Groupe ', $groupes[$_SESSION['scope_group']], '<br>Expérience ', $_SESSION['scope_exp'], '</p>';
-
+// echo '<p>Contexte:<br>Groupe ', $groupes[$grpp], '<br>Expérience ', $expp, '</p>';
+// boite a boutons
+echo '<table><tr><td colspan="3">Groupe</td></tr><tr>';
+echo  '<td', ($grpp==0)?' class="on"':'', '><a href="', $self, '?op=context_set&g=0">C</a></td>';
+echo  '<td', ($grpp==1)?' class="on"':'', '><a href="', $self, '?op=context_set&g=1">D</a></td>';
+echo  '<td', ($grpp==2)?' class="on"':'', '><a href="', $self, '?op=context_set&g=2">E</a></td>';
+echo '</tr><tr><td colspan="5">Expérience</td></tr><tr>';
+echo  '<td', ($expp==1)?' class="on"':'', '><a href="', $self, '?op=context_set&e=1">1</a></td>';
+echo  '<td', ($expp==2)?' class="on"':'', '><a href="', $self, '?op=context_set&e=2">2</a></td>';
+echo  '<td', ($expp==3)?' class="on"':'', '><a href="', $self, '?op=context_set&e=3">3</a></td>';
+echo  '<td', ($expp==4)?' class="on"':'', '><a href="', $self, '?op=context_set&e=4">4</a></td>';
+echo  '<td', ($expp==5)?' class="on"':'', '><a href="', $self, '?op=context_set&e=5">5</a></td>';
+echo '</tr></table>';
+// menu
 $menu = $menua;
 $menu->display();
 echo '</div>';
