@@ -276,6 +276,44 @@ function check_eleves() {
 	echo '</pre>';
 	}
 
+// cette fonction affiche l'etat d'avancement de la notation, c'est a dire le nombre de notes
+// non-nulles par question
+function status_notes() {
+	// compter les binomes pour avoir valeur de ref.
+	$sqlrequest = "SELECT COUNT(*) FROM `{$this->table_binomes}`";
+	$result = $this->db->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+	if	( $row = mysqli_fetch_assoc($result) )
+		$bincnt = $row['COUNT(*)'];
+	else	$bincnt = 0;
+	// scruter les notes
+	$sqlrequest = "SELECT * FROM `{$this->table_notes}`";
+	$result = $this->db->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+	$cnt = array(); $rowcnt = 0;
+	while	( $row = mysqli_fetch_assoc($result) )
+		{
+		foreach ( $row as $k => $v )
+			{
+			if	( $k != 'indix' )
+				{
+				if	( $rowcnt == 0 )
+					$cnt[$k] = 0;
+				if	( $v > 0 )
+					$cnt[$k]++;
+				}
+			}
+		$rowcnt++;
+		}
+	// print_r( $cnt ); echo '<p>', $rowcnt, ' rows</p>';
+	// afficher stats
+	echo '<h3>Etat d\'avancement du labeur de notation : nombre de notes par question</h3><pre>';
+	foreach ( $cnt as $k => $v )
+		{
+		echo sprintf( "%4s : %2d/%2d\n", $k, $v, $bincnt );
+		}
+	echo '</pre>';
+	}
 
 } // class boodladm
 

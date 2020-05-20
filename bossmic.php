@@ -91,6 +91,10 @@ if	( isset($_GET['op']) )
 		{
 		$boodle->list_binomes( true );
 		}
+	else if	( $_GET['op'] == 'notes_status' )
+		{
+		$boodle->status_notes();
+		}
 	else if	( $_GET['op'] == 'login_list' )
 		{
 		$boodle->list_logins();
@@ -176,7 +180,8 @@ $menua->add( "$self?op=logout", 'Logout' );
 $menua->add( "$self?op=login_list", 'Liste des logins' );
 $menua->add( "$self?op=binome_list_k", 'Liste des binomes' );
 // $menua->add( "$self?op=binome_add", 'Ajouter un binome' );
-$menua->add( "$self?op=eleves_check", 'Verif. des élèves' );
+$menua->add( "$self?op=eleves_check", 'Vérif. des élèves' );
+$menua->add( "$self?op=notes_status", 'Status notation' );
 $menua->add( '', '' );
 $expp = $_SESSION['scope_exp'];
 if	( ( $expp < 1 ) || ( $expp > 5 ) )
