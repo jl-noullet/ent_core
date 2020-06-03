@@ -70,6 +70,50 @@ function kill_binome( $indix ) {
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
 	}
+// affichage liste avec notes
+function list_binomes_notes( $killable=false ) {
+	$sums123 = $this->sum_notes(123);
+	$sums4   = $this->sum_notes(4);
+	$sums5   = $this->sum_notes(5);
+	$notes = array(); 
+	$sqlrequest = "SELECT `indix` FROM `{$this->table_binomes}` ORDER BY `groupe`"; // . " WHERE `groupe` = '$g'";
+	$result = $this->db->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+	echo "<table><tr><td>binôme</td><td>note Q1,2,3<br>sur 54</td><td>note Q4<br>sur 18</td><td>note Q5<br>sur 18</td>",
+	     "<td>note Q4|Q5<br>sur 18</td><td>note totale<br>sur 72</td><td>note finale<br>sur 20</td></tr>\n";
+	while	( $row = mysqli_fetch_assoc($result) )
+		{
+		$ix = $row['indix'];
+		echo '<tr><td>'; $this->list_1binome( $ix ); echo '</td>';
+		if	( isset($sums123[$ix]) )
+			{
+			echo '<td>';
+			$nx = $sums123[$ix]; echo (( $nx < 0 )?('?'):($nx));
+			echo '</td><td>';
+			$nx4 = $sums4[$ix] * 18/20; echo (( $nx4 < 0 )?('?'):(sprintf("%.1f", $nx4)));
+			echo '</td><td>';
+			$nx5 = $sums5[$ix] * 18/16; echo (( $nx5 < 0 )?('?'):(sprintf("%.1f", $nx5)));
+			echo '</td><td>';
+			if	( $nx5 > $nx4 ) { $nxa = $nx5; $nxb = $nx4; }
+			else 			{ $nxa = $nx4; $nxb = $nx5; }
+			if	( $nxb > 9 )	$nxa += ( $nxb / 2 );
+			echo sprintf("%.1f", $nxa );
+			echo '</td><td>';
+			$notes[$ix] = $nx + $nxa;
+			echo sprintf("%.1f", $notes[$ix] );
+			echo '</td><td>';
+			$notes[$ix] = round( $notes[$ix] * 20 / 72 );
+			if	( $notes[$ix] > 20 )
+				$notes[$ix] = 20;
+			echo $notes[$ix];
+			echo '</td>';
+			}
+		else	echo '<td colspan="6">!?</td>';
+		echo "</tr>\n";
+		}
+	echo '</table>';
+	$this->histo( $notes, 20 );
+	}
 
 // // // objet login // // //
 function list_logins() {
@@ -311,6 +355,62 @@ function status_notes() {
 	foreach ( $cnt as $k => $v )
 		{
 		echo sprintf( "%4s : %2d/%2d\n", $k, $v, $bincnt );
+		}
+	echo '</pre>';
+	}
+// extraction et sommation notes par binome, questions choisies selon $opt 
+// rend un array de nombres
+function sum_notes( $opt ) {
+ 	// scruter les notes
+	$sqlrequest = "SELECT * FROM `{$this->table_notes}`";
+	$result = $this->db->conn->query( $sqlrequest );
+	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
+	$sums = array();
+	while	( $row = mysqli_fetch_assoc($result) )
+		{
+		$ix = $row['indix'];
+		$sums[$ix] = 0;
+		foreach ( $row as $k => $v )
+			{
+			$qx = substr( $k, 0, 2 );
+			$v = (int)$v;
+			if	( ( $opt == 123 ) && ( ( $qx == 'Q1' ) || ( $qx == 'Q2' ) || ( $qx == 'Q3' ) ) )
+				{
+				$sums[$ix] += (( $v == 0 )?(-1000):( $v - 1 ));
+				}
+			else if ( ( $opt == 4 ) && ( $qx == 'Q4' ) )
+				{
+				$sums[$ix] += (( $v == 0 )?(0):( $v - 1 ));
+				}
+			else if ( ( $opt == 5 ) && ( $qx == 'Q5' ) )
+				{
+				$sums[$ix] += (( $v == 0 )?(0):( $v - 1 ));
+				}
+			}
+		}
+	return $sums;
+	}
+// histogramme ascii-art d'un tableau de nombres, jusqu'a max inclus 
+function histo( $tab, $max ) {
+	// calculs
+	$stat = array();
+	for	( $i = 0; $i <= $max; $i++ )
+		{
+		$stat[$i] = 0;
+		foreach	( $tab as $k => $v )
+			{
+			if	( $v == $i )
+				$stat[$i]++;
+			}
+		}
+	// affichage
+	echo '<pre style="font-size: 80%">';
+	for	( $i = 0; $i <= $max; $i++ )
+		{
+		echo sprintf("%3d ", $i );
+		for	( $j = 0; $j < $stat[$i]; $j++ )
+			echo '*';
+		echo "\n";
 		}
 	echo '</pre>';
 	}
