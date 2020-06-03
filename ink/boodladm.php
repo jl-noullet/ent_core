@@ -70,12 +70,14 @@ function kill_binome( $indix ) {
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
 	}
-// affichage liste avec notes
+
+// affichage liste avec notes, rend un tableau de notes par eleves
 function list_binomes_notes( $killable=false ) {
 	$sums123 = $this->sum_notes(123);
 	$sums4   = $this->sum_notes(4);
 	$sums5   = $this->sum_notes(5);
-	$notes = array(); 
+	$notebins = array();
+	$noteseleves = array();
 	$sqlrequest = "SELECT `indix` FROM `{$this->table_binomes}` ORDER BY `groupe`"; // . " WHERE `groupe` = '$g'";
 	$result = $this->db->conn->query( $sqlrequest );
 	if	(!$result) mostra_fatal( $sqlrequest . "<br>" . mysqli_error($this->db->conn) );
@@ -99,20 +101,29 @@ function list_binomes_notes( $killable=false ) {
 			if	( $nxb > 9 )	$nxa += ( $nxb / 2 );
 			echo sprintf("%.1f", $nxa );
 			echo '</td><td>';
-			$notes[$ix] = $nx + $nxa;
-			echo sprintf("%.1f", $notes[$ix] );
+			$notesbins[$ix] = $nx + $nxa;
+			echo sprintf("%.1f", $notesbins[$ix] );
 			echo '</td><td>';
-			$notes[$ix] = round( $notes[$ix] * 20 / 72 );
-			if	( $notes[$ix] > 20 )
-				$notes[$ix] = 20;
-			echo $notes[$ix];
+			$notesbins[$ix] = round( $notesbins[$ix] * 20 / 72 );
+			if	( $notesbins[$ix] > 20 )
+				$notesbins[$ix] = 20;
+			echo $notesbins[$ix];
 			echo '</td>';
+			// attribution de la note aux membres du binome
+			global $form_bi;
+			$form_bi->db2form( $this->db, $this->table_binomes, $ix );
+			$eleve1 = $form_bi->itsa['eleve1']->val;
+			$eleve2 = $form_bi->itsa['eleve2']->val;
+			$eleve3 = $form_bi->itsa['eleve3']->val;
+			if	( $eleve1 ) $noteseleves[$eleve1] = $notesbins[$ix];
+			if	( $eleve2 ) $noteseleves[$eleve2] = $notesbins[$ix];
+			if	( $eleve3 ) $noteseleves[$eleve3] = $notesbins[$ix];
 			}
 		else	echo '<td colspan="6">!?</td>';
 		echo "</tr>\n";
 		}
 	echo '</table>';
-	$this->histo( $notes, 20 );
+	return $noteseleves;
 	}
 
 // // // objet login // // //

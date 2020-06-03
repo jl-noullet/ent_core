@@ -1,13 +1,6 @@
 <?php
 session_start();
 
-require_once('ink/longage.php');
-require_once('ink/db.php');
-require_once('ink/def.php');
-require_once('ink/boodle.php');
-require_once('ink/boodladm.php');
-require_once('ink/head.php');
-
 if  	( !isset($_SESSION['cacique']) )
 	{	// traiter login
 	if	( ( isset( $_REQUEST['id_1136'] ) ) && ( isset( $_REQUEST['id_1137'] ) ) )
@@ -33,6 +26,27 @@ if  	( !isset($_SESSION['cacique']) )
 	<?php
 	exit();
 	}
+
+if	( isset($_GET['op']) )
+	{
+	if	( $_GET['op'] == 'notes_csv' )
+		{
+		if	( isset( $_SESSION['notes_csv'] ) )
+			{
+			header('Content-type: application/csv');
+			header('Content-Disposition: attachment; filename="notes_archi.csv"');
+			echo $_SESSION['notes_csv'];
+			exit();
+			}
+		}
+	}
+
+require_once('ink/longage.php');
+require_once('ink/db.php');
+require_once('ink/def.php');
+require_once('ink/boodle.php');
+require_once('ink/boodladm.php');
+require_once('ink/head.php');
 
 $self = $_SERVER['PHP_SELF'];
 if	( preg_match( '/(mic|imacs|pro)[.]php$/', $self, $apo ) == 0 )
@@ -93,7 +107,25 @@ if	( isset($_GET['op']) )
 		}
 	else if	( $_GET['op'] == 'binome_list_notes' )
 		{
-		$boodle->list_binomes_notes();
+		$noteseleves = $boodle->list_binomes_notes();
+		// production de la feuille de notes en csv
+		$notes_csv = "";
+		foreach	( $boodle->liste_eleves as $k => $v )
+			{
+			$notes_csv .= $v;
+			$notes_csv .= ',';
+			if	( isset( $noteseleves[$k] ) )
+				$notes_csv .= $noteseleves[$k];
+			else	$notes_csv .= '0';
+			$notes_csv .= "\r\n";
+			}
+		// echo '<pre>', $notes_csv, '</pre>';
+		$_SESSION['notes_csv'] = $notes_csv;
+		echo '<p>Notes sur liste alphabétique des élèves : <a href="', $self, '?op=notes_csv">Télécharger fichier CSV</a></p>';
+		// histogramme en ascii-art
+		echo '<p>Histogramme</p>';
+		$boodle->histo( $noteseleves, 20 );
+		echo '<br>';
 		}
 	else if	( $_GET['op'] == 'notes_status' )
 		{
