@@ -3,8 +3,9 @@
  */
 
 echo	'<style type="text/css">', "\n",
+	"table.nobo td { border:0; padding: 6px; }\n",
 	"table.lp {border-collapse:collapse; }\n",
-	"table.lp, td, th { border:1px solid black; padding: 2px 4px 2px 6px; }\n",
+	"table.lp td { border:1px solid black; padding: 2px 4px 2px 6px; }\n",
 	'</style>';
 
 // Display main header with Module icon and Program title.
@@ -44,7 +45,7 @@ else	{
 	$result = db_query( $sqlrequest, true );
 	if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 		{
-		$class_name = $row['short_name'] . ' ' . $row['title'];
+		$class_name = $row['title'];
 		// identifier les eleves inscrits dans cette classe
 		$sqlrequest = 'SELECT student_id FROM student_enrollment WHERE grade_id=' . $lp_classe . ' AND syear=' . $my_year; 
 		// echo $sqlrequest;
@@ -55,26 +56,57 @@ else	{
 			// echo '<pre>'; var_dump( $row ); echo '</pre>';
 			$my_students[] = (int)$row['student_id'];
 			}
-		DrawHeader( 'Liste de la classe ' . $class_name . ' : ' . count($my_students) . ' élèves' );
 		// echo '<pre>'; var_dump( $my_students ); echo '</pre>';
-		echo '<table class="lp"><tr><td>N°</td><td>MATRICULE</td><td>NOMS ET PRENOMS</td><td>DATE DE NAISSANCE</td><td>SEXE</td><td>STATUT</td></tr>',
-		     "\n";
+		// des tableaux tous indexes par student_id, ainsi si on trie l'un on trie les autres
+		$noms_complets = array();
+		$dates_naissance = array();
+		$sexes = array();
+		$statuses = array();
+		// remplir les tableaux
 		foreach	( $my_students as $k => $v ) {
 			$sqlrequest = 'SELECT first_name, middle_name, last_name, custom_200000000, custom_200000004 '
 				. 'FROM students WHERE student_id=' . $v;
 			$result = db_query( $sqlrequest, true );
 			if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 				{
-				if	( $row['custom_200000000'][0] == 'F') $sexe = 'F';
-				else if	( $row['custom_200000000'][0] == 'M') $sexe = 'G';
-				else	$sexe = ' ';
-				echo '<tr><td>', 1 + $k, '</td><td>', $my_prefix, $v, '</td><td>',
-				     $row['last_name'], ' ', $row['first_name'], ' ', $row['middle_name'],
-				     '</td><td>', $row['custom_200000004'], '</td><td>', $sexe,'</td><td>',
-				     'N', "</td></tr>\n";	
+				$noms_complets[$v] = $row['last_name'] . ' ' . $row['first_name'] . ' ' . $row['middle_name'];
+				$dates_naissance[$v] = $row['custom_200000004'];
+				if	( $row['custom_200000000'][0] == 'F') $sexes[$v] = 'F';
+				else if	( $row['custom_200000000'][0] == 'M') $sexes[$v] = 'G';
+				else	$sexes[$v] = ' ';
+				$statuses[$v] = 'N';
 				}
 			}
-		echo '</table>';
+		// trier par ordre alphabetique des noms
+		natcasesort( $noms_complets );
+
+		// produire le HTML, tout dans une grande table avec 2 colonnes
+		echo '<table class="nobo">';
+		echo '<tr><td colspan="2" style="text-align: center"><img src="/benizusa/assets/benisuza3.png"></td></tr>';
+		echo '<tr><td colspan="2" style="text-align: right"><b>ANNEE SCOLAIRE ', $my_year, '/', $my_year+1, '</b></td></tr>';
+		echo '<tr><td colspan="2" style="text-align: center"><b>LISTE DES ELEVES</b></td></tr>';
+		echo '<tr><td>CLASSE : <b>' . $class_name . '</b></td><td>';
+		echo '<table class="lp" style="width: 50%; float: right"><tr><td colspan="3">NOUVEAUX</td><td colspan="3">REDOUBLANTS</td><td colspan="3">EFFECTIF GENERAL</td></tr>', "\n";
+		echo '<tr><td>G</td><td>F</td><td>Total</td><td>G</td><td>F</td><td>Total</td><td>G</td><td>F</td><td>Total</td></tr>', "\n";
+		echo '<tr><td> </td><td> </td><td> </td><td> ',
+		     '</td><td> </td><td> </td><td> </td><td> ',
+		     '</td><td>', count($my_students), '</td></tr>', "\n";
+		echo "</table>\n";
+		echo '</td></tr><tr><td colspan="2">';
+		echo '<table class="lp"><tr><td>N°</td><td>MATRICULE</td><td>NOMS ET PRENOMS</td><td>DATE DE NAISSANCE</td><td>SEXE</td><td>STATUT</td></tr>',
+		     "\n";
+		$cnt = 1;
+		foreach	( $noms_complets as $k => $v ) {
+			$YMD = explode("-", $dates_naissance[$k] );
+			if	( ( count($YMD) == 3 ) && ( (int)$YMD[0] > 1950 ) )
+				$date = $YMD[2] . '/' . $YMD[1] . '/' . $YMD[0];
+			else	$date = $dates_naissance[$k];
+			echo '<tr><td>', $cnt, '</td><td>', $my_prefix, $k, '</td><td>', $v, '</td><td>',
+			     $date, '</td><td>', $sexes[$k], '</td><td>', $statuses[$k], "</td></tr>\n";	
+			$cnt++;
+			}
+		echo "</table></td></tr>\n";
+		echo "</table>";
 		}
 	}
 
