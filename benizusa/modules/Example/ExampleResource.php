@@ -3,17 +3,6 @@
  liste d'eleves par classes aux format Kmer
  */
 
-echo	'<style type="text/css">', "\n",
-	"table.nobo { background-color: #FFF }\n",
-	"table.nobo td { border:0; padding: 6px; }\n",
-	"table.lp { width: 100%; border-collapse:collapse; }\n",
-	"table.lp td { border:1px solid black; padding: 2px 4px 2px 6px; }\n",
-	"table.lp2 { width: 99%; float: right; }\n table.lp2 td { width: 11%; text-align: center }\n",
-	'</style>';
-
-// Display main header with Module icon and Program title.
-// DrawHeader( ProgramTitle() );
-
 $my_school = UserSchool();
 $my_year = UserSyear();
 // params a mettre dans la config du module
@@ -44,7 +33,7 @@ if	( !isset( $_REQUEST['lp_classe'] ) )
 	}
 else	{
 	$lp_classe = (int)$_REQUEST['lp_classe'];	// petit filtrage de securite
-	// checher nom de la classe
+	// chercher nom de la classe
 	$sqlrequest = 'SELECT short_name, title FROM school_gradelevels WHERE id=' . $lp_classe;
 	$result = db_query( $sqlrequest, true );
 	if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
@@ -108,9 +97,40 @@ else	{
 		// trier par ordre alphabetique des noms
 		natcasesort( $noms_complets );
 
+		if	( $_REQUEST['modfunc'] === 'savePDF' ) // Print PDF.
+			{
+			ob_start();	// redirect stdout to a buffer
+			}
+		else	{	// Le contenu interactif, exclu du PDF
+			$zeurl = 'Modules.php?modname=' . $_REQUEST['modname'] . '&modfunc=savePDF&_ROSARIO_PDF=1';
+			// propagation d'un agument (pourrait aussi se faire par $_SESSION)
+			$zeurl .= ( '&lp_classe=' . (int)$_REQUEST['lp_classe'] );
+			echo '<h3>le style FORM</h3>';
+			// UWAGA! methode GET ne marche pas car l'URL contient deja un '?'
+			echo '<form action="' . $zeurl . '" method="POST">';
+			echo '<input type="submit" value="Do the PDF" class="button-primary" />';
+			echo '<hr>';
+			echo '</form>';
+			echo '<h3>le style LINK</h3>';
+			// UWAGA! target="_blank" indispensable dans ce cas
+			echo '<a href="' . $zeurl . '" target="_blank">Do the PDF</a>';
+			echo '<hr>';
+			}
+
 		// produire le HTML, tout dans une grande table avec 2 colonnes
+		echo	'<style type="text/css">', "\n",
+			"table.nobo { background-color: #FFF }\n",
+			"table.nobo td { border:0; padding: 6px; }\n",
+			"table.lp { width: 100%; border-collapse:collapse; }\n",
+			"table.lp td { border:1px solid black; padding: 2px 4px 2px 6px; }\n",
+			"table.lp2 { width: 99%; float: right; }\n table.lp2 td { width: 11%; text-align: center }\n",
+			'</style>';
+		// UWAGA il faut une URL absolue pour l'image
+		$pos = strpos( $_SERVER['PHP_SELF'], 'Modules.php' );
+		$root = substr( $_SERVER['PHP_SELF'], 0, $pos );
+		$img_URL = 'http://' . $_SERVER['HTTP_HOST'] . $root . 'assets/benisuza3.png';
 		echo '<table class="nobo">';
-		echo '<tr><td colspan="2" style="text-align: center"><img src="/benizusa/assets/benisuza3.png"></td></tr>';
+		echo '<tr><td colspan="2" style="text-align: center"><img src="' . $img_URL . '"></td></tr>';
 		echo '<tr><td colspan="2" style="text-align: right"><b>ANNEE SCOLAIRE ', $my_year, '/', $my_year+1, '</b></td></tr>';
 		echo '<tr><td colspan="2" style="text-align: center"><b>LISTE DES ELEVES</b></td></tr>';
 		echo '<tr><td>CLASSE : <b>' . $class_name . '</b></td><td>';
@@ -136,6 +156,27 @@ else	{
 		echo "</table></td></tr>\n";
 		echo '<tr><td>', $my_place, ', le</td><td style="text-align: right">', $my_boss, '</td></tr>';
 		echo "</table>";
+
+		// convertir en PDF s'il y a lieu
+		if	( $_REQUEST['modfunc'] === 'savePDF' ) // Print PDF.
+			{
+			$html  = '<!doctype html>' . "\n" . '<html><head><meta charset="UTF-8">';
+			$html .= '<title>' . $class_name . '</title></head><body>' . "\n";	// <title> completement ignore ?
+			$html .= ob_get_clean();
+			$html .= '</body></html>';
+			require_once 'classes/Wkhtmltopdf.php';
+			// cree l'objet wrapper
+			$wkhtmltopdf = new Wkhtmltopdf( array( 'path' => sys_get_temp_dir() ) );
+			// passe les params essentiels au wrapper
+			$wkhtmltopdf->setBinPath( $wkhtmltopdfPath );
+			$wkhtmltopdf->setHtml( $html );
+			// ce titre n'est pas affiche par acroread, mais par le browser si (identif. onglets)
+			// il est visible dans les proprietes du pdf. Il doit etre en ISO-8859-1 !!!
+			$wkhtmltopdf->setTitle( utf8_decode($class_name) );	// 
+			// execute la conversion
+			// UWAGA si on met juste MODE_EMBEDDED c'est considere comme zero => MODE_DOWNLOAD
+			$wkhtmltopdf->output( Wkhtmltopdf::MODE_EMBEDDED, 'imposant.pdf' );
+			}
 		}
 	}
 
