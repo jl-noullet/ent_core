@@ -6,7 +6,7 @@
 $my_school = UserSchool();
 $my_year = UserSyear();
 // params a mettre dans la config du module
-$my_prefix = '2020A0';
+$my_prefix = '2020A';
 $my_place = 'Yaoundé';
 $my_boss = 'Le Principal';
 
@@ -29,7 +29,7 @@ if	( !isset( $_REQUEST['lp_classe'] ) )
 		echo '<option value="', $k, '">', $v, '</option> ';
 		}
 	echo '</select><br>';
-	echo '<button type="submit"> Ok </button> </form>';
+	echo '<button type="submit" class="button-primary"> Ok </button> </form>';
 	}
 else	{
 	$lp_classe = (int)$_REQUEST['lp_classe'];	// petit filtrage de securite
@@ -102,24 +102,34 @@ else	{
 			ob_start();	// redirect stdout to a buffer
 			}
 		else	{	// Le contenu interactif, exclu du PDF
-			$zeurl = 'Modules.php?modname=' . $_REQUEST['modname'] . '&modfunc=savePDF&_ROSARIO_PDF=1';
-			// propagation d'un agument (pourrait aussi se faire par $_SESSION)
-			$zeurl .= ( '&lp_classe=' . (int)$_REQUEST['lp_classe'] );
-			echo '<h3>le style FORM</h3>';
+			$url1 = 'Modules.php?modname=' . $_REQUEST['modname'];
+			$url2 = $url1 . '&modfunc=savePDF&_ROSARIO_PDF=1';
+			// propagation d'un argument (pourrait aussi se faire par $_SESSION)
+			$url2 .= ( '&lp_classe=' . (int)$_REQUEST['lp_classe'] );
+			// echo '<h3>le style FORM</h3>';
 			// UWAGA! methode GET ne marche pas car l'URL contient deja un '?'
-			echo '<form action="' . $zeurl . '" method="POST">';
-			echo '<input type="submit" value="Do the PDF" class="button-primary" />';
-			echo '<hr>';
-			echo '</form>';
-			echo '<h3>le style LINK</h3>';
+			// echo '<form action="' . $url2 . '" method="POST">';
+			// echo '<input type="submit" value="Do the PDF" class="button-primary" />';
+			// echo '</form>';
+			// echo '<hr>';
+			// echo '<h3>le style LINK</h3>';
 			// UWAGA! target="_blank" indispensable dans ce cas
-			echo '<a href="' . $zeurl . '" target="_blank">Do the PDF</a>';
+			echo	'<style type="text/css">', "\n",
+				".butgreen { cursor: pointer; padding: 6px 18px;  margin: 8px 8px; border: solid 2px; ",
+				"border-color: #4D4; background: #AFA; font-weight: bold; }\n",
+				".hmenu { margin: 20px };\n",
+				'</style>';
+			echo '<div class="hmenu">';
+			echo '<a class="butgreen" href="' . $url2 . '" target="_blank">Ce document en PDF</a>';
+			echo '<a class="butgreen" href="' . $url1 . '">Retour au choix de la classe</a>';
+			echo '</div>';
 			echo '<hr>';
 			}
 
 		// produire le HTML, tout dans une grande table avec 2 colonnes
 		echo	'<style type="text/css">', "\n",
-			"table.nobo { background-color: #FFF }\n",
+			"#pdfpage { background-color: #FFF }\n",
+			"table.nobo { width: 100%; margin-top: 12px; margin-bottom: 12px; }\n",
 			"table.nobo td { border:0; padding: 6px; }\n",
 			"table.lp { width: 100%; border-collapse:collapse; }\n",
 			"table.lp td { border:1px solid black; padding: 2px 4px 2px 6px; }\n",
@@ -129,33 +139,41 @@ else	{
 		$pos = strpos( $_SERVER['PHP_SELF'], 'Modules.php' );
 		$root = substr( $_SERVER['PHP_SELF'], 0, $pos );
 		$img_URL = 'http://' . $_SERVER['HTTP_HOST'] . $root . 'assets/benisuza3.png';
+		echo '<div id="pdfpage">';
 		echo '<table class="nobo">';
 		echo '<tr><td colspan="2" style="text-align: center"><img src="' . $img_URL . '"></td></tr>';
 		echo '<tr><td colspan="2" style="text-align: right"><b>ANNEE SCOLAIRE ', $my_year, '/', $my_year+1, '</b></td></tr>';
 		echo '<tr><td colspan="2" style="text-align: center"><b>LISTE DES ELEVES</b></td></tr>';
-		echo '<tr><td>CLASSE : <b>' . $class_name . '</b></td><td>';
-		echo '<table class="lp lp2"><tr><td colspan="3">NOUVEAUX</td><td colspan="3">REDOUBLANTS</td><td colspan="3">TOTAL</td></tr>', "\n";
+		echo '<tr><td>CLASSE : <b>' . $class_name . '</b></td>';
+		// a table in the table
+		echo '<td><table class="lp lp2"><tr><td colspan="3">NOUVEAUX</td><td colspan="3">REDOUBLANTS</td><td colspan="3">TOTAL</td></tr>', "\n";
 		echo '<tr><td>G</td><td>F</td><td>Total</td><td>G</td><td>F</td><td>Total</td><td>G</td><td>F</td><td>Total</td></tr>', "\n";
 		echo "<tr><td>$cntGN</td><td>$cntFN</td><td>$cntN</td>",
 		         "<td>$cntGR</td><td>$cntFR</td><td>$cntR</td>",
 			 "<td>$cntG</td><td>$cntF</td><td>", count($my_students), "</td></tr>\n";
-		echo "</table>\n";
-		echo '</td></tr><tr><td colspan="2">';
+		echo "</table></td>\n";
+		// got out of the table in the table
+		echo "</tr></table>\n";
+		// got out of the nobo table
+		// main table now
 		echo '<table class="lp"><tr><td>N°</td><td>MATRICULE</td><td>NOMS ET PRENOMS</td><td>DATE DE NAISSANCE</td><td>SEXE</td><td>STATUT</td></tr>',
 		     "\n";
 		$cnt = 1;
 		foreach	( $noms_complets as $k => $v ) {
 			$YMD = explode("-", $dates_naissance[$k] );
 			if	( ( count($YMD) == 3 ) && ( (int)$YMD[0] > 1950 ) )
-				$date = $YMD[2] . '/' . $YMD[1] . '/' . $YMD[0];
+				$date = $YMD[2] . '-' . $YMD[1] . '-' . $YMD[0];
 			else	$date = $dates_naissance[$k];
-			echo '<tr><td>', $cnt, '</td><td>', $my_prefix, $k, '</td><td>', $v, '</td><td>',
+			echo '<tr><td>', $cnt, '</td><td>', $my_prefix, sprintf( "%04u", $k ), '</td><td>', $v, '</td><td>',
 			     $date, '</td><td>', $sexes[$k], '</td><td>', $statuses[$k], "</td></tr>\n";	
 			$cnt++;
 			}
-		echo "</table></td></tr>\n";
+		echo "</table>\n";
+		// got out of the main table
+		echo '<table class="nobo">';
 		echo '<tr><td>', $my_place, ', le</td><td style="text-align: right">', $my_boss, '</td></tr>';
 		echo "</table>";
+		echo '</div>';	// id="pdfpage"
 
 		// convertir en PDF s'il y a lieu
 		if	( $_REQUEST['modfunc'] === 'savePDF' ) // Print PDF.
@@ -170,12 +188,12 @@ else	{
 			// passe les params essentiels au wrapper
 			$wkhtmltopdf->setBinPath( $wkhtmltopdfPath );
 			$wkhtmltopdf->setHtml( $html );
-			// ce titre n'est pas affiche par acroread, mais par le browser si (identif. onglets)
+			// ce titre n'est pas affiche par acroread, mais par le browser oui, bon pour identifier les onglets
 			// il est visible dans les proprietes du pdf. Il doit etre en ISO-8859-1 !!!
-			$wkhtmltopdf->setTitle( utf8_decode($class_name) );	// 
+			$wkhtmltopdf->setTitle( utf8_decode($class_name) );
 			// execute la conversion
-			// UWAGA si on met juste MODE_EMBEDDED c'est considere comme zero => MODE_DOWNLOAD
-			$wkhtmltopdf->output( Wkhtmltopdf::MODE_EMBEDDED, 'imposant.pdf' );
+			// UWAGA si on met juste MODE_EMBEDDED c'est considere comme zero qui est MODE_DOWNLOAD
+			$wkhtmltopdf->output( Wkhtmltopdf::MODE_EMBEDDED, utf8_decode($class_name) . '.pdf' );
 			}
 		}
 	}
