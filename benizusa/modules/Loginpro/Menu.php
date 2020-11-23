@@ -24,10 +24,12 @@ if ( $RosarioModules['Students'] ) // Verify target module is activated.
 {
 	$menu['Students']['admin'] += array(
 		4 => 'Loginpro',
-		'Loginpro/ListeEleves.php' => 'Liste Élèves en PDF' );
+		'Loginpro/ListeEleves.php' => 'Liste Élèves en PDF',
+		'Loginpro/Programmes.php' => 'Contenu des Programmes' );
 	$menu['Students']['teacher'] += array(
 		4 => 'Loginpro',
-		'Loginpro/ListeEleves.php' => 'Liste Élèves en PDF' );
+		'Loginpro/ListeEleves.php' => 'Liste Élèves en PDF',
+		'Loginpro/Programmes.php' => 'Contenu des Programmes' );
 	$menu['Students']['parent'] += array(
 		4 => 'Loginpro',
 		'Loginpro/ListeEleves.php' => 'Liste Élèves en PDF' );

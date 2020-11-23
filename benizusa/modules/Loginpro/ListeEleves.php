@@ -3,6 +3,7 @@
  liste d'eleves par classes aux format Kmer
  */
 
+require_once( 'LP_func.php' );
 $my_school = UserSchool();
 $my_year = UserSyear();
 // params a mettre dans la config du module
@@ -33,28 +34,16 @@ if	( !isset( $_REQUEST['lp_classe'] ) )
 	}
 else	{
 	$lp_classe = (int)$_REQUEST['lp_classe'];	// petit filtrage de securite
-	// chercher nom de la classe
-	$sqlrequest = 'SELECT short_name, title FROM school_gradelevels WHERE id=' . $lp_classe;
-	$result = db_query( $sqlrequest, true );
-	if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
-		{
-		$class_name = $row['title'];
-		// identifier les eleves inscrits dans cette classe
-		$sqlrequest = 'SELECT student_id, drop_code, next_school FROM student_enrollment WHERE grade_id=' . $lp_classe . ' AND syear=' . $my_year; 
-		// echo $sqlrequest;
-		$result = db_query( $sqlrequest, true );
-		// des arrays tous indexes par le meme index arbitraire
-		$my_students = array();
-		$my_redoub = array();
-		while	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
-			{
-			// echo '<pre>'; var_dump( $row ); echo '</pre>';
-			if	( !$row['drop_code'] )
-				{
-				$my_students[] = (int)$row['student_id'];
-				$my_redoub[] = (int)$row['next_school'];
-				}
-			}
+	// des arrays tous indexes par le meme index arbitraire
+	$class_name = ''; $class_short_name = '';
+	$my_students = array();
+	$my_redoub = array();
+	LP_liste_classe( $lp_classe, $class_name, $class_short_name, $my_students, $my_redoub );
+	if	( !$class_name )
+		echo "<p>Classe $lp_classe inconnue</p>";
+	else if	( count($my_students) == 0 )
+		echo "<p>Classe $class_name n'a pas d'élèves</p>";
+	else	{
 		// echo '<pre>'; var_dump( $my_students ); echo '</pre>';
 		// des tableaux tous indexes par student_id, ainsi si on trie l'un on trie les autres
 		$noms_complets = array();
