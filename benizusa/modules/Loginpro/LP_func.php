@@ -58,3 +58,18 @@ if	( is_array($activites) )
 		}
 	}
 } 
+
+// comparer deux sets (i.e. les ensemble de clefs de 2 arrays) les valeurs sont ignorees
+// resultat en string
+function LP_compare_sets( &$set1, &$set2 )
+{
+$cnt1 = count( $set1 ); $cnt2 = count( $set2 );
+if	( $cnt1 != $cnt2 )
+	return "$cnt1 elem != $cnt2 elem";
+foreach	( $set1 as $k => $v )
+	{
+	if	( !array_key_exists( $k, $set2 ) )
+		return "$k missing in set2";
+	}
+return '';
+}

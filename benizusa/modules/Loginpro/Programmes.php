@@ -22,7 +22,7 @@ if	( !isset( $_REQUEST['lp_classe'] ) )
 		$class_names[$row['id']] = $row['short_name'] . ' (' . $row['title'] . ')';
 		}
 	// afficher la form
-	echo '<form action="', $_SERVER['REQUEST_URI'], '" method="GET"> ';
+	echo '<form action="', $_SERVER['REQUEST_URI'], '&check_eleves', '" method="GET"> ';
 	echo '<select name="lp_classe"> ';
 	foreach	($class_names as $k => $v) {
 		echo '<option value="', $k, '">', $v, '</option> ';
@@ -75,7 +75,21 @@ else	{
 				echo '</tr>'; 
 				}
 			}
-		echo '</table>';	
+		echo '</table>';
+		if	( isset($_REQUEST['check_eleves']) )
+			{
+			$activites2 = array(); $badcnt = 0; $goodcnt = 1;
+			for	( $i = 1; $i < count($my_students); ++$i )
+				{
+				$activites2 = [];
+				LP_prog_1eleve( $my_students[$i], $activites2 );
+				$check = LP_compare_sets( $activites, $activites2 );
+				if	( $check )
+					{ echo '<p>', 'élève ', $i, ' : ', $check, '</p>'; $badcnt++; }
+				else	$goodcnt++;
+				}
+			echo "<p>$goodcnt eleves Ok, $badcnt erreurs</p>";
+			}
 		}
 	}
 ?>
