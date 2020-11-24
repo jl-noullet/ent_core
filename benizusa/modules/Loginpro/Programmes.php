@@ -1,7 +1,7 @@
 <?php
 /**
  programmes d'enseignement par classe
-	options show_prof, 
+	options show_prof, union
  */
 
 require_once( 'LP_func.php' );
@@ -28,11 +28,15 @@ if	( !isset( $_REQUEST['lp_classe'] ) )
 		echo '<option value="', $k, '">', $v, '</option> ';
 		}
 	echo '</select><br>';
-	echo '<button type="submit" class="button-primary"> Ok </button> </form>';
+	echo '<p><input type="checkbox" name="show_prof"> verif. noms des profs</p>';
+	echo '<input type="hidden" name="union">';	// finalement cette option est permanente
+	echo '<p><input type="checkbox" name="check1" checked> verif. du programme pour chaque élève</p>';
+	echo '<p><button type="submit" class="button-primary"> Ok </button></p> </form>';
 	}
 else	{
 	$lp_classe = (int)$_REQUEST['lp_classe'];	// petit filtrage de securite
 	$show_prof = isset($_REQUEST['show_prof']);
+	if	( isset($_REQUEST['check1']) ) $_REQUEST['union'] = true;
 	$class_name = ''; $class_short_name = '';
 	// un array indexe par index arbitraire
 	$my_students = array();
@@ -43,53 +47,77 @@ else	{
 	else if	( $effectif == 0 )
 		echo "<p>Classe $class_name n'a pas d'élèves</p>";
 	else	{
-		echo "<p>Classe $class_name a $effectif élèves</p>";
+		echo "<p>Classe $class_name : $effectif élèves</p>";
 		echo	'<style type="text/css">', "\n",
 			"table.lp { border-collapse:collapse; }\n",
 			"table.lp td { border:1px solid black; padding: 2px 4px 2px 6px; }\n",
 			'</style>';
-		// un array de set de cours (course-period) indexe par leur title
-		$activites = array();
-		// lire le set pour le premier eleve de la classe
-		LP_prog_1eleve( $my_students[0], $activites ); 
-		echo '<p>', count($activites), ' cours pour le premier élève</p>';
+		// on va travailler sur des sets de cours (course-period), representes par des arrays
+		// keys = course_period_id, vals = true 
+		$class_set = array();
+		if	( isset($_REQUEST['union']) )	// lire les sets de chaque eleve
+			{
+			$all_sets = array();	// un array de sets de cours, indexe par student_id
+			for	( $i = 0; $i < count($my_students); ++$i )
+				{
+				$j = $my_students[$i];
+				$all_sets[$j] = [];
+				LP_prog_1eleve( $j, $all_sets[$j] );
+				$class_set += $all_sets[$j];	// union
+				}
+			}
+		else	{				// lire le set du premier eleve
+			LP_prog_1eleve( $my_students[0], $class_set );
+			}
+		echo '<p>', count($class_set), ' cours ', isset($_REQUEST['union'])?'au total':'premier élève', '</p>';
+		// table des cours
 		echo '<table class="lp">';
-		foreach	( $activites as $k => $v) {
+		foreach	( $class_set as $k => $v) {
 			$sqlrequest = 'SELECT title, short_name, teacher_id, credits FROM course_periods' .
 				      " WHERE course_period_id = $k";
 			$result = db_query( $sqlrequest, true );
 			if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 				{
-				echo '<tr><td>', $row['title'], '</td><td>', $row['short_name'], '</td><td>',
-				     $row['credits'], '</td><td>';
+				echo '<tr><td>', $k, '</td><td>', $row['title'], '</td><td>', $row['short_name'], '</td><td>',
+				     $row['credits'], '</td>';
 				if	( $show_prof )
 					{
 					$sqlrequest = 'SELECT title, first_name, last_name, profile_id FROM staff' .
 						      ' WHERE staff_id=' . $row['teacher_id'];
 					$result = db_query( $sqlrequest, true );
 					if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
-						echo $row['title'], ' ', $row['first_name'], ' ', $row['last_name'], ' [', $row['profile_id'], ']</td>';
-					else	echo 'prof inconnu</td>';
+						echo '<td>', $row['title'], ' ', $row['first_name'], ' ', $row['last_name'],
+						// ' [', $row['profile_id'], ']',	// verif du profile_id, doit etre 2
+						'</td>';
+					else	echo '<td>prof inconnu</td>';
 					}
-				else	echo $row['teacher_id'], '</td>';
 				echo '</tr>'; 
 				}
 			}
 		echo '</table>';
-		if	( isset($_REQUEST['check_eleves']) )
+		// verification exhaustive
+		if	( isset($_REQUEST['check1']) )
 			{
-			$activites2 = array(); $badcnt = 0; $goodcnt = 1;
-			for	( $i = 1; $i < count($my_students); ++$i )
+			$badcnt = 0; $goodcnt = 0;
+			for	( $i = 0; $i < count($my_students); ++$i )
 				{
-				$activites2 = [];
-				LP_prog_1eleve( $my_students[$i], $activites2 );
-				$check = LP_compare_sets( $activites, $activites2 );
+				$check = LP_compare_sets_inc( $all_sets[$my_students[$i]], $class_set, 'cours' );
 				if	( $check )
-					{ echo '<p>', 'élève ', $i, ' : ', $check, '</p>'; $badcnt++; }
+					{
+					$last_name = ''; $first_name = '';
+					LP_info_eleve( $my_students[$i], $last_name, $first_name );
+					echo '<p>', 'élève ', $last_name, ' ', $first_name, ' : ', $check, '</p>'; $badcnt++; }
 				else	$goodcnt++;
 				}
-			echo "<p>$goodcnt eleves Ok, $badcnt erreurs</p>";
+			echo "<p>$goodcnt élèves Ok, $badcnt élèves avec erreur</p>";
 			}
 		}
+	echo	'<style type="text/css">', "\n",
+		".butgreen { cursor: pointer; padding: 6px 18px;  margin: 8px 8px; border: solid 2px; ",
+		"border-color: #4D4; background: #AFA; font-weight: bold; }\n",
+		".hmenu { margin: 20px }\n",
+		'</style>';
+	$url1 = 'Modules.php?modname=' . $_REQUEST['modname'];
+	echo '<div class="hmenu"><a class="butgreen" href="' . $url1 . '">Choisir une autre classe</a></div>';
 	}
 ?>

@@ -3,7 +3,23 @@
  fonctions communes
  */
 
-// obtenir sur otion les 2 noms de la classe
+// obtenir les infos d'un élève (mettre 1 string vide aux elements desires, sinon NULL)
+function LP_info_eleve( $student_id, &$last_name, &$first_name, &$middle_name=NULL, &$date_naissance=NULL )
+{
+$sqlrequest = 'SELECT first_name, middle_name, last_name, custom_200000004 FROM students WHERE student_id=' . $student_id;
+$result = db_query( $sqlrequest, true );
+if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+	{
+	$last_name = $row['last_name'];
+	$first_name = $row['first_name'];
+	if	( is_string( $middle_name ) )
+		$middle_name = $row['middle_name'];
+	if	( is_string( $date_naissance ) )
+		$date_naissance = $row['custom_200000004'];
+	}
+}
+
+// obtenir sur option les 2 noms de la classe,
 // obtenir les id des eleves d'une classe, et sur option leur code de redoublement
 //	$lp_classe = clef dans school_gradelevels
 //	$title = string pour recevoir le nom de la classe, ou NULL
@@ -59,17 +75,19 @@ if	( is_array($activites) )
 	}
 } 
 
-// comparer deux sets (i.e. les ensemble de clefs de 2 arrays) les valeurs sont ignorees
-// resultat en string
-function LP_compare_sets( &$set1, &$set2 )
+// comparer deux sets (i.e. les ensemble de clefs de 2 arrays) (les valeurs sont ignorees)
+// hyp. restrictive : $set est inclus dans $ref_set
+// resultat en string, $elem sert a formuler le message d'erreur
+function LP_compare_sets_inc( &$set, &$ref_set, $elem='item' )
 {
-$cnt1 = count( $set1 ); $cnt2 = count( $set2 );
-if	( $cnt1 != $cnt2 )
-	return "$cnt1 elem != $cnt2 elem";
-foreach	( $set1 as $k => $v )
+$cnt1 = count( $set ); $cnt2 = count( $ref_set );
+if	( $cnt1 == $cnt2 )
+	return '';
+$retval = "$cnt1 $elem au lieu de $cnt2 $elem";
+foreach	( $ref_set as $k => $v )
 	{
-	if	( !array_key_exists( $k, $set2 ) )
-		return "$k missing in set2";
+	if	( !array_key_exists( $k, $set ) )
+		$retval .= ", $elem $k manquant";
 	}
-return '';
+return $retval;
 }
