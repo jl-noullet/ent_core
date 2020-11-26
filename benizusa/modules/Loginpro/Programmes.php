@@ -9,7 +9,14 @@ require_once( 'LP_func.php' );
 $my_school = UserSchool();
 $my_year = UserSyear();
 
-if	( !isset( $_REQUEST['lp_classe'] ) )
+if	( isset( $_REQUEST['test'] ) )
+	{
+	$sqlrequest = 'INSERT INTO program_config (syear, school_id, program, title, value)' .
+			"VALUES ( '2020', '1', 'loginpro', 'pipo', 'pipo3')";
+	$result = db_query( $sqlrequest, true );
+	echo '<h2>DONE</h2>';
+	}
+else if	( !isset( $_REQUEST['lp_classe'] ) )
 	{
 	DrawHeader( 'Choisir une classe' );
 	// obtenir la liste des classes
@@ -110,6 +117,13 @@ else	{
 				else	$goodcnt++;
 				}
 			echo "<p>$goodcnt élèves Ok, $badcnt élèves avec erreur</p>";
+			}
+		if	( isset($_REQUEST['reprog']) )
+			{
+			$last_name = ''; $first_name = '';
+			LP_info_eleve( $my_students[0], $last_name, $first_name );
+			echo '<p>Ref student is ', $last_name, ' ', $first_name, '</p>';
+			LP_reprog_1classe( $lp_classe, $my_students[0] );
 			}
 		}
 	echo	'<style type="text/css">', "\n",
