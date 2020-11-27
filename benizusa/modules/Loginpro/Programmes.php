@@ -35,7 +35,7 @@ else if	( !isset( $_REQUEST['lp_classe'] ) )
 		echo '<option value="', $k, '">', $v, '</option> ';
 		}
 	echo '</select><br>';
-	echo '<p><input type="checkbox" name="show_prof"> verif. noms des profs</p>';
+	echo '<p><input type="checkbox" name="show_prof" checked> afficher noms des profs</p>';
 	echo '<input type="hidden" name="union">';	// finalement cette option est permanente
 	echo '<p><input type="checkbox" name="check1" checked> verif. du programme pour chaque élève</p>';
 	echo '<p><button type="submit" class="button-primary"> Ok </button></p> </form>';
@@ -78,30 +78,7 @@ else	{
 			}
 		echo '<p>', count($class_set), ' cours ', isset($_REQUEST['union'])?'au total':'premier élève', '</p>';
 		// table des cours
-		echo '<table class="lp">';
-		foreach	( $class_set as $k => $v) {
-			$sqlrequest = 'SELECT title, short_name, teacher_id, credits FROM course_periods' .
-				      " WHERE course_period_id = $k";
-			$result = db_query( $sqlrequest, true );
-			if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
-				{
-				echo '<tr><td>', $k, '</td><td>', $row['title'], '</td><td>', $row['short_name'], '</td><td>',
-				     $row['credits'], '</td>';
-				if	( $show_prof )
-					{
-					$sqlrequest = 'SELECT title, first_name, last_name, profile_id FROM staff' .
-						      ' WHERE staff_id=' . $row['teacher_id'];
-					$result = db_query( $sqlrequest, true );
-					if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
-						echo '<td>', $row['title'], ' ', $row['first_name'], ' ', $row['last_name'],
-						// ' [', $row['profile_id'], ']',	// verif du profile_id, doit etre 2
-						'</td>';
-					else	echo '<td>prof inconnu</td>';
-					}
-				echo '</tr>'; 
-				}
-			}
-		echo '</table>';
+		LP_display_course_set( $class_set, isset($_REQUEST['show_prof']), true );
 		// verification exhaustive
 		if	( isset($_REQUEST['check1']) )
 			{

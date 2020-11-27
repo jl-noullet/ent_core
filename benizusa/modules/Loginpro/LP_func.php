@@ -19,6 +19,83 @@ if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 	}
 }
 
+// separer les champs du title d'une course_period
+//	donner un array (optionnel) pour les tranches horaires
+//	donner 2 strings (optionnelles) pour nom court et prof
+function LP_split_course_period( $title, &$tranches, &$nom_court=NULL, &$prof=NULL )
+{
+$splitted = explode( ' - ', $title );
+// echo '<pre>'; var_dump( $splitted ); echo '</pre><hr>';
+$cnt = count( $splitted );
+if	( ( is_string( $prof ) ) && ( $cnt > 0 ) )
+	$prof = $splitted[$cnt-1];
+if	( ( is_string( $nom_court ) ) && ( $cnt > 1 ) )
+	$nom_court = $splitted[$cnt-2];
+if	( ( is_array( $tranches ) ) && ( $cnt > 2 ) )
+	$tranches = array_slice( $splitted, 0, $cnt-2 ); 
+}
+
+// afficher une table de course_periods dont les IDs sont les keys du set $activites
+function LP_display_course_set( $activites, $show_prof, $show_times )
+{
+if	( !is_array( $activites ) )
+	return;
+if	( !count( $activites ) )
+	return;
+echo '<table class="lp">';
+// partie commune de la requete SQL
+$sqlrequest = 'SELECT ';
+if	( $show_times )
+	$sqlrequest .= 'title, ';
+$sqlrequest .= 'short_name, ';
+if	( $show_prof )
+	$sqlrequest .= 'teacher_id, ';
+$sqlrequest .= 'credits FROM course_periods WHERE course_period_id = ';
+foreach	( $activites as $k => $v)
+	{
+	$result = db_query( $sqlrequest . $k, true );
+	if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+		{
+		echo '<tr><td>', $row['short_name'], '</td>';
+		if	( $show_prof )
+			{
+			$sqlrequest2 = 'SELECT title, first_name, last_name FROM staff WHERE staff_id=' . $row['teacher_id'];
+			$result2 = db_query( $sqlrequest2, true );
+			if	( $row2 = pg_fetch_array( $result2, null, PGSQL_ASSOC ) )
+				echo '<td>', $row2['title'], ' ', $row2['first_name'], ' ', $row2['last_name'], '</td>';
+			else	echo '<td>prof inconnu</td>';
+			}
+		echo '<td>', $row['credits'], '</td>';
+		if	( $show_times )
+			{		// exemple de title: "10h30 - 12h20 Jeu. - 12h50 - 14h40 Lun. - PCT 4eme ALL & ESP - Corine NGOMA"
+			$times = array();	// exemple de $times: |10h30|12h20 Jeu.|12h50|14h40 Lun.|
+			LP_split_course_period( $row['title'], $times );
+			echo '<td>';
+			//$tcnt = count( $times );
+			//if	( tcnt )
+			//echo $time[0];
+			//foreach	( $i = 1; $i < $tcnt; $i++ )
+			$old_elem = '';
+			foreach	( $times as $elem )  
+				{
+				if	( $old_elem )
+					{	// separateur
+					if	( strlen($old_elem) >= 7 )
+						echo ' | ';
+					else	echo '-';
+					}
+				echo $elem;
+				$old_elem = $elem;
+				}
+			echo '</td>';
+			}
+		echo '</tr>'; 
+		}
+	}
+echo '</table>';
+}
+
+
 // obtenir sur option les 2 noms de la classe,
 // obtenir les id des eleves d'une classe, et sur option leur code de redoublement
 //	$lp_classe = clef dans school_gradelevels
@@ -75,62 +152,6 @@ if	( is_array($activites) )
 	}
 } 
 
-/* ecrire le set d'activites pour un eleve (efface l'ancien) selon UserSchool() et UserSyear()
-//	$activites = array contenant le set (key = course-period-id)
-//	N.B. course_id (categorie de cours) est un truc obligatoire (mais redondant) pour table schedule...
-// 2 inconvenients:
-//	il faut mettre une start date (ici on a mis une constante)
-//	il faut mettre course_id (categorie de cours) mais c'est redondant (il faudrait le lire dans table course_period)
-//	mettre une valeur arbitrire peut avoir des effets peu previsibles
-function LP_set_prog_1eleve( $my_student, &$activites )
-{
-// effacer tout ce qui concerne cet élève dans l'année courante
-$sqlrequest = 'DELETE FROM schedule WHERE student_id=' . $my_student . ' AND syear=' . UserSyear();
-// echo '<p>', $sqlrequest, '</p>';
-$result = db_query( $sqlrequest, true );
-foreach	( $activites as $k => $v )
-	{
-	$sqlrequest = 'INSERT INTO schedule ( student_id, syear, school_id, course_period_id, course_id, start_date ) VALUES ' .
-	      '(' . $my_student . ',' . UserSyear() . ',' .  UserSchool() . ',' .  (int)$k . ',' . '7' . ',' . "'2020-10-05'". ')'; 
-	// echo '<p>', $sqlrequest, '</p>';
-	$result = db_query( $sqlrequest, true );
-	}
-}
-
-// reprogrammer une classe entiere avec les cours d'un eleve de ref. (il peut etre dans la classe ou non)
-function LP_set_prog_1classe( $target_class, $ref_student )
-{
-$activites = array();
-LP_prog_1eleve( $ref_student, $activites );
-$my_students = array(); $my_null = NULL;
-LP_liste_classe( $target_class, $my_null, $my_null, $my_students );
-foreach	( $my_students as $elem )
-	{
-	if	( $elem != $ref_student )
-		LP_set_prog_1eleve( $elem, $activites );
-		// LP_copy_prog_1eleve( $elem, $ref_student, $activites );
-	}
-}
-
-*/
-
-/* utiliser INSERT INTO ... SELECT pour copier une row peut marcher, mais pas toujours, ici echec 
-function LP_copy_prog_1eleve( $my_student, $ref_student, &$activites )
-{
-// effacer tout ce qui concerne cet élève dans l'année courante
-$sqlrequest = 'DELETE FROM schedule WHERE student_id=' . $my_student . ' AND syear=' . UserSyear();
-// echo '<p>', $sqlrequest, '</p>';
-$result = db_query( $sqlrequest, true );
-foreach	( $activites as $k => $v )
-	{
-	$sqlrequest = 'INSERT INTO schedule ( student_id, syear, school_id, course_period_id, course_id, start_date ) ' .
-		'SELECT ' . $my_student . ', syear, school_id, course_period_id, course_id, start_date ' .
-		'FROM schedule WHERE student_id=' . $ref_student . ' AND syear=' . UserSyear() . ' AND course_period_id=' . (int)$k; 
-	 echo '<p>', $sqlrequest, '</p>';
-	// $result = db_query( $sqlrequest, true );
-	}
-}
-*/
 
 // reprogrammer une classe entiere avec les cours d'un eleve de ref. (il peut etre dans la classe ou non)
 function LP_reprog_1classe( $target_class, $ref_student )
