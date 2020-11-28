@@ -4,18 +4,36 @@
  */
 
 // obtenir les infos d'un élève (mettre 1 string vide aux elements desires, sinon NULL)
-function LP_info_eleve( $student_id, &$last_name, &$first_name, &$middle_name=NULL, &$date_naissance=NULL )
+function LP_info_eleve( $student_id, &$last_name, &$first_name=NULL, &$middle_name=NULL, &$date_naissance=NULL )
 {
-$sqlrequest = 'SELECT first_name, middle_name, last_name, custom_200000004 FROM students WHERE student_id=' . $student_id;
+$sqlrequest = 'SELECT last_name';
+if	( is_string( $first_name ) )
+	{
+	$sqlrequest .= ', first_name';
+	if	( is_string( $middle_name ) )
+		{
+		$sqlrequest .=	', middle_name';
+		if	( is_string( $date_naissance ) )
+			{
+			$sqlrequest .= ', custom_200000004';
+			}
+		}
+	}
+$sqlrequest .= ' FROM students WHERE student_id=' . $student_id;
 $result = db_query( $sqlrequest, true );
 if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 	{
 	$last_name = $row['last_name'];
-	$first_name = $row['first_name'];
-	if	( is_string( $middle_name ) )
-		$middle_name = $row['middle_name'];
-	if	( is_string( $date_naissance ) )
-		$date_naissance = $row['custom_200000004'];
+	if	( is_string( $first_name ) )
+		{
+		$first_name = $row['first_name'];
+		if	( is_string( $middle_name ) )
+			{
+			$middle_name = $row['middle_name'];
+			if	( is_string( $date_naissance ) )
+				$date_naissance = $row['custom_200000004'];
+			}
+		}
 	}
 }
 
@@ -36,7 +54,8 @@ if	( ( is_array( $tranches ) ) && ( $cnt > 2 ) )
 }
 
 // afficher une table de course_periods dont les IDs sont les keys du set $activites
-function LP_display_course_set( $activites, $show_prof, $show_times )
+// accessoirement les short_names sont injectes comme valeurs dans $activites
+function LP_display_course_set( &$activites, $show_prof, $show_times )
 {
 if	( !is_array( $activites ) )
 	return;
@@ -57,6 +76,7 @@ foreach	( $activites as $k => $v)
 	if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 		{
 		echo '<tr><td>', $row['short_name'], '</td>';
+		$activites[$k] = $row['short_name'];	// service annexe : injection de short_name dans $activites
 		if	( $show_prof )
 			{
 			$sqlrequest2 = 'SELECT title, first_name, last_name FROM staff WHERE staff_id=' . $row['teacher_id'];
@@ -95,6 +115,27 @@ foreach	( $activites as $k => $v)
 echo '</table>';
 }
 
+// obtenir les 2 noms de la classe,
+//	$lp_classe = clef dans school_gradelevels
+//	$title = string pour recevoir le nom de la classe
+//	$short_name = string pour recevoir le nom court (opt)
+function LP_nom_classe( $lp_classe, &$title, &$short_name=NULL )
+{
+if	( is_string($title) )
+	{
+	$sqlrequest = 'SELECT short_name, title FROM school_gradelevels WHERE id=' . $lp_classe;
+	$result = db_query( $sqlrequest, true );
+	if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+		{
+		$title = $row['title'];
+		if	( is_string( $short_name ) )
+			$short_name= $row['short-name'];
+		}
+	else	{
+		$title = NULL; return;
+		}
+	}
+}
 
 // obtenir sur option les 2 noms de la classe,
 // obtenir les id des eleves d'une classe, et sur option leur code de redoublement
@@ -207,7 +248,7 @@ foreach	( $my_students as $elem )
 				}
 			$sqlrequest = rtrim( $sqlrequest, ',' );
 			$sqlrequest .= ')';
-			echo '<p>', $sqlrequest, '</p>';
+			// echo '<p>', $sqlrequest, '</p>';
 			$result = db_query( $sqlrequest, true );
 			}
 		}
