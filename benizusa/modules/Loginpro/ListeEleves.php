@@ -34,8 +34,8 @@ if	( !isset( $_REQUEST['lp_classe'] ) )
 	}
 else	{
 	$lp_classe = (int)$_REQUEST['lp_classe'];	// petit filtrage de securite
-	// des arrays tous indexes par le meme index arbitraire
 	$class_name = ''; $class_short_name = '';
+	// des arrays tous indexes par le meme index arbitraire
 	$my_students = array();
 	$my_redoub = array();
 	LP_liste_classe( $lp_classe, $class_name, $class_short_name, $my_students, $my_redoub );

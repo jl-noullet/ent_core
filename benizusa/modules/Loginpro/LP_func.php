@@ -62,7 +62,7 @@ if	( !is_array( $activites ) )
 if	( !count( $activites ) )
 	return;
 echo '<table class="lp">';
-// partie commune de la requete SQL
+// partie commune de la requete SQL, qui va etre comletee avec $k dans le foreach
 $sqlrequest = 'SELECT ';
 if	( $show_times )
 	$sqlrequest .= 'title, ';
