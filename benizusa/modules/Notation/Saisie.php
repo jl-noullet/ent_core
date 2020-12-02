@@ -18,9 +18,12 @@ function reset_saisie()
 
 echo	'<style type="text/css">', "\n",
 	"table.lp { border-collapse:collapse; }\n",
-	"table.lp td { border:1px solid black; padding: 2px 4px 2px 6px; }\n",
+	"table.lp td { border:1px solid black; padding: 2px 8px 2px 10px; }\n",
+	"table.fn td { border:0; padding: 2px 8px 10px 10px; }\n",
 	".butgreen { cursor: pointer; padding: 6px 18px;  margin: 8px 8px; border: solid 2px; ",
-	"border-color: #4D4; background: #AFA; font-weight: bold; }\n",
+	"border-color: #4D4; background: #AFA; color: #048; font-weight: bold; font-size: 16px }\n",
+	".butamber { cursor: pointer; padding: 6px 18px;  margin: 8px 8px; border: solid 2px; ",
+	"border-color: #DA4; background: #FDA; color: #840; font-weight: bold; font-size: 16px }\n",
 	".hmenu { margin: 20px }\n",
 	'</style>';
 
@@ -31,7 +34,8 @@ if	( isset( $_REQUEST['lp_classe'] ) )
 	$_SESSION['lp_classe'] = (int)$_REQUEST['lp_classe'];
 if	( !isset($_SESSION['lp_classe']) ) 
 	{
-	DrawHeader( 'Choisir une classe' );
+	// ETAPE 1 : choix de la classe
+	echo '<h2>Choisir une classe</h2>';
 	// obtenir la liste des classes
 	$sqlrequest = 'SELECT id, short_name, title FROM school_gradelevels WHERE school_id=' . $my_school . ' ORDER BY short_name'; // DESC';
 	$result = db_query( $sqlrequest, true );
@@ -48,19 +52,18 @@ if	( !isset($_SESSION['lp_classe']) )
 		echo '<option value="', $k, '">', $v, '</option> ';
 		}
 	echo '</select><br>';
-	echo '<button type="submit" class="button-primary"> Ok </button> </form>';
+	echo '<div class="hmenu"><button type="submit" class="butgreen"> Ok </button></div></form>';
 	}
 else	{
-	// chercher et afficher nom de la classe
+	// partie commune aux etapes suivantes : le contexte
+	// trouver nom de la classe
 	$sqlrequest = 'SELECT short_name, title FROM school_gradelevels WHERE id=' . $_SESSION['lp_classe'];
 	$result = db_query( $sqlrequest, true );
 	if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
-		{
-		$class_title = $row['title']; $classe_short = $row['short_name'];
-		echo '<p>Classe <b>', $classe_short, '</b> : ', $class_title, '</p>';
-		}
-	else	echo '<p>Classe <b>[', $_SESSION['lp_classe'], ']</b></p>';
-	// interpreter identite utilisateur, afficher si prof
+		{ $class_title = $row['title']; $classe_short = $row['short_name']; }
+	else	{ $class_title = $_SESSION['lp_classe']; $classe_short = $_SESSION['lp_classe']; }
+
+	// interpreter identite utilisateur
 	$sqlrequest = 'SELECT title, first_name, last_name, profile_id FROM staff WHERE staff_id=' . $my_user;
 	$result = db_query( $sqlrequest, true );
 	if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
@@ -70,14 +73,12 @@ else	{
 			$my_prof_name = $row['title'] . ' ' . $row['first_name'] . ' ' . $row['last_name'];
 		}
 	else	$my_profile = -1;
-	if	( $my_profile == 2 )
-		echo '<p>Prof. <b>', $my_prof_name, '</b></p>';
 
 	// securite
 	if	( ( $my_profile < 1 ) || ( $my_profile > 2 ) )
 		{ reset_saisie(); exit('<p>Droits insuffisants pour continuer</p>'); }
 
-	// chercher et afficher le nom de la MP
+	// chercher le nom de la MP
 	$marking_period = UserMP();
 	if	( $marking_period )
 		{
@@ -88,12 +89,21 @@ else	{
 		else	$MP_name = '[' . $marking_period . ']';
 		}
 	else	$MP_name = '[?]';
-	echo '<p><b>', $MP_name, '</b></p>';	
+
+	// commencer la table de contexte
+	$label_table = '<table class="fn"><tr><td>Etape :</td><td>' . $MP_name . '</td></tr>'
+			. '<tr><td>Classe :</td><td>' . $class_title . '</td></tr>';
+	if	( $my_profile == 2 )
+		$label_table .= '<tr><td>Prof. :</td><td>' . $my_prof_name . '</td></tr>';
+	// N.B. ici cette table n'est pas finie
 
 	if	( isset( $_REQUEST['lp_cours'] ) )
 		$_SESSION['lp_cours'] = (int)$_REQUEST['lp_cours'];
 	if	( !isset($_SESSION['lp_cours']) ) 
 		{
+		// ETAPE 2 : choix de la discipline
+		echo '<h2>Choisir une discipline</h2>';
+		echo $label_table . '</table>';
 		// On doit afficher la liste des cours, limitee au prof concerne si user est 1 prof
 		// il faut d'abord au moins un eleve :
 		$my_students = array();
@@ -113,14 +123,18 @@ else	{
 		if	( $my_profile == 2 )
 			$sqlrequest .= 'teacher_id = ' . $my_user . ' AND ';
 		$sqlrequest .= 'course_period_id = ';
+		$nada = NULL; $my_prof = '';
 		foreach	( $activites as $k => $v)
 			{
 			$result = db_query( $sqlrequest . $k, true );
 			if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 				{
 				if	( $my_profile == 2 )
-					$activites[$k] = $row['short_name'];	// prof n'a pas besoin de revoir son nom
-				else	$activites[$k] = $row['title'];		// admin a besoin de voir nom du prof
+					$activites[$k] = $row['short_name'];			// prof n'a pas besoin de revoir son nom
+				else	{
+					LP_split_course_period( $row['title'], $nada, $nada, $my_prof );
+					$activites[$k] = $row['short_name'] . ' - ' . $my_prof;	// admin a besoin de voir les noms de profs
+					}
 				}
 			// else : le cours n'appartient pas au bon prof, on laisse $activites[$k] = true
 			}
@@ -137,22 +151,30 @@ else	{
 		if	( $cnt < 1 )
 			{ reset_saisie(); exit( '<p>Aucun cours dans cette classe</p>' ); }
 		echo '</select><br>';
-		echo '<p>', $cnt, ' cours trouvés</p>';
-		echo '<button type="submit" class="button-primary"> Ok </button> </form>';
+		// echo '<p>', $cnt, ' cours trouvés</p>';
+		echo '<div class="hmenu"><button type="submit" class="butgreen"> Ok </button></div></form>';
 		}
 	else if	( !isset($_POST['lp_les_notes']) ) 
 		{
 		echo '<h2>Feuille de Notes pour une discipline</h2>';
+		// ETAPE 3 : les notes
+		// retrouver le nom de ce cours et du prof
+		$nada = NULL; $my_prof = '';
 		$sqlrequest = 'SELECT title, short_name FROM course_periods WHERE course_period_id = ' . $_SESSION['lp_cours'];
 		$result = db_query( $sqlrequest, true );
 		if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 			{
-			if	( $my_profile == 2 )
-				$lp_course_name = $row['short_name'];	// prof n'a pas besoin de revoir son nom
-			else	$lp_course_name = $row['title'];	// admin a besoin de voir nom du prof
+			$lp_course_name = $row['short_name'];
+			if	( $my_profile != 2 )
+				LP_split_course_period( $row['title'], $nada, $nada, $my_prof );
 			}
 		else	$lp_course_name = '[' . $_SESSION['lp_cours'] . ']';
-		echo '<p>', $lp_course_name, '</p>';
+
+		$label_table .= '<tr><td>Discipline :</td><td>' . $lp_course_name . '</td></tr>';
+		if	( $my_prof )
+			$label_table .= '<tr><td>Prof.</td><td>' . $my_prof . '</td></tr>';
+		echo $label_table . '</table>';
+
 		// Soyons sur d'avoir la liste des eleves concernes
 		if	( !is_array($_SESSION['lp_students']) )
 			{
@@ -189,7 +211,7 @@ else	{
 		// trier par ordre alphabetique des noms
 		natcasesort( $noms_complets );
 		// Affichons le formulaire de notation (view ou edit)
-		$edit_flag = true;
+		$edit_flag = isset($_REQUEST['edit_flag']);
 		if	( $edit_flag )
 			{
 			echo '<form action="', $url0, '" method="POST">';
@@ -201,20 +223,91 @@ else	{
 				'<input type="text" name="note', $k, '" size="5" maxlength="5" value="', $note[$k], '">',
 				"</td></tr>\n";
 				}
-			echo '</table><br><button type="submit" class="button-primary"> Sauver </button></form>';
+			echo '</table><div class="hmenu"><button type="submit" class="butamber"> Enregistrer </button></div></form>';
 			}
 		else	{
 			echo '<table class="lp">';
 			foreach	( $noms_complets as $k => $v )
 				echo '<tr><td>', $v, '</td><td>', $note[$k], '</td></tr>';
 			echo '</table>';
+			echo '<hr><div class="hmenu"><a class="butamber" href="' . $url0 . '&edit_flag">Introduire ou modifier les notes</a></div>';
 			}
 		}
 	else	{
 		if	( $_POST['lp_les_notes'] != $_SESSION['lp_cours'] )
 			{ reset_saisie(); exit('<p>Erreur 666</p>'); }
-		echo '<pre>', var_dump($_POST), '</pre>';
+		// echo '<pre>', var_dump($_POST), '</pre>';
+		// on procede par DELETE + INSERT plutot que UPDATE pour etre sur d'eliminer les doublons
+		// preparer la requete DELETE (on delete 1 student a la fois par precaution)(sinon il faudrait ajouter school_id)
+		$sql_delete = 'DELETE FROM student_report_card_grades WHERE'
+			. ' syear=' . $my_year
+			. ' AND course_period_id=' . $_SESSION['lp_cours']
+			. " AND marking_period_id='" . $marking_period . "'"
+			. ' AND student_id=';
+		// preparer la requete INSERT
+		$sql_insert = 'INSERT INTO student_report_card_grades'
+			. '(syear,school_id,course_period_id,marking_period_id,course_title,student_id,grade_letter) VALUES ('
+			. $my_year . ',' . $my_school . ',' . $_SESSION['lp_cours'] . ",'" . $marking_period . "','-',";
+		foreach	( $_POST as $k => $v )
+			{
+			if	( substr( $k, 0, 4 ) == 'note' )
+				{
+				// whitelistage parano de la valeur $v (multibyte UTF-8 not supported)
+				$w = '';
+				$len = strlen( $v );
+				if	( $len > 5 )
+					$len = 5;
+				for	( $i = 0; $i < $len; $i++ )
+					{
+					$c = ord($v[$i]);
+					if	(
+						( ( $c >= 0x30 ) && ( $c <= 0x39 ) ) ||	// chiffres
+ 						( ( $c >= 0x41 ) && ( $c <= 0x5A ) ) ||	// A-Z
+						( ( $c >= 0x61 ) && ( $c <= 0x79 ) ) ||	// a-z
+						( $c == 0x2E )	// dot
+						)
+						$w .= $v[$i];
+					else if	( $c == 0x2C )	// virgule
+						$w .= '.';
+					}
+				$stu = (int)substr( $k, 4 );
+				$sqld = $sql_delete . $stu;
+				$sqli = $sql_insert . $stu . ",'" . $w . "')";
+				//echo '<p>', $sqld, '</p>';
+				$result = db_query( $sqld, true );
+				//echo '<pre>affected rows: ', pg_affected_rows($result), '</pre>';
+				//echo '<p>', $sqli, '</p>';
+				$result = db_query( $sqli, true );
+				//echo '<pre>affected rows: ', pg_affected_rows($result), '</pre>';
+				}
+			}
+		// affichage de la feuille mise a jour
+		echo '<script>window.location.assign("', $url0, '");</script>';
 
+		// ** UWAGA ** dans cette table marking_period_id c'est 1 string, ici '4' au lieu de 4
+		// ** UWAGA ** dans cette table school_id et course_title sont obligatoires "NOT NULL"
+
+		/* experiences preliminaires
+		// select count rend le resultat dans 1 row comme MySQL
+		// $select = 'SELECT COUNT(*) FROM student_report_card_grades WHERE syear=2020 AND student_id=214 AND course_period_id=102 AND marking_period_id=\'4\'';
+		// avec select ordinaire on peut compter les rows avec pg_num_rows($result) (mais pas $result qui n'est pas une variable PHP)
+		$select = 'SELECT grade_letter FROM student_report_card_grades WHERE syear=2020 AND student_id=214 AND course_period_id=102 AND marking_period_id=\'4\'';
+
+		// update semble Ok, pg_num_rows($result) donne 0, pg_affected_rows($result) donne 1 mais il echoue avec phppgadmin
+		$update = 'UPDATE student_report_card_grades SET grade_letter = \'22.66\' WHERE syear=2020 AND student_id=214 AND course_period_id=102 AND marking_period_id=\'4\'';
+
+		// delete semble Ok, pg_num_rows($result) donne 0, pg_affected_rows($result) donne 1 (ou plus) mais il echoue avec phppgadmin
+		// delete est un bon cheval, il peut deleter plusieurs rows d'un coup et s'il n'y en a pas il ne met pas d'erreur
+		$delete = 'DELETE FROM student_report_card_grades WHERE syear=2020 AND student_id=214 AND course_period_id=102 AND marking_period_id=\'4\'';
+
+		// delete semble Ok, pg_num_rows($result) donne 0, pg_affected_rows($result) donne 1
+		$insert = 'INSERT INTO student_report_card_grades (syear,school_id,student_id,course_period_id,marking_period_id,grade_letter,course_title)'
+								. 'VALUES (2020,1,214,102,\'4\',\'77.77\',\'-\')';
+		$sql = $delete;
+		echo '<p>', $sql, '</p>';
+		$result = db_query( $sql, true );
+		echo '<pre>', pg_num_rows($result), ' ', pg_affected_rows($result), '</pre>';
+		*/		
 		}
 	echo '<hr><div class="hmenu"><a class="butgreen" href="' . $url0 . '&reset">Retour au choix de classe</a></div>';
 	}
