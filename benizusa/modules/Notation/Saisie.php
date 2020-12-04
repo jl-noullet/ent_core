@@ -30,6 +30,12 @@ echo	'<style type="text/css">', "\n",
 if	( isset( $_REQUEST['reset'] ) )
 	reset_saisie(); 
 
+if	( isset( $_REQUEST['experimental'] ) )
+	{
+	require_once( 'modules/Notation/Test.php' );
+	exit('<hr>');
+	}
+
 if	( isset( $_REQUEST['lp_classe'] ) )
 	$_SESSION['lp_classe'] = (int)$_REQUEST['lp_classe'];
 if	( !isset($_SESSION['lp_classe']) ) 
