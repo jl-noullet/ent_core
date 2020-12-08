@@ -2,6 +2,12 @@
 
 require_once( 'modules/Loginpro/LP_func.php' );
 
+if	( isset( $_REQUEST['explo'] ) )
+	{
+	require_once( 'modules/Notation/explo.php' );
+	exit('<hr>');
+	}
+
 $my_school = UserSchool();
 $my_year = UserSyear();
 
