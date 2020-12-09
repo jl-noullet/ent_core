@@ -218,6 +218,37 @@ if	( is_array($activites) )
 	}
 } 
 
+// splitter un set d'activites en subjects
+//	$subjects_activities : array pour recevoir env. 3 subsets de $activites, un par subject
+//	$subject_names : array pour recevoir les subject names, dans le meme ordre
+function LP_split_by_subject( &$activites, &$subsets, &$subject_names )
+{
+// d'abord liste des subjects
+$sqlrequest = 'SELECT subject_id, title FROM course_subjects WHERE school_id=' . UserSchool()
+		. ' AND syear=' . UserSyear() . ' ORDER BY sort_order';
+$result = db_query( $sqlrequest, true );
+while	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+	{ $subject_names[$row['subject_id']] = $row['title']; $subsets[$row['subject_id']] = array(); }
+// puis copier la table courses, le niveau intermediaire
+$subjects_of_courses = array();
+$sqlrequest = 'SELECT course_id, subject_id FROM courses WHERE school_id=' . UserSchool() . ' AND syear=' . UserSyear();
+$result = db_query( $sqlrequest, true );
+while	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+	$subjects_of_courses[$row['course_id']] = $row['subject_id'];
+// boucler sur les cours de cette classe en garnissant les subsets
+$sqlrequest = 'SELECT course_id FROM course_periods WHERE course_period_id=';
+foreach	( $activites as $k => $v )
+	{
+	$result = db_query( $sqlrequest . $k, true );
+	if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+		{
+		$cou = $row['course_id'];
+		$sub = $subjects_of_courses[$cou];
+		if	( is_array( $subsets[$sub] ) )
+			$subsets[$sub][] = $k;
+		}
+	}
+}
 
 // reprogrammer une classe entiere avec les cours d'un eleve de ref. (il peut etre dans la classe ou non)
 function LP_reprog_1classe( $target_class, $ref_student )
