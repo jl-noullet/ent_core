@@ -117,7 +117,11 @@ else	{
 		$activites = array();
 		LP_prog_1eleve( $my_students[0], $activites );
 		// echo '<p>', count($activites), ' cours trouves</p>';
-		// Prenons les données de ces cours pour les mettre dans les valeurs de $activites
+		// trions ces cours
+		LP_sort_course_set( $activites );
+		// on va re scanner ces cours pour une de ces 2 raisons :
+		//	- admin : a besoin de voir les noms des profs... on va les mettre dans les valeurs de $activites
+		//	- prof : on va neutraliser les activites qui ne le concernent pas
 		// partie commune de la requete SQL, qui va etre comletee avec $k dans le foreach
 		$sqlrequest = 'SELECT title, short_name FROM course_periods WHERE ';
 		if	( $my_profile == 2 )
@@ -136,7 +140,7 @@ else	{
 					$activites[$k] = $row['short_name'] . ' - ' . $my_prof;	// admin a besoin de voir les noms de profs
 					}
 				}
-			// else : le cours n'appartient pas au bon prof, on laisse $activites[$k] = true
+			else	$activites[$k] = false;	// else : le cours n'appartient pas au bon prof, $activites[$k] = false i.e. non-string
 			}
 		// echo '<hr><pre>'; var_dump( $activites ); echo '</pre><hr>';
 		// On fait une form avec select input base sur cette liste

@@ -67,39 +67,39 @@ if	( isset( $_REQUEST['lp_classe'] ) )
 				}
 			echo '<h3>Résultat de la vérification :</h3>';
 			if	( $badcnt == 0 )
-				echo '<p>Tous les élèves ont le même programme</p>';
+				echo '<p>Tous les élèves ont le même programme</p><hr>';
 			else	{
 				echo "<p>$goodcnt élèves Ok, $badcnt élèves avec erreur</p>";
-				// matrice des cours vs eleves (1 ligne par eleve)
-				echo '<table class="lp">';
-				// header de la matrice = liste des cours
-				echo '<tr><td style="text-align: right">les cours -&gt;</td>';
-				foreach	( $union_set as $elem )
+				}
+			// matrice des cours vs eleves (1 ligne par eleve)
+			echo '<table class="lp">';
+			// header de la matrice = liste des cours
+			echo '<tr><td style="text-align: right">les cours -&gt;</td>';
+			foreach	( $union_set as $elem )
+				{
+				echo "<td>$elem[0]</td>";
+				}
+			echo '</tr>';
+			// la matrice
+			$last_name = ''; $first_name = '';
+			$url1 = $url0 . '&ref_student=';
+			foreach	( $my_students as $elem )
+				{
+				LP_info_eleve( $elem, $last_name );
+				echo '<tr><td><a href="', $url1, $elem, '">', $last_name, '</a></td>';
+				foreach	( $union_set as $k => $v )
 					{
-					echo "<td>$elem[0]</td>";
+					if	( isset( $all_sets[$elem][$k] ) )
+						echo '<td>X</td>';
+					else	echo '<td></td>';
 					}
 				echo '</tr>';
-				// la matrice
-				$last_name = ''; $first_name = '';
-				$url1 = $url0 . '&ref_student=';
-				foreach	( $my_students as $elem )
-					{
-					LP_info_eleve( $elem, $last_name );
-					echo '<tr><td><a href="', $url1, $elem, '">', $last_name, '</a></td>';
-					foreach	( $union_set as $k => $v )
-						{
-						if	( isset( $all_sets[$elem][$k] ) )
-							echo '<td>X</td>';
-						else	echo '<td></td>';
-						}
-					echo '</tr>';
-					}
-				echo '<table>';
-				echo '<p>Les élèves de cette classe n\'ont pas tous le même programme d\'enseignements.<br>',
-				'Vous pouvez <b>unifier</b> le programme de cette classe, en choisissant un <b>élève de référence</b>, ',
-				'puis en demandant la copie automatique de son programme à tous les élèves de sa classe.<br>',
-				'Pour cela, commencez par cliquer sur le nom de cet élève dans le tableau ci-dessus.</p>';
 				}
+			echo '<table>';
+			echo '<p>Les élèves de cette classe n\'ont pas tous le même programme d\'enseignements.<br>',
+			'Vous pouvez <b>unifier</b> le programme de cette classe, en choisissant un <b>élève de référence</b>, ',
+			'puis en demandant la copie automatique de son programme à tous les élèves de sa classe.<br>',
+			'Pour cela, commencez par cliquer sur le nom de cet élève dans le tableau ci-dessus.</p>';
 			}
 		}
 	echo '<div class="hmenu"><a class="butgreen" href="' . $url0 . '">Retour au choix de classe</a></div>';
@@ -130,24 +130,27 @@ else if	( ( isset($_REQUEST['ref_student']) ) && ( isset($_SESSION['lp_classe'])
 		$ref_set = array();
 		LP_prog_1eleve( $ref_student, $ref_set );
 		echo '<p>', count($ref_set), ' cours</p>';
-		LP_display_course_set( $ref_set, false, true );
+		LP_display_course_set( $ref_set, false, true, $url0 . '&killer_student=' . $ref_student . '&zap_course=' );
 
 		echo '<p>Si le programme ci-dessus convient pour toute la classe, vous pouvez le copier à tous les élèves ',
 		'(Attention cette opération est irréversible):</p>';
 		$url1 = $_SERVER['REQUEST_URI'] . '&reprog';
 		echo '<div class="hmenu"><a class="butgreen" href="' . $url1 . '">Ok pour copier ce programme à toute la classe</a></div>';
-
+		echo '<hr>';
 		echo '<p>Sinon vous pouvez aller ajouter des cours dans le programme de cet élève, puis revenir sur cette page:</p>';
 		$url2 = 'Modules.php?modname=Scheduling/Schedule.php&next_modname=Scheduling/Schedule.php&stuid='. $ref_student;
 		// $_SESSION['student_id'] = $ref_student;
 		SetUserStudentID( $ref_student );
 		echo '<div class="hmenu"><a class="butgreen" href="' . $url2 . '">Aller modifier le programme de l\'élève de référence</a></div>';
-
+		echo '<hr>';
+		echo '<p>Sinon vous pouvez supprimer un cours dans le programme de cet élève, en cliquant sur un des liens',
+		     ' "<b>Retirer ce cours</b>" dans le tableau ci-dessus.</p>';
+		echo '<hr>';
 		echo '<p>Vous pouvez aussi supprimer tous les cours de cet élève et repartir à zéro:</p>';
 		$url3 = $url0 . '&zap_student=' . $ref_student;
 		$_SESSION['zap_student'] = $ref_student;	// securite
 		echo '<div class="hmenu"><a class="butgreen" href="' . $url3 . '">Effacer le programme de l\'élève de référence</a></div>';
-
+		echo '<hr>';
 		echo '<hr><div class="hmenu"><a class="butgreen" href="' . $url0 . '">Retour au choix de classe</a></div>';
 		}
 
@@ -176,8 +179,16 @@ else if	( ( isset($_REQUEST['zap_student']) ) && ( isset($_SESSION['zap_student'
 		}
 	echo '<hr><div class="hmenu"><a class="butgreen" href="' . $url0 . '">Retour au choix de classe</a></div>';
 	}
+else if	( ( isset($_REQUEST['zap_course']) ) && ( isset($_REQUEST['killer_student']) ) && ( isset($_SESSION['lp_classe']) ) )
+	{
+	$sqlrequest = 'DELETE FROM schedule WHERE course_period_id=' . $_REQUEST['zap_course']
+		. ' AND student_id=' . $_REQUEST['killer_student'] . ' AND syear=' . UserSyear();
+	// echo "<p>$sqlrequest</p>";
+	$result = db_query( $sqlrequest, true );
+	echo '<script>window.location.assign("', $url0, '&show_prof=on&check=on&lp_classe=', $_SESSION['lp_classe'], '");</script>';
+	}
 else	{
-	DrawHeader( 'Choisir une classe' );
+	echo '<h2>Choisir une classe</h2>';
 	// obtenir la liste des classes
 	$sqlrequest = 'SELECT id, short_name, title FROM school_gradelevels WHERE school_id=' . $my_school . ' ORDER BY short_name'; // DESC';
 	$result = db_query( $sqlrequest, true );

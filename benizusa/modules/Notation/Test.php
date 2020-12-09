@@ -65,6 +65,8 @@ foreach	( $class_names as $lp_classe => $lp_class_name )
 		// preparer la liste des disciplines (basee sur le premier eleve)
 		$activites = array();	//	array pour recevoir le set (key = course-period-id, val = true) 
 		LP_prog_1eleve( $my_students[0], $activites );
+		// trions ces cours
+		LP_sort_course_set( $activites );
 		$nada = NULL; $my_prof = '';
 		$sqlrequest = 'SELECT title, short_name FROM course_periods WHERE course_period_id = ';
 		// boucle des disciplines
@@ -76,7 +78,7 @@ foreach	( $class_names as $lp_classe => $lp_class_name )
 				$lp_course_name = $row['short_name'];
 				LP_split_course_period( $row['title'], $nada, $nada, $my_prof );
 				}
-			else	$lp_course_name = $k;
+			else	$lp_course_name = $lp_cours;
 			// preparer boucle des eleves
 			$note_count = 0;
 			$sqlrequest2 = 'SELECT grade_letter FROM student_report_card_grades WHERE syear=' . UserSyear()

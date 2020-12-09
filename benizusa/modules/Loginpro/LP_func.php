@@ -53,14 +53,35 @@ if	( ( is_array( $tranches ) ) && ( $cnt > 2 ) )
 	$tranches = array_slice( $splitted, 0, $cnt-2 ); 
 }
 
-// afficher une table de course_periods dont les IDs sont les keys du set $activites
+// trier les course_periods dont les IDs sont les keys du set $activites
 // accessoirement les short_names sont injectes comme valeurs dans $activites
-function LP_display_course_set( &$activites, $show_prof, $show_times )
+function LP_sort_course_set( &$activites )
 {
 if	( !is_array( $activites ) )
 	return;
 if	( !count( $activites ) )
 	return;
+// partie commune de la requete SQL, qui va etre comletee avec $k dans le foreach
+$sqlrequest = 'SELECT short_name FROM course_periods WHERE course_period_id = ';
+foreach	( $activites as $k => $v)
+	{
+	$result = db_query( $sqlrequest . $k, true );
+	if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+		$activites[$k] = $row['short_name'];
+	}
+// trier par ordre alphabetique des noms
+natcasesort( $activites );
+}
+
+// afficher une table de course_periods dont les IDs sont les keys du set $activites
+// accessoirement les short_names sont injectes comme valeurs dans $activites
+function LP_display_course_set( &$activites, $show_prof, $show_times, $url_kill=NULL )
+{
+if	( !is_array( $activites ) )
+	return;
+if	( !count( $activites ) )
+	return;
+LP_sort_course_set( $activites );
 echo '<table class="lp">';
 // partie commune de la requete SQL, qui va etre comletee avec $k dans le foreach
 $sqlrequest = 'SELECT ';
@@ -108,6 +129,10 @@ foreach	( $activites as $k => $v)
 				$old_elem = $elem;
 				}
 			echo '</td>';
+			}
+		if	( $url_kill )
+			{
+			echo '<td><a href="', $url_kill, $k, '">Retirer ce cours</a></td>';
 			}
 		echo '</tr>'; 
 		}
