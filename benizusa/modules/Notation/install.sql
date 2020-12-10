@@ -22,7 +22,7 @@
  * can_edit: 'Y' or null (generally null for non admins)
  */
 
-
+-- Saisie ------------------------------------
 -- Admin
 INSERT INTO profile_exceptions (profile_id, modname, can_use, can_edit)
 SELECT 1, 'Notation/Saisie.php', 'Y', 'Y'
@@ -30,7 +30,16 @@ WHERE NOT EXISTS (SELECT profile_id
     FROM profile_exceptions
     WHERE modname='Notation/Saisie.php'
     AND profile_id=1);
+-- Teacher
+INSERT INTO profile_exceptions (profile_id, modname, can_use, can_edit)
+SELECT 2, 'Notation/Saisie.php', 'Y', 'Y'
+WHERE NOT EXISTS (SELECT profile_id
+    FROM profile_exceptions
+    WHERE modname='Notation/Saisie.php'
+    AND profile_id=2);
 
+-- Etat d'avancement -------------------------
+-- Admin
 INSERT INTO profile_exceptions (profile_id, modname, can_use, can_edit)
 SELECT 1, 'Notation/Test.php', 'Y', 'Y'
 WHERE NOT EXISTS (SELECT profile_id
@@ -38,10 +47,18 @@ WHERE NOT EXISTS (SELECT profile_id
     WHERE modname='Notation/Test.php'
     AND profile_id=1);
 
--- Teacher
+-- Competence --------------------------------
+-- Admin
 INSERT INTO profile_exceptions (profile_id, modname, can_use, can_edit)
-SELECT 2, 'Notation/Saisie.php', 'Y', 'Y'
+SELECT 1, 'Notation/Competence.php', 'Y', 'Y'
 WHERE NOT EXISTS (SELECT profile_id
     FROM profile_exceptions
-    WHERE modname='Notation/Saisie.php'
+    WHERE modname='Notation/Competence.php'
+    AND profile_id=1);
+-- Teacher
+INSERT INTO profile_exceptions (profile_id, modname, can_use, can_edit)
+SELECT 2, 'Notation/Competence.php', 'Y', 'Y'
+WHERE NOT EXISTS (SELECT profile_id
+    FROM profile_exceptions
+    WHERE modname='Notation/Competence.php'
     AND profile_id=2);
