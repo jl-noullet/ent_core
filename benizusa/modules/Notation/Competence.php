@@ -88,25 +88,9 @@ else	{
 	// traiter la MP
 	// si UserMP() est une 'EVAL', il faudra remplacer eval par son trimestre "parent"
 	$marking_period = UserMP();
+	$MP_name = '';
 	if	( $marking_period )
-		{
-		$sqlrequest = 'SELECT title, mp, parent_id FROM school_marking_periods WHERE marking_period_id=' . $marking_period;
-		$result = db_query( $sqlrequest, true );
-		if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
-			{
-			if	( $row['mp'] == 'QTR' )
-				{
-				$marking_period = $row['parent_id'];
-				$sqlrequest = 'SELECT title FROM school_marking_periods WHERE marking_period_id=' . $marking_period;
-				$result = db_query( $sqlrequest, true );
-				if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
-					$MP_name = $row['title'];
-				else	$MP_name = '[' . $marking_period . ']';
-				}
-			else	$MP_name = $row['title'];
-			}
-		else	$MP_name = '[' . $marking_period . ']';
-		}
+		$marking_period = LP_find_trimestre( $marking_period, $MP_name );
 	else	$MP_name = '[?]';
 
 	// commencer la table de contexte

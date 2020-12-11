@@ -26,40 +26,101 @@ if	( !isset( $_REQUEST['lp_classe'] ) )
 	echo '<button type="submit" class="button-primary"> Ok </button> </form>';
 	}
 else	{
-	// acquerir les donnees communes
+	// 0. conventions
+	// istu = student_id de l'eleve courant
+	// idi = course_period_id de la discipline courante
+	// isub = subject_id  du subject courant (groupe de matieres)
+	// ieva = marking_period_id de l'evaluation courante
+	$my_students = array();		// array des istu (index arbitraire)
+	$my_redoub = array();		// array des "next_school" (meme index)
+	$class_name = '';		// nom de la classe
+	$class_short_name = '';		// petit nom de la classe
+	$activites = array();		// le set des disciplines, index=idi, val=short_name 
+	$subjects_activities = array();	// le set des subsets de disciplines par subjects, index=isub
+					// chaque subset est un array de idi (index arbitraire)
+	$subject_names = array();	// les noms des subsets, index=isub
+	$course_names = array();	// noms des disciplines, indexes par idi
+	$prof_names = array();		// noms des profs, indexes par idi
+	$coeffs = array();		// coeffs des disciplines, indexes par idi
+	$evals = array();		// array des evaluations du trimestre (index arbitraire)
+	$eval_names = array();		// array des noms courts des evaluations indexe par ieval
+	$notesSD = array();		// array 3D de toutes les notes de la classe : $notesSD[ieva][istu][idi]
+	$notesDS = array();		// array 3D redondant des notes de la classe : $notesDS[ieva][idi][istu]
+	$rangSD = array();		// array 2D du rang de chaque note dans sa discipline : $rangSD[istu][idi]
+	// 1. acquerir les donnees communes
 	$lp_classe = (int)$_REQUEST['lp_classe'];	// petit filtrage de securite
-	$class_name = ''; $class_short_name = '';
-	// d'abord la liste des eleves
-	// des arrays tous indexes par le meme index arbitraire
-	$my_students = array();
-	$my_redoub = array();
+	// 1.1 la liste des eleves (remplir $my_students et $my_redoub)
 	LP_liste_classe( $lp_classe, $class_name, $class_short_name, $my_students, $my_redoub );
 	if	( !$class_name )
 		exit( "<p>Classe $lp_classe inconnue</p>" ); 
 	if	( count($my_students) == 0 )
 		exit( "<p>Classe $class_name n'a pas d'élèves</p>" );
-	// le set des cours
-	$activites = array();
+	// 1.2 le set des cours
 	LP_prog_1eleve( $my_students[0], $activites );
-	$subjects_activities = array();
-	$subject_names = array();
 	LP_split_by_subject( $activites, $subjects_activities, $subject_names );
 		/* echo '<pre>'; var_dump( $subjects_activities ); echo '</pre><hr>'; */
 		/* echo '<pre>'; var_dump( $subject_names ); echo '</pre>'; */
-	// les data des cours, indexes par course_id
-	$course_names = array(); $prof_names = array(); $coeffs = array();
-	$sqlrequest = 'SELECT title, credits FROM course_periods WHERE course_period_id=';
+	// 1.3 les data des cours, indexes par course_id
 	$nada = NULL;
-	foreach	( $activites as $k => $v )
+	$sqlrequest = 'SELECT title, credits FROM course_periods WHERE course_period_id=';
+	foreach	( $activites as $idi => $v )
 		{
-		$result = db_query( $sqlrequest . $k, true );
+		$result = db_query( $sqlrequest . $idi, true );
 		if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 			{
-			$course_names[$k] = ''; $prof_names[$k] = '';
-			LP_split_course_period( $row['title'], $nada, $course_names[$k], $prof_names[$k] );
-			$coeffs[$k] = $row['credits'];
+			$course_names[$idi] = ''; $prof_names[$idi] = '';
+			LP_split_course_period( $row['title'], $nada, $course_names[$idi], $prof_names[$idi] );
+			$coeffs[$idi] = $row['credits'];
+			foreach	( $evals as $ieva )
+				$notesDS[$ieva][$idi] = array();
 			}
 		}
+	// 1.4 les evaluations
+	$trim_name = '';
+	$trimestre = LP_find_trimestre( UserMP(), $trim_name );
+	LP_find_evals( $trimestre, $evals, $eval_names );
+	// 2. acquerir toutes les notes : notesSD[ieva][istu][idi] et notesDS[ieva][idi][istu]
+	// Préparons la lecture des notes de chaque eleve pour la periode courante
+	$sqlrequ0 = 'SELECT grade_letter, course_period_id FROM student_report_card_grades WHERE syear='
+		. $my_year . ' AND marking_period_id=\'';	// a completer dans le 2 foreaches
+	foreach	( $evals as $ieva )
+		{
+		$sqlrequest = $sqlrequ0 . $ieva . '\' AND student_id=';		// a completer dans le foreach
+		foreach	( $my_students as $istu )
+			{
+			$notesSD[$ieva][$istu] = array();
+			$result = db_query( $sqlrequest . $istu, true );
+			while	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+				{
+				$tmp_note = $row['grade_letter'];
+				if	( is_numeric( $tmp_note ) )
+					$tmp_note = (float)$tmp_note;
+				else	$tmp_note = -1.0;
+				$idi = $row['course_period_id'];
+				if	( is_array($notesDS[$idi] ) )		// eviter note dans matiere non repertoriee
+					{
+					$notesSD[$ieva][$istu][$idi] = $tmp_note;
+					$notesDS[$ieva][$idi][$istu] = $tmp_note;
+					}
+				}
+			// completer les notes manquantes
+			foreach	( $activites as $idi => $v )
+				if	( !isset( $notesSD[$istu][$idi] ) )
+					{
+					$notesSD[$ieva][$istu][$idi] = -2.0;
+					$notesDS[$ieva][$idi][$istu] = -2.0;
+					}
+			}
+		}
+	// 3. calculer les rangs et moyennes par matiere
+	foreach	( $activites as $idi => $v )
+		{
+		
+		}
+	
+	// 4. calculer les rangs et moyennes generaux
+
+	// 5. produire la page
 	if	( $_REQUEST['modfunc'] === 'savePDF' ) // Print PDF.
 		{
 		ob_start();	// redirect stdout to a buffer
@@ -97,25 +158,28 @@ else	{
 	</style> <?php
 	// le header du bulletin
 	echo '<h2>', $class_name, '</h2>';
+	echo '<p>', $trim_name, ' : [ ';
+	foreach	( $evals as $ieva )
+		echo $eval_names[$ieva], ' ';
+	echo ']</p>';
 	echo '<div class="gro"><table class="lp">';
 	echo '<tr><td></td><td>Discipline</td><td>Coef</td></tr>';
 	// la boucle des subjects
-	foreach	( $subject_names as $ksub => $subject_name )
+	foreach	( $subject_names as $isub => $subject_name )
 		{
-		$rowspan = 1 + count( $subjects_activities[$ksub] );
+		$rowspan = 1 + count( $subjects_activities[$isub] );
 		$first = true;
 		// la boucle des cours du subject
-		foreach	( $subjects_activities[$ksub] as $kact => $v )
+		foreach	( $subjects_activities[$isub] as $idi )
 			{
-			$k = $subjects_activities[$ksub][$kact];
 			echo '<tr>';
 			if	( $first )
 				{
 				echo '<td rowspan="', $rowspan, '" class="vv"><div class="vr"><b>', $subject_name, '&nbsp;</b></div></td>';
 				$first = false;
 				}
-			echo '<td>', $course_names[$k], '<br>', $prof_names[$k], '</td>';
-			echo '<td>', $coeffs[$k], '</td></tr>';
+			echo '<td>', $course_names[$idi], '<br>', $prof_names[$idi], '</td>';
+			echo '<td>', $coeffs[$idi], '</td></tr>';
 			}
 		// la ligne de totaux
 		echo '<tr><td>Total</td>';

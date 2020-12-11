@@ -250,6 +250,44 @@ foreach	( $activites as $k => $v )
 	}
 }
 
+// trouver le trimestre contenant marking_period (qui peut etre une eval ou le trimestre lui-meme)
+// rendre son id et mettre a jour son nom
+function LP_find_trimestre( $marking_period, &$MP_name )
+{
+$sqlrequest = 'SELECT title, mp, parent_id FROM school_marking_periods WHERE marking_period_id=' . $marking_period;
+$result = db_query( $sqlrequest, true );
+$MP_name = '';
+if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+	{
+	if	( $row['mp'] == 'QTR' )
+		{
+		$marking_period = $row['parent_id'];
+		$sqlrequest = 'SELECT title FROM school_marking_periods WHERE marking_period_id=' . $marking_period;
+		$result = db_query( $sqlrequest, true );
+		if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+			$MP_name = $row['title'];
+		else	$MP_name = '[' . $marking_period . ']';
+		}
+	else	$MP_name = $row['title'];
+	}
+else	$MP_name = '[' . $marking_period . ']';
+return $marking_period;
+}
+
+// trouver toutes les evals contenues dans un trimestre
+function LP_find_evals( $trimestre, &$evals, &$eval_names )
+{
+$sqlrequest = 'SELECT marking_period_id, short_name FROM school_marking_periods WHERE parent_id=' . $trimestre;
+$result = db_query( $sqlrequest, true );
+while	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+	{
+	$ieval = $row['marking_period_id'];
+	$evals[] = $ieval;
+	$eval_names[$ieval] = $row['short_name'];
+	}
+natcasesort( $evals );
+}
+
 // reprogrammer une classe entiere avec les cours d'un eleve de ref. (il peut etre dans la classe ou non)
 function LP_reprog_1classe( $target_class, $ref_student )
 {
