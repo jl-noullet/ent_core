@@ -275,15 +275,14 @@ return $marking_period;
 }
 
 // trouver toutes les evals contenues dans un trimestre
-function LP_find_evals( $trimestre, &$evals, &$eval_names )
+function LP_find_evals( $trimestre, &$evals )
 {
 $sqlrequest = 'SELECT marking_period_id, short_name FROM school_marking_periods WHERE parent_id=' . $trimestre;
 $result = db_query( $sqlrequest, true );
 while	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 	{
 	$ieval = $row['marking_period_id'];
-	$evals[] = $ieval;
-	$eval_names[$ieval] = $row['short_name'];
+	$evals[$ieval] = $row['short_name'];
 	}
 natcasesort( $evals );
 }

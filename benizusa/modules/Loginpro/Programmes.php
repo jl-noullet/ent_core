@@ -96,10 +96,15 @@ if	( isset( $_REQUEST['lp_classe'] ) )
 				echo '</tr>';
 				}
 			echo '<table>';
-			echo '<p>Les élèves de cette classe n\'ont pas tous le même programme d\'enseignements.<br>',
-			'Vous pouvez <b>unifier</b> le programme de cette classe, en choisissant un <b>élève de référence</b>, ',
-			'puis en demandant la copie automatique de son programme à tous les élèves de sa classe.<br>',
-			'Pour cela, commencez par cliquer sur le nom de cet élève dans le tableau ci-dessus.</p>';
+			if	( $badcnt == 0 )
+				echo '<p>Les élèves de cette classe ont tous le même programme d\'enseignements.<br>',
+				'Si vous souhaitez <b>modifier</b> ce programme, commencez par choisir un <b>élève de référence</b>, ',
+				'dont vous modifierez me programme  pour qu\'il soit copié ensuite à toute la classe.<br>',
+				'Pour cela, commencez par cliquer sur le nom de cet élève dans le tableau ci-dessus.</p>';
+			else	echo '<p>Les élèves de cette classe n\'ont pas tous le même programme d\'enseignements.<br>',
+				'Vous pouvez <b>unifier</b> le programme de cette classe, en choisissant un <b>élève de référence</b>, ',
+				'puis en demandant la copie automatique de son programme à tous les élèves de sa classe.<br>',
+				'Pour cela, commencez par cliquer sur le nom de cet élève dans le tableau ci-dessus.</p>';
 			}
 		}
 	echo '<div class="hmenu"><a class="butgreen" href="' . $url0 . '">Retour au choix de classe</a></div>';
