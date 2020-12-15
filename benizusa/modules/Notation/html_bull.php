@@ -33,6 +33,11 @@
 		// Produire du HTML imprimable specifique de l'eleve
 		$html_sid = "<p>Noms et prénoms: $nom<br>Né(e) le " . $dates_naissance[$istu] . " Matricule $istu</p>";
 		$html_stu .= $html0 . $html_sid . $htmlt;
+		// les proxies
+		$prox_note1D = &$notesESD[$ieva_1][$istu];
+		$prox_note2D = &$notesESD[$ieva_2][$istu];
+		$prox_noteMD = &$notesSD[$istu];
+		$prox_rangsD = &$rangsSD[$istu];
 		// la boucle des subjects
 		foreach	( $subject_names as $isub => $subject_name )
 			{
@@ -50,9 +55,9 @@
 						. $subject_name . '&nbsp;</b></div></td>';
 					$first = false;
 					}
-				$note1 = $notesESD[$ieva_1][$istu][$idi];
-				$note2 = $notesESD[$ieva_2][$istu][$idi];
-				$noteM = $notesSD[$istu][$idi];
+				$note1 = $prox_note1D[$idi];
+				$note2 = $prox_note2D[$idi];
+				$noteM = $prox_noteMD[$idi];
 				$noteNxC = $noteM*$coeffs[$idi];
 				if	( $noteM >= 0.0 )
 					{
@@ -69,7 +74,7 @@
 					. (($noteM < 0.0)?(''):($noteM)) . '</td><td>'
 					. $coeffs[$idi] . '</td><td>'
 					. (($noteM < 0.0)?(''):($noteNxC)) . '</td><td>'
-					. $rangsSD[$istu][$idi] . '</td><td>'
+					. $prox_rangsD[$idi] . '</td><td>'
 					. $moyD[$idi] . '</td><td>'
 					. $minD[$idi] . '</td><td>'
 					. $maxD[$idi] . '</td><td>'

@@ -40,7 +40,9 @@ else	{
 	require_once( 'modules/Notation/calc_notes.php' );
 
 	// Produire du HTML imprimable dans $html_stu
-	require_once( 'modules/Notation/html_bull.php' );
+	if	( isset( $_REQUEST['table_view'] ) )
+		require_once( 'modules/Notation/html_tabl.php' );
+	else	require_once( 'modules/Notation/html_bull.php' );
 
 	// convertir en PDF s'il y a lieu
 	if	( $_REQUEST['modfunc'] === 'savePDF' ) // Print PDF.
@@ -75,8 +77,15 @@ else	{
 			".hmenu { margin: 20px };\n",
 			'</style>';
 		echo '<div class="hmenu">';
-		echo '<a class="butgreen" href="' . $url3 .                '" target="_blank">Ce document en PDF</a>';
-		echo '<a class="butgreen" href="' . $url3 . '&landscape' . '" target="_blank">Ce document en PDF lanscape</a>';
+		if	( isset( $_REQUEST['table_view'] ) )
+			{
+			echo '<a class="butgreen" href="' . $url3 . '&table_view'. '" target="_blank">Ce document en PDF</a>';
+			echo '<a class="butgreen" href="' . $url2 .		   '">Les bulletins</a>';
+			}
+		else	{
+			echo '<a class="butgreen" href="' . $url3 . '&landscape' . '" target="_blank">Ce document en PDF</a>';
+			echo '<a class="butgreen" href="' . $url2 . '&table_view'. '">Les tables</a>';
+			}
 		echo '<a class="butgreen" href="' . $url1 . '">Retour aux choix de la classe</a>';
 		echo '</div>';
 		echo '<hr>';
