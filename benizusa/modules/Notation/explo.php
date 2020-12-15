@@ -4,6 +4,15 @@ require_once( 'modules/Loginpro/LP_func.php' );
 $my_school = UserSchool();
 $my_year = UserSyear();
 
+function &note2apprec( $note )
+{
+if	( $note >= 14.0 ) return 'Expert (E)';
+else if	( $note >= 12.0 ) return 'Compétence acquise (CA)';
+else if	( $note >= 10.0 ) return 'En cours d\'acquisition (ECA)';
+else if	( $note >= 0.0 )  return 'Compétence non acquise (NA)';
+else	return '';
+}
+
 if	( !isset( $_REQUEST['lp_classe'] ) )
 	{
 	DrawHeader( 'Choisir une classe' );
@@ -53,6 +62,10 @@ else	{
 	$moyD = array();		// moyenne par matiere : $moyD[idi]
 	$minD = array();		// min par matiere : $minD[idi]
 	$maxD = array();		// max par matiere : $maxD[idi]
+	$totNxCS = array();		// total des produits NxC par eleve $totNxCS[istu]
+	$totCoeffS = array();		// total des coeffs par eleve $totCoeffS[istu]
+	$moyS = array();		// moyenne ponderee par eleve $moyS[istu]
+	$rangsS = array();		// classement général $rangsS [istu]
 
 	// 1. acquerir les donnees communes
 	$lp_classe = (int)$_REQUEST['lp_classe'];	// petit filtrage de securite
@@ -227,13 +240,58 @@ else	{
 	// echo '<pre>'; var_dump( $notesDS ); echo '</pre>';
 	// echo '<pre>'; var_dump( $rangsSD ); echo '</pre>';
 
-	// 5. calculer les rangs et moyennes generaux
+	// 5. calculer la moyenne generale de chaque eleve, garder les sommes intermediaires
+	foreach	( $my_students as $istu )
+		{
+		$ptrmoyD = &$notesSD[$istu];
+		$totNxC = 0.0;
+		$totCoeff = 0.0;
+		foreach	( $activites as $idi => $v )
+			{
+			$note = $ptrmoyD[$idi];
+			if	( $note >= 0.0 )
+				{
+				$totCoeff += $coeffs[$idi];
+				$totNxC += $note * $coeffs[$idi];
+				}
+			}
+		$totNxCS[$istu] = $totNxC;
+		$totCoeffS[$istu] = $totCoeff;
+		if	( $totCoeff > 0 )
+			$moyS[$istu] = round( $totNxC / $totCoeff, 2 );
+		else	$moyS[$istu] = -100.0;
+		}
+	// 6. calculer le classement général
+	arsort( $moyS );
+	$cnt = 1; $prev_rang = 1; $prev_note = 100.0;
+	$class_moy = 0.0; $class_min = 100.0; $class_max = 0.0;
+	foreach	( $moyS as $istu => $v )
+		{
+		if	( $v >= 0.0 )
+			{
+			// rangs
+			if	( $v == $prev_note )
+				$rang = $prev_rang;
+			else	$rang = $cnt;
+			$rangsS[$istu] = $rang;
+			$prev_note = $v; $prev_rang = $rang;
+			$cnt++;
+			// moyenne, min, max
+			$class_moy += $v;
+			if	( $v > $class_max ) $class_max = $v;
+			if	( $v < $class_min ) $class_min = $v;
+			}
+		}
+	$cnt--;
+	if	( $cnt > 0 )
+		$class_moy = round( $class_moy / $cnt, 2 );
 
-	// 6. produire du HTML imprimable independant de l'eleve
+	// 7. produire du HTML imprimable independant de l'eleve
 	$css_subject_width = 300;	// param au pif pour textes verticaux...
 	$html_css = '<style type="text/css">'
 		. 'table.lp { border-collapse:collapse; font-family: \'Lato\', sans-serif; }'
 		. 'table.lp td { border:1px solid black; padding: 2px 8px 2px 10px; }'
+		. '.bo1 { font-weight: bold }'
 		. '.bul { padding-bottom: 20px; page-break-before: always; }'
 		. 'td.vv { position: relative; width: 25px; overflow: hidden  }'
 		. 'div.vr { position: absolute; top: ' . $css_subject_width . 'px; left: 0;'
@@ -246,8 +304,8 @@ else	{
 		. '<p>' . $trim_name . ' : [ ' . $evals[$ieva_1] . ' ' . $evals[$ieva_2] . ' ]</p>';
 	// header de la table
 	$htmlt = '<table class="lp">'
-		. '<tr><td></td><td>Discipline</td><td>Compétence</td><td>EVAL<br>1</td><td>EVAL<br>2</td><td>Moy</td>'
-		. '<td>Coef</td><td>N x C</td><td>Rang</td><td>Moy.<br>Classe</td><td>Min</td><td>Max</td>Appréciation</td></tr>';
+		. '<tr class="bo1"><td></td><td>Discipline</td><td>Compétence</td><td>EVAL<br>1</td><td>EVAL<br>2</td><td>Moy</td>'
+		. '<td>Coef</td><td>N x C</td><td>Rang</td><td>Moy.<br>Classe</td><td>Min</td><td>Max</td><td>Appréciation</td></tr>';
 	
 	$html_stu = $html_css;
 	// la boucle des eleves
@@ -260,6 +318,8 @@ else	{
 			{
 			$rowspan = 1 + count( $subjects_activities[$isub] );
 			$first = true;
+			$totNxC = 0.0;
+			$totCoeff = 0.0;
 			// la boucle des cours du subject
 			foreach	( $subjects_activities[$isub] as $idi )
 				{
@@ -274,26 +334,50 @@ else	{
 				$note2 = $notesESD[$ieva_2][$istu][$idi];
 				$noteM = $notesSD[$istu][$idi];
 				$noteNxC = $noteM*$coeffs[$idi];
+				if	( $noteM >= 0.0 )
+					{
+					$totNxC += $noteNxC;
+					$totCoeff += $coeffs[$idi];
+					}
+				$appr = &note2apprec( $noteM );
 				$html_stu .= '<td>' . $course_names[$idi]
 					// . '[' . $idi . ']'	// debug
 					. '<br>' . $prof_names[$idi] . '</td><td>'
 					. $competences[$idi] . '</td><td>'
 					. (($note1 < 0.0)?(''):($note1)) . '</td><td>'
-					. (($note2 < 0.0)?(''):($note2)) . '</td><td>'
+					. (($note2 < 0.0)?(''):($note2)) . '</td><td class="bo1">'
 					. (($noteM < 0.0)?(''):($noteM)) . '</td><td>'
 					. $coeffs[$idi] . '</td><td>'
 					. (($noteM < 0.0)?(''):($noteNxC)) . '</td><td>'
 					. $rangsSD[$istu][$idi] . '</td><td>'
 					. $moyD[$idi] . '</td><td>'
 					. $minD[$idi] . '</td><td>'
-					. $maxD[$idi] . '</td></tr>';
+					. $maxD[$idi] . '</td><td>'
+					. $appr . '</td></tr>';
 				}
 			// la ligne de totaux
-			$html_stu .= '<tr><td colspan="5">Total</td>';
-			$html_stu .= '<td></td><td></td><td colspan="4"></td></tr>';
-			}
+			if	( $totCoeff > 0 )
+				$subMoy = round( $totNxC / $totCoeff, 2 );
+			else	$subMoy='';
+			$html_stu .= '<tr><td colspan="5">Total</td><td>'
+				. $totCoeff . '</td><td>'
+				. $totNxC . '</td><td colspan="5">'
+				. 'Moyenne du groupe de matières : ' . $subMoy . '</td></tr>';
+			} // boucle des subjects
+		// derniere ligne de la table principale : moyenne ponderee et rang de cet eleve
+		$html_stu .= '<tr class="bo1"><td colspan="6">Total général</td><td>'
+			. $totCoeffS[$istu] . '</td><td>'
+			. $totNxCS[$istu] . '</td><td colspan="2">'
+			. 'Rang : ' . $rangsS[$istu] . '</td><td colspan="3">'
+			. 'Moyenne trim. : ' . $moyS[$istu] . '</td></tr>';
 		$html_stu .= '</table></div>';
-		}
+		// conclusions
+		$appr = &note2apprec( $moyS[$istu] );
+		$html_stu .= '<p>APPRECIATION TRAVAIL : ' . $appr . '</p>'
+			. '<p>Moy. de la classe ' . $class_moy . '<br>'
+			. 'Moy. Max ' . $class_max . '<br>'
+			. 'Moy. Min ' . $class_min . '</p>';
+		} // boucle des bulletins
 
 	// convertir en PDF s'il y a lieu
 	if	( $_REQUEST['modfunc'] === 'savePDF' ) // Print PDF.
