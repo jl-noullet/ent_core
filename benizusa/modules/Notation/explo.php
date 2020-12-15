@@ -32,7 +32,9 @@ else	{
 	// isub = subject_id  du subject courant (groupe de matieres)
 	// ieva = marking_period_id de l'evaluation courante
 	$my_students = array();		// array des istu (index arbitraire)
-	$my_redoub = array();		// array des "next_school" (meme index)
+	$noms_complets = array();	// noms des eleves, eventuellement tries: istu => nom
+	$dates_naissance = array();	// istu => date
+	$statuts = array();		// R pour redoublant: istu => statut
 	$class_name = '';		// nom de la classe
 	$class_short_name = '';		// petit nom de la classe
 	$activites = array();		// le set des disciplines, index=idi, val=short_name 
@@ -45,18 +47,44 @@ else	{
 	$coeffs = array();		// coeffs des disciplines, indexes par idi
 	$evals = array();		// set des evals du trimestre (ieval => eval_name)
 	$notesESD = array();		// array 3D de toutes les notes de la classe : $notesESD[ieva][istu][idi]
-	$notesSD = array();		// array 2D de toutes les notes de la classe : $notesSD[istu][idi]
-	$rangSD = array();		// array 2D du rang de chaque note dans sa discipline : $rangSD[istu][idi]
+	$notesSD = array();		// array 2D de toutes les moyennes eval1,eval2 : $notesSD[istu][idi]
+	$notesDS = array();		// array redondant pour calculer les classements : $notesDS[idi][istu]
+	$rangsSD = array();		// array 2D du rang de chaque note dans sa discipline : $rangsSD[istu][idi]
+	$moyD = array();		// moyenne par matiere : $moyD[idi]
+	$minD = array();		// min par matiere : $minD[idi]
+	$maxD = array();		// max par matiere : $maxD[idi]
 
 	// 1. acquerir les donnees communes
 	$lp_classe = (int)$_REQUEST['lp_classe'];	// petit filtrage de securite
 
 	// 1.1 la liste des eleves (remplir $my_students et $my_redoub)
+	$my_redoub = array();
 	LP_liste_classe( $lp_classe, $class_name, $class_short_name, $my_students, $my_redoub );
 	if	( !$class_name )
 		exit( "<p>Classe $lp_classe inconnue</p>" ); 
 	if	( count($my_students) == 0 )
 		exit( "<p>Classe $class_name n'a pas d'élèves</p>" );
+	// il faut acquerir les noms maintenant pour pouvoir trier les eleves par ordre alphabetique 
+	foreach	( $my_students as $k => $v )
+		{
+		$sqlrequest = 'SELECT first_name, middle_name, last_name, custom_200000000, custom_200000004 '
+			. 'FROM students WHERE student_id=' . $v;
+		$result = db_query( $sqlrequest, true );
+		if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+			{
+			$noms_complets[$v] = $row['last_name'] . ' ' . $row['first_name'] . ' ' . $row['middle_name'];
+			$dates_naissance[$v] = $row['custom_200000004'];
+			//if	( $row['custom_200000000'][0] == 'F') { $sexes[$v] = 'F'; $cntF++; }
+			//else if	( $row['custom_200000000'][0] == 'M') { $sexes[$v] = 'G'; $cntG++; }
+			//else	$sexes[$v] = ' ';
+			if	( $my_redoub[$k] == 0 )
+				$statuts[$v] = 'R';
+			else	$statuts[$v] = 'N';
+			}
+		else	$noms_complets[$v] = 'ERREUR 766';
+		}
+	// trier par ordre alphabetique des noms
+	natcasesort( $noms_complets );
 
 	// 1.2 les evaluations
 	$trim_name = '';
@@ -142,25 +170,63 @@ else	{
 			$ieva_2 = $ieva;
 		else	$ieva_1 = $ieva;
 		}
+	$first = true;
 	foreach	( $my_students as $istu )
 		{
-		$tmpnotes1D = &$notesESD[$ieva_1][$istu];	// references sur notes de cet eleve par discipline
-		$tmpnotes2D = &$notesESD[$ieva_2][$istu];
-		$tmpmoyD = &$notesSD[$istu];
-		$tmpmoyD = array();
+		$ptrnotes1D = &$notesESD[$ieva_1][$istu];	// references sur notes de cet eleve par discipline
+		$ptrnotes2D = &$notesESD[$ieva_2][$istu];
+		$ptrmoyD = &$notesSD[$istu];
+		$ptrmoyD = array();
 		foreach	( $activites as $idi => $v )
 			{
-			$tmpmoy = round( ( $tmpnotes1D[$idi] + $tmpnotes2D[$idi] ) / 2.0, 2 );	// 2 digits
-			$tmpmoyD[$idi] = $tmpmoy;
+			if	( $ptrnotes1D[$idi] < 0.0 )
+				$tmpmoy = $ptrnotes2D[$idi];
+			else if	( $ptrnotes2D[$idi] < 0.0 )
+				$tmpmoy = $ptrnotes1D[$idi];
+			else	$tmpmoy = round( ( $ptrnotes1D[$idi] + $ptrnotes2D[$idi] ) / 2.0, 2 );	// 2 digits
+			$ptrmoyD[$idi] = $tmpmoy;
+			// array redondant pour calculer les classements
+			if	( $first )
+				$notesDS[$idi] = array();
+			$notesDS[$idi][$istu] = $tmpmoy;
 			}
+		$first = false;
+		$rangsSD[$istu] = array();
 		}
 
 	// 4. calculer les rangs et moyennes par matiere
 	foreach	( $activites as $idi => $v )
 		{
-		//arsort( [$ieva][$idi] );
+		arsort( $notesDS[$idi] );
+		$cnt = 1; $prev_rang = 1; $prev_note = 100.0;
+		$moy = 0.0; $min = 100.0; $max = 0.0;
+		foreach	( $notesDS[$idi] as $istu => $v )
+			{
+			if	( $v >= 0.0 )
+				{
+				// rangs
+				if	( $v == $prev_note )
+					$rang = $prev_rang;
+				else	$rang = $cnt;
+				$rangsSD[$istu][$idi] = $rang;
+				$prev_note = $v; $prev_rang = $rang;
+				$cnt++;
+				// moyenne, min, max
+				$moy += $v;
+				if	( $v > $max ) $max = $v;
+				if	( $v < $min ) $min = $v;
+				}
+			}
+		$cnt--;
+		if	( $cnt > 0 )
+			$moy /= $cnt;
+		$moyD[$idi] = round( $moy, 2 );
+		$minD[$idi] = $min;
+		$maxD[$idi] = $max;
 		}
-	
+	// echo '<pre>'; var_dump( $notesDS ); echo '</pre>';
+	// echo '<pre>'; var_dump( $rangsSD ); echo '</pre>';
+
 	// 5. calculer les rangs et moyennes generaux
 
 	// 6. produire du HTML imprimable independant de l'eleve
@@ -180,17 +246,14 @@ else	{
 		. '<p>' . $trim_name . ' : [ ' . $evals[$ieva_1] . ' ' . $evals[$ieva_2] . ' ]</p>';
 	// header de la table
 	$htmlt = '<table class="lp">'
-		. '<tr><td></td><td>Discipline</td><td>Compétence</td><td>EVAL<br>1</td><td>EVAL<br>2</td>'
-		. '<td>Moy</td><td>Coef</td></tr>';
+		. '<tr><td></td><td>Discipline</td><td>Compétence</td><td>EVAL<br>1</td><td>EVAL<br>2</td><td>Moy</td>'
+		. '<td>Coef</td><td>N x C</td><td>Rang</td><td>Moy.<br>Classe</td><td>Min</td><td>Max</td>Appréciation</td></tr>';
 	
 	$html_stu = $html_css;
 	// la boucle des eleves
-	foreach	( $my_students as $istu )	// $istu = $my_students[0];	//provisoire
+	foreach	( $noms_complets as $istu => $nom )
 		{
-		$last_name = ''; $first_name = ''; $middle_name = ''; $date_naissance = '';
-		LP_info_eleve( $istu, $last_name, $first_name, $middle_name, $date_naissance );
-		$html_sid = "<p>Noms et prénoms: $last_name $first_name $middle_name<br>"
-			. "Né(e) le $date_naissance Matricule $istu</p>";
+		$html_sid = "<p>Noms et prénoms: $nom<br>Né(e) le " . $dates_naissance[$istu] . " Matricule $istu</p>";
 		$html_stu .= $html0 . $html_sid . $htmlt;
 		// la boucle des subjects
 		foreach	( $subject_names as $isub => $subject_name )
@@ -207,19 +270,27 @@ else	{
 						. $subject_name . '&nbsp;</b></div></td>';
 					$first = false;
 					}
+				$note1 = $notesESD[$ieva_1][$istu][$idi];
+				$note2 = $notesESD[$ieva_2][$istu][$idi];
+				$noteM = $notesSD[$istu][$idi];
+				$noteNxC = $noteM*$coeffs[$idi];
 				$html_stu .= '<td>' . $course_names[$idi]
-					. '[' . $idi . ']'	// debug
+					// . '[' . $idi . ']'	// debug
 					. '<br>' . $prof_names[$idi] . '</td><td>'
 					. $competences[$idi] . '</td><td>'
-					. $notesESD[$ieva_1][$istu][$idi] . '</td><td>'
-					. $notesESD[$ieva_2][$istu][$idi] . '</td><td>'
-					. $notesSD[$istu][$idi] . '</td><td>'
-					. $coeffs[$idi] . '</td></tr>';
-					
+					. (($note1 < 0.0)?(''):($note1)) . '</td><td>'
+					. (($note2 < 0.0)?(''):($note2)) . '</td><td>'
+					. (($noteM < 0.0)?(''):($noteM)) . '</td><td>'
+					. $coeffs[$idi] . '</td><td>'
+					. (($noteM < 0.0)?(''):($noteNxC)) . '</td><td>'
+					. $rangsSD[$istu][$idi] . '</td><td>'
+					. $moyD[$idi] . '</td><td>'
+					. $minD[$idi] . '</td><td>'
+					. $maxD[$idi] . '</td></tr>';
 				}
 			// la ligne de totaux
 			$html_stu .= '<tr><td colspan="5">Total</td>';
-			$html_stu .= '<td></td></tr>';
+			$html_stu .= '<td></td><td></td><td colspan="4"></td></tr>';
 			}
 		$html_stu .= '</table></div>';
 		}
