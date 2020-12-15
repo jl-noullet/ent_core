@@ -400,3 +400,13 @@ foreach	( $ref_set as $k => $v )
 	}
 return $retval;
 }
+
+// appreciation textuelle, retour par reference
+function &LP_apprec( $note )
+{
+if	( $note >= 14.0 ) return 'Expert (E)';
+else if	( $note >= 12.0 ) return 'Compétence acquise (CA)';
+else if	( $note >= 10.0 ) return 'En cours d\'acquisition (ECA)';
+else if	( $note >= 0.0 )  return 'Compétence non acquise (NA)';
+else	return '';
+}
