@@ -65,7 +65,7 @@ else	{
 	else	{ $class_title = $_SESSION['lp_classe']; $classe_short = $_SESSION['lp_classe']; }
 
 	// interpreter identite utilisateur
-	$sqlrequest = 'SELECT title, first_name, last_name, profile_id FROM staff WHERE staff_id=' . $my_user;
+	$sqlrequest = 'SELECT profile_id FROM staff WHERE staff_id=' . $my_user;
 	$result = db_query( $sqlrequest, true );
 	if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 		{
