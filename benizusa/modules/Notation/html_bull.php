@@ -74,11 +74,13 @@
 					. (($noteM < 0.0)?(''):($noteM)) . '</td><td>'
 					. $coeffs[$idi] . '</td><td>'
 					. (($noteM < 0.0)?(''):($noteNxC)) . '</td><td>'
-					. $prox_rangsD[$idi] . '</td><td>'
-					. $moyD[$idi] . '</td><td>'
-					. $minD[$idi] . '</td><td>'
-					. $maxD[$idi] . '</td><td>'
-					. $appr . '</td></tr>';
+					. $prox_rangsD[$idi] . '</td><td>';
+				if	( $minD[$idi] <= 20.0 ) 
+					$html_stu .= $moyD[$idi] . '</td><td>'
+						. $minD[$idi] . '</td><td>'
+						. $maxD[$idi] . '</td><td>';
+				else	$html_stu .= '</td><td></td><td></td><td>';
+				$html_stu .= $appr . '</td></tr>';
 				}
 			// la ligne de totaux
 			if	( $totCoeff > 0 )

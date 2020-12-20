@@ -62,3 +62,31 @@ WHERE NOT EXISTS (SELECT profile_id
     FROM profile_exceptions
     WHERE modname='Notation/Competence.php'
     AND profile_id=2);
+
+-- Saisie des Absences -------------------------
+-- Admin
+INSERT INTO profile_exceptions (profile_id, modname, can_use, can_edit)
+SELECT 1, 'Notation/Absences.php', 'Y', 'Y'
+WHERE NOT EXISTS (SELECT profile_id
+    FROM profile_exceptions
+    WHERE modname='Notation/Absences.php'
+    AND profile_id=1);
+
+-- Saisie du Prof. Principal -------------------------
+-- Admin
+INSERT INTO profile_exceptions (profile_id, modname, can_use, can_edit)
+SELECT 1, 'Notation/ProfPrincipal.php', 'Y', 'Y'
+WHERE NOT EXISTS (SELECT profile_id
+    FROM profile_exceptions
+    WHERE modname='Notation/ProfPrincipal.php'
+    AND profile_id=1);
+
+-- Production des bulletins -------------------------
+-- Admin
+INSERT INTO profile_exceptions (profile_id, modname, can_use, can_edit)
+SELECT 1, 'Notation/Bulletins.php', 'Y', 'Y'
+WHERE NOT EXISTS (SELECT profile_id
+    FROM profile_exceptions
+    WHERE modname='Notation/Bulletins.php'
+    AND profile_id=1);
+

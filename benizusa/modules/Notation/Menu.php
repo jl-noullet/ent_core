@@ -27,12 +27,17 @@ if ( $RosarioModules['Notation'] ) // Verify target module is activated.
 	'default' => 'Notation/Saisie.php',
 	'Notation/Saisie.php' => 'Saisie des Notes',
 	'Notation/Test.php' => 'Etat d\'avancement',
-	'Notation/Competence.php' => 'Saisie des Compétences' );
+	'Notation/Competence.php' => 'Saisie des Compétences',
+	'Notation/Absences.php' => 'Saisie des Absences',
+	'Notation/ProfPrincipal.php' => 'Saisie du Prof. Principal',
+	//'Notation/Bulletins.php' => 'Production des bulletins'
+	);
 
 	$menu['Notation']['teacher'] = array(
 	'title' => 'Notation',
 	'default' => 'Notation/Saisie.php',
 	'Notation/Saisie.php' => 'Saisie des Notes',
-	'Notation/Competence.php' => 'Saisie des Compétences' );
+	'Notation/Competence.php' => 'Saisie des Compétences'
+	);
 
 }
