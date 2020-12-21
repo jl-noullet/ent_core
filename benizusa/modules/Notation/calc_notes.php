@@ -39,6 +39,7 @@
 	$totCoeffS = array();		// total des coeffs par eleve $totCoeffS[istu]
 	$moyS = array();		// moyenne ponderee par eleve $moyS[istu]
 	$rangsS = array();		// classement général $rangsS [istu]
+	$anjS = array();		// absences non justifiees
 	// les variables scalaires de l'objet "trimestre d'une classe" ne sont pas regroupees ici :-(
 
 	// 1. acquerir les donnees communes
@@ -284,4 +285,24 @@
 	$effectif = $cnt - 1;
 	if	( $cnt > 0 )
 		$class_moy = round( $class_moy / $effectif, 2 );
+
+	// 7. lire les heures d'absence non justifiées pour la periode courante
+	// Préparons la lecture 
+	$sqlrequest = 'SELECT comment FROM student_mp_comments WHERE syear=' . UserSyear()
+		. ' AND marking_period_id=\'' . $trimestre
+		. '\' AND student_id=';		// a completer dans le foreach
+	// remplir les tableaux
+	foreach	( $my_students as $istu )
+		{
+		// lecture table student_mp_comments (requete preparee ci-dessus)
+		$result = db_query( $sqlrequest . $istu, true );
+		if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+			{
+			$tmp_comment = $row['comment'];
+			// extraction des heures d'abs non justifiee
+			$anjS[$istu] = (int)substr( $tmp_comment, 3 );
+			}
+		else	$anjS[$istu] = 0;
+		}
+
 // the end

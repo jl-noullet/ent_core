@@ -48,7 +48,7 @@ else	{
 	if	( $_REQUEST['modfunc'] === 'savePDF' ) // Print PDF.
 		{
 		$html  = '<!doctype html>' . "\n" . '<html><head><meta charset="UTF-8">';
-		$html .= '<title>' . 'Explo' . '</title></head><body>' . "\n";	// <title> completement ignore ?
+		$html .= '<title>' . 'Bulletins' . '</title></head><body>' . "\n";	// <title> completement ignore ?
 		$html .= $html_stu;
 		$html .= '</body></html>';
 		require_once 'classes/Wkhtmltopdf.php';
@@ -59,16 +59,16 @@ else	{
 		$wkhtmltopdf->setHtml( $html );
 		// ce titre n'est pas affiche par acroread, mais par le browser oui, bon pour identifier les onglets
 		// il est visible dans les proprietes du pdf. Il doit etre en ISO-8859-1 !!!
-		$wkhtmltopdf->setTitle( utf8_decode('Explo') );
+		$wkhtmltopdf->setTitle( utf8_decode($class_name) );
 		if	( isset($_REQUEST['landscape'] ) )
 			$wkhtmltopdf->setOrientation( Wkhtmltopdf::ORIENTATION_LANDSCAPE );
 		// execute la conversion
 		// UWAGA si on met juste MODE_EMBEDDED c'est considere comme zero qui est MODE_DOWNLOAD
-		$wkhtmltopdf->output( Wkhtmltopdf::MODE_EMBEDDED, utf8_decode('Explo') . '.pdf' );
+		$wkhtmltopdf->output( Wkhtmltopdf::MODE_EMBEDDED, utf8_decode($class_name) . '.pdf' );
 		}
 	else	{
 		// Le contenu interactif, exclu du PDF
-		$url1 = 'Modules.php?modname=' . $_REQUEST['modname'] . '&explo';
+		$url1 = 'Modules.php?modname=' . $_REQUEST['modname'];
 		$url2 = $url1 . '&lp_classe=' . $lp_classe;
 		$url3 = $url2 . '&modfunc=savePDF&_ROSARIO_PDF=1';
 		echo	'<style type="text/css">', "\n",
