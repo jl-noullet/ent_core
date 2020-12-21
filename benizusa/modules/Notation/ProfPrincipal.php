@@ -154,13 +154,14 @@ else	{
 					. ' WHERE staff_id=' . $prof_id;
 				$result = db_query( $sqlrequest, true );
 				if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
-				$le_prof = $row['title'] . ' ' . $row['first_name'] . ' ' . $row['last_name'];
+					$le_prof = $row['title'] . ' ' . $row['first_name'] . ' ' . $row['last_name'];
+				else	$le_prof = '';
 				}
 			else	$le_prof = '';
 			$label_table .= '<tr><td>Professeur Principal :</td><td>' . $le_prof . '</td></tr>';
 			echo $label_table . '</table>';
 			echo '<hr><div class="hmenu"><a class="butamber" href="' . $url0
-				. '&edit_flag">Introduire ou modifier le prof. principal</a></div>';	
+				. '&edit_flag">Désigner ou modifier le prof. principal</a></div>';	
 			}
 		}
 	else	{

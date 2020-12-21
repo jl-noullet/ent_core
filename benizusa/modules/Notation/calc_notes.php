@@ -15,6 +15,7 @@
 	$my_students = array();		// array des istu (index arbitraire)
 	$noms_complets = array();	// noms des eleves, eventuellement tries: istu => nom
 	$dates_naissance = array();	// istu => date
+	$numtels = array();		// istu => numero de tel du pere ou de la mere
 	$statuts = array();		// R pour redoublant: istu => statut
 	$class_name = '';		// nom de la classe
 	$class_short_name = '';		// petit nom de la classe
@@ -38,10 +39,26 @@
 	$totCoeffS = array();		// total des coeffs par eleve $totCoeffS[istu]
 	$moyS = array();		// moyenne ponderee par eleve $moyS[istu]
 	$rangsS = array();		// classement général $rangsS [istu]
+	// les variables scalaires de l'objet "trimestre d'une classe" ne sont pas regroupees ici :-(
 
 	// 1. acquerir les donnees communes
 	$lp_classe = (int)$_REQUEST['lp_classe'];	// petit filtrage de securite
-
+	// prof principal
+	$sqlrequest = "SELECT value FROM program_user_config WHERE program='ProfPrincip' AND user_id='-1'"
+		. ' AND school_id=' . UserSchool() . " AND title='" . $lp_classe . "'";		
+	// echo '<p>', $sqlrequest, '</p>';
+	$result = db_query( $sqlrequest, true );
+	if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+		{
+		$prof_id = $row['value'];
+		$sqlrequest = 'SELECT title, first_name, last_name FROM staff'
+			. ' WHERE staff_id=' . $prof_id;
+		$result = db_query( $sqlrequest, true );
+		if	( $row = pg_fetch_array( $result, null, PGSQL_ASSOC ) )
+			$prof_principal = $row['title'] . ' ' . $row['first_name'] . ' ' . $row['last_name'];
+		else	$prof_principal = '';
+		}
+	else	$prof_principal = '';
 	// 1.1 la liste des eleves (remplir $my_students et $my_redoub)
 	$my_redoub = array();
 	LP_liste_classe( $lp_classe, $class_name, $class_short_name, $my_students, $my_redoub );
@@ -52,8 +69,8 @@
 	// il faut acquerir les noms maintenant pour pouvoir trier les eleves par ordre alphabetique 
 	foreach	( $my_students as $k => $v )
 		{
-		$sqlrequest = 'SELECT first_name, middle_name, last_name, custom_200000000, custom_200000004 '
-			. 'FROM students WHERE student_id=' . $v;
+		$sqlrequest = 'SELECT first_name, middle_name, last_name, custom_200000000, custom_200000004, '
+		. 'custom_200000020, custom_200000025, custom_200000028 FROM students WHERE student_id=' . $v;
 		$result = db_query( $sqlrequest, true );
 		if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 			{
@@ -62,6 +79,12 @@
 			//if	( $row['custom_200000000'][0] == 'F') { $sexes[$v] = 'F'; $cntF++; }
 			//else if	( $row['custom_200000000'][0] == 'M') { $sexes[$v] = 'G'; $cntG++; }
 			//else	$sexes[$v] = ' ';
+			$tel = $row['custom_200000020'];
+			if	( !$tel )
+				$tel = $row['custom_200000025'];
+			if	( !$tel )
+				$tel = $row['custom_200000028'];
+			$numtels[$v] = $tel;
 			if	( $my_redoub[$k] == 0 )
 				$statuts[$v] = 'R';
 			else	$statuts[$v] = 'N';
@@ -75,6 +98,10 @@
 	$trim_name = '';
 	$trimestre = LP_find_trimestre( UserMP(), $trim_name );
 	LP_find_evals( $trimestre, $evals );
+	$trim_num = array();
+	if	( preg_match('/(\d+)/', $trim_name, $trim_num ) )
+		$trim_num = (int)$trim_num[1];
+	else	$trim_num = 0;
 
 	// 1.3 le set des cours
 	LP_prog_1eleve( $my_students[0], $activites );
@@ -254,7 +281,7 @@
 			if	( $v < $class_min ) $class_min = $v;
 			}
 		}
-	$cnt--;
+	$effectif = $cnt - 1;
 	if	( $cnt > 0 )
-		$class_moy = round( $class_moy / $cnt, 2 );
+		$class_moy = round( $class_moy / $effectif, 2 );
 // the end

@@ -30,7 +30,7 @@ if ( $RosarioModules['Notation'] ) // Verify target module is activated.
 	'Notation/Competence.php' => 'Saisie des Compétences',
 	'Notation/Absences.php' => 'Saisie des Absences',
 	'Notation/ProfPrincipal.php' => 'Saisie du Prof. Principal',
-	//'Notation/Bulletins.php' => 'Production des bulletins'
+	'Notation/Bulletins.php' => 'Production des bulletins'
 	);
 
 	$menu['Notation']['teacher'] = array(
