@@ -20,7 +20,7 @@ $html_css = '<style type="text/css">'
 	. 'div.foto { width: 150px; height: 150px; border: 1px solid black }'
 	. 'td.foto { width: 160px }'
 	. 'table.lp { border-collapse:collapse; margin-top: 10px }'
-	. 'table.lp td { border:1px solid black; padding: 2px 6px 2px 8px; }'
+	. 'table.lp td { border:1px solid black; padding: 2px 5px 2px 5px; }'
 	. 'td.comp { font-size: 88% }'
 	. 'table.bot { width: 100%; border-collapse:collapse; margin-top: 10px }'
 	. 'table.bot td { border:1px solid black; vertical-align: top; padding: 2px 0px 2px 0px; font-size: 88%; }'
@@ -41,7 +41,7 @@ if	( isset( $_REQUEST['_ROSARIO_PDF'] ) )
 $html_top = '<div class="bul"><table class="nobo cen"><tr><td width="40%">COMPLEXE ACADÉMIQUE BILINGUE BENISUZA</td>'
 . '<td rowspan="2"><img src="' . $lelogo . '"></td><td width="40%"><b>RÉPUBLIQUE DU CAMEROUN</b></td></tr>'
 . '<tr><td>BP 13396 Tél. 242 77 12 68</td>'
-. '<td>Année Scolaire ' . (UserSyear()-1) . '/' . UserSyear() . '</td></tr></table><hr>';
+. '<td>Année Scolaire ' . UserSyear() . '/' . (UserSyear()+1) . '</td></tr></table><hr>';
 // header de la table principale
 $htmlt = '<table class="lp">'
 	. '<tr class="gri"><td></td><td>Discipline</td><td width="30%">Compétence</td><td>EVAL<br>1</td><td>EVAL<br>2</td><td>Moy</td>'
@@ -115,46 +115,55 @@ foreach	( $noms_complets as $istu => $nom )
 	// la boucle des subjects
 	foreach	( $subject_names as $isub => $subject_name )
 		{
-		$rowspan = 1 + count( $subjects_activities[$isub] );
+		$rowspan = 1;	// + count( $subjects_activities[$isub] );
 		$first = true;
 		$totNxC = 0.0;
 		$totCoeff = 0.0;
-		// la boucle des cours du subject
+		// la premiere boucle des cours du subject, juste pour compter les ligne effectivement utilisees
 		foreach	( $subjects_activities[$isub] as $idi )
 			{
-			$html_stu .= '<tr>';
-			if	( $first )
+			if	( $coeffs[$idi] != 0 )
+				$rowspan++;
+			}
+		// la seconde boucle des cours du subject
+		foreach	( $subjects_activities[$isub] as $idi )
+			{
+			if	( $coeffs[$idi] != 0 )
 				{
-				$html_stu .= '<td rowspan="' . $rowspan	. '" class="vv"><div class="vr"><b>'
-					. $subject_name . '&nbsp;</b></div></td>';
-				$first = false;
+				$html_stu .= '<tr>';
+				if	( $first )
+					{
+					$html_stu .= '<td rowspan="' . $rowspan	. '" class="vv"><div class="vr"><b>'
+						. $subject_name . '&nbsp;</b></div></td>';
+					$first = false;
+					}
+				$note1 = $prox_note1D[$idi];
+				$note2 = $prox_note2D[$idi];
+				$noteM = $prox_noteMD[$idi];
+				$noteNxC = $noteM*$coeffs[$idi];
+				if	( $noteM >= 0.0 )
+					{
+					$totNxC += $noteNxC;
+					$totCoeff += $coeffs[$idi];
+					}
+				$appr = &LP_apprec( $noteM );
+				$html_stu .= '<td>' . $course_names[$idi]
+					// . '[' . $idi . ']'	// debug
+					. '<br>' . $prof_names[$idi] . '</td><td class="comp">'
+					. $competences[$idi] . '</td><td>'
+					. (($note1 < 0.0)?(''):($note1)) . '</td><td>'
+					. (($note2 < 0.0)?(''):($note2)) . '</td><td class="bo1">'
+					. (($noteM < 0.0)?(''):($noteM)) . '</td><td>'
+					. $coeffs[$idi] . '</td><td>'
+					. (($noteM < 0.0)?(''):($noteNxC)) . '</td><td>'
+					. $prox_rangsD[$idi] . '</td><td>';
+				if	( $minD[$idi] <= 20.0 ) 
+					$html_stu .= $moyD[$idi] . '</td><td>'
+						. $minD[$idi] . '</td><td>'
+						. $maxD[$idi] . '</td><td class="comp">';
+				else	$html_stu .= '</td><td></td><td></td><td class="comp">';
+				$html_stu .= $appr . '</td></tr>';
 				}
-			$note1 = $prox_note1D[$idi];
-			$note2 = $prox_note2D[$idi];
-			$noteM = $prox_noteMD[$idi];
-			$noteNxC = $noteM*$coeffs[$idi];
-			if	( $noteM >= 0.0 )
-				{
-				$totNxC += $noteNxC;
-				$totCoeff += $coeffs[$idi];
-				}
-			$appr = &LP_apprec( $noteM );
-			$html_stu .= '<td>' . $course_names[$idi]
-				// . '[' . $idi . ']'	// debug
-				. '<br>' . $prof_names[$idi] . '</td><td class="comp">'
-				. $competences[$idi] . '</td><td>'
-				. (($note1 < 0.0)?(''):($note1)) . '</td><td>'
-				. (($note2 < 0.0)?(''):($note2)) . '</td><td class="bo1">'
-				. (($noteM < 0.0)?(''):($noteM)) . '</td><td>'
-				. $coeffs[$idi] . '</td><td>'
-				. (($noteM < 0.0)?(''):($noteNxC)) . '</td><td>'
-				. $prox_rangsD[$idi] . '</td><td>';
-			if	( $minD[$idi] <= 20.0 ) 
-				$html_stu .= $moyD[$idi] . '</td><td>'
-					. $minD[$idi] . '</td><td>'
-					. $maxD[$idi] . '</td><td>';
-			else	$html_stu .= '</td><td></td><td></td><td>';
-			$html_stu .= $appr . '</td></tr>';
 			}
 		// la ligne de totaux
 		if	( $totCoeff > 0 )
