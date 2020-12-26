@@ -41,7 +41,8 @@ else	{
 
 	// Produire du HTML imprimable dans $html_stu
 	if	( isset( $_REQUEST['table_view'] ) )
-		require_once( 'modules/Notation/html_tabl.php' );
+	//	require_once( 'modules/Notation/html_tabl.php' );
+		require_once( 'modules/Notation/html_merite.php' );
 	else	require_once( 'modules/Notation/html_bull.php' );
 
 	// convertir en PDF s'il y a lieu

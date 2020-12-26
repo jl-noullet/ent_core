@@ -16,6 +16,7 @@
 	$noms_complets = array();	// noms des eleves, eventuellement tries: istu => nom
 	$dates_naissance = array();	// istu => date
 	$numtels = array();		// istu => numero de tel du pere ou de la mere
+	$sexes = array();		// istu => 'M' ou 'F'
 	$statuts = array();		// R pour redoublant: istu => statut
 	$class_name = '';		// nom de la classe
 	$class_short_name = '';		// petit nom de la classe
@@ -68,18 +69,18 @@
 	if	( count($my_students) == 0 )
 		exit( "<p>Classe $class_name n'a pas d'élèves</p>" );
 	// il faut acquerir les noms maintenant pour pouvoir trier les eleves par ordre alphabetique 
+	$sqlrequest = 'SELECT first_name, middle_name, last_name, custom_200000000, custom_200000004, '
+		. 'custom_200000020, custom_200000025, custom_200000028 FROM students WHERE student_id=';
 	foreach	( $my_students as $k => $v )
 		{
-		$sqlrequest = 'SELECT first_name, middle_name, last_name, custom_200000000, custom_200000004, '
-		. 'custom_200000020, custom_200000025, custom_200000028 FROM students WHERE student_id=' . $v;
-		$result = db_query( $sqlrequest, true );
+		$result = db_query( $sqlrequest . $v, true );
 		if	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 			{
 			$noms_complets[$v] = $row['last_name'] . ' ' . $row['first_name'] . ' ' . $row['middle_name'];
 			$dates_naissance[$v] = $row['custom_200000004'];
-			//if	( $row['custom_200000000'][0] == 'F') { $sexes[$v] = 'F'; $cntF++; }
-			//else if	( $row['custom_200000000'][0] == 'M') { $sexes[$v] = 'G'; $cntG++; }
-			//else	$sexes[$v] = ' ';
+			if	( $row['custom_200000000'][0] == 'F') { $sexes[$v] = 'F'; $cntF++; }
+			else if	( $row['custom_200000000'][0] == 'M') { $sexes[$v] = 'G'; $cntG++; }
+			else	$sexes[$v] = ' ';
 			$tel = $row['custom_200000020'];
 			if	( !$tel )
 				$tel = $row['custom_200000025'];
