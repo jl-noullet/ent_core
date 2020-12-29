@@ -12,6 +12,22 @@ $html_stu = $html_css;
 
 $my_prefix = '2020A';	// prefix pour matricule
 
+$LP_level_texts = [ 
+	3 => 'Expert (E)',
+	2 => 'Compétence acquise (CA)',
+	1 => 'En cours d\'acquisition (ECA)',
+	0 => 'Compétence non acquise (NA)'
+	];
+
+function LP_note2level( $note )
+{
+if	( $note >= 14.0 ) return 3;
+else if	( $note >= 12.0 ) return 2;
+else if	( $note >= 10.0 ) return 1;
+else if	( $note >= 0.0 )  return 0;
+else	return -1;
+}
+
 // bandeau
 $lelogo = 'assets/benisuza4_logo.png';
 if	( isset( $_REQUEST['_ROSARIO_PDF'] ) )
@@ -23,14 +39,42 @@ $html_stu .= '<table class="nobo cen"><tr><td width="40%">COMPLEXE ACADÉMIQUE B
 // titre
 $html_stu .= '<h2 class="cen">CLASSEMENT PAR ORDRE DE MÉRITE, CLASSE DE ' . strtoupper($class_name) . '</h2>'
 	. '<h2 class="cen">TRIMESTRE ' . $trim_num . '</h2>';
+// initialiser stats
+$histo = array();
+foreach	( $LP_level_texts as $k => $v )
+	$histo[$k] = 0; 
 // table
 $html_stu .= '<table class="lp"><tr class="bo1"><td>Nom(s) et prénom(s)</td><td>Matricule</td><td>Sexe</td>'
 	. '<td>Statut</td><td>Rang<br>sur ' . $effectif . '</td><td>Moy.</td><td>Appréciation</td></tr>';
 foreach	( $rangsS as $istu => $rang )
 	{				// Produire une ligne de table par eleve
-	$appr = &LP_apprec( $moyS[$istu] );
+	$lev = LP_note2level( $moyS[$istu] );
+	if	( $lev >= 0 )
+		{
+		$histo[$lev] += 1;
+		$appr =& $LP_level_texts[$lev];
+		}
 	$html_stu .= '<tr><td>' . $noms_complets[$istu] . '</td><td>' . $my_prefix . sprintf( "%04u", $istu )
 	. '</td><td>' . $sexes[$istu] . '</td><td>' . (($statuts[$istu]=='R')?('R'):('')) . '</td><td>' . $rang
 	. '</td><td>' . $moyS[$istu] . '</td><td class="comp">' . $appr . '</td></tr>';
 	}
 $html_stu .= '</table>';
+
+$html_stu .= '<canvas id="myCanvas" width="200" height="200" style="border: 1px solid #c3c3c3; margin-top: 20px">'
+. 'Your browser does not support the canvas element.</canvas>';
+
+// javascript
+$le_script = 'modules/Notation/LP_func.js';
+if	( isset( $_REQUEST['_ROSARIO_PDF'] ) )
+	$le_script = 'file:///' . $RosarioPath . $le_script;
+
+$html_stu .= '<script src="' . $le_script . '"></script>';
+
+$html_stu .= '<script>'
+. 'var canvas = document.getElementById("myCanvas");'
+. 'var ctx = canvas.getContext("2d");'
+. 'LP_pie( ctx, 200, [';
+foreach	( $histo as $k => $v )
+	$html_stu .= $v . ',';
+$html_stu .= '], ["#08F", "#0E0", "#FB0", "#F44" ], 0 );'
+. '</script>';
