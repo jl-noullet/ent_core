@@ -146,7 +146,7 @@ foreach	( $noms_complets as $istu => $nom )
 					$totNxC += $noteNxC;
 					$totCoeff += $coeffs[$idi];
 					}
-				$appr = &LP_apprec( $noteM );
+				$appr = $LP_level_texts[LP_note2level( $noteM )];
 				$html_stu .= '<td>' . $course_names[$idi]
 					// . '[' . $idi . ']'	// debug
 					. '<br>' . $prof_names[$idi] . '</td><td class="comp">'
@@ -182,7 +182,7 @@ foreach	( $noms_complets as $istu => $nom )
 		. 'Moyenne trim. : ' . $moyS[$istu] . '</td></tr>';
 	$html_stu .= '</table>';
 	// conclusions
-	$appr = &LP_apprec( $moyS[$istu] );
+	$appr = $LP_level_texts[LP_note2level( $moyS[$istu] )];
 	$lesabs = $anjS[$istu];
 	if	( $lesabs == 0 )
 		$lesabs = '';

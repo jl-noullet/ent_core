@@ -401,12 +401,26 @@ foreach	( $ref_set as $k => $v )
 return $retval;
 }
 
-// appreciation textuelle, retour par reference
-function &LP_apprec( $note )
+// appreciation textuelle
+$LP_level_texts = [ 
+	3 => 'Expert (E)',
+	2 => 'Compétence acquise (CA)',
+	1 => 'En cours d\'acquisition (ECA)',
+	0 => 'Compétence non acquise (NA)'
+	];
+$LP_level_colors = [ 
+	3 => '#08F',
+	2 => '#0E0',
+	1 => '#FB0',
+	0 => '#F44'
+	];
+
+function LP_note2level( $note )
 {
-if	( $note >= 14.0 ) return 'Expert (E)';
-else if	( $note >= 12.0 ) return 'Compétence acquise (CA)';
-else if	( $note >= 10.0 ) return 'En cours d\'acquisition (ECA)';
-else if	( $note >= 0.0 )  return 'Compétence non acquise (NA)';
-else	return '';
+if	( $note >= 14.0 ) return 3;
+else if	( $note >= 12.0 ) return 2;
+else if	( $note >= 10.0 ) return 1;
+else if	( $note >= 0.0 )  return 0;
+else	return -1;
 }
+

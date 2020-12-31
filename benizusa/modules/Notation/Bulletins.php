@@ -4,15 +4,6 @@ require_once( 'modules/Loginpro/LP_func.php' );
 $my_school = UserSchool();
 $my_year = UserSyear();
 
-function &note2apprec( $note )
-{
-if	( $note >= 14.0 ) return 'Expert (E)';
-else if	( $note >= 12.0 ) return 'Compétence acquise (CA)';
-else if	( $note >= 10.0 ) return 'En cours d\'acquisition (ECA)';
-else if	( $note >= 0.0 )  return 'Compétence non acquise (NA)';
-else	return '';
-}
-
 if	( !isset( $_REQUEST['lp_classe'] ) )
 	{
 	DrawHeader( 'Choisir une classe' );
@@ -40,9 +31,13 @@ else	{
 	require_once( 'modules/Notation/calc_notes.php' );
 
 	// Produire du HTML imprimable dans $html_stu
-	if	( isset( $_REQUEST['table_view'] ) )
-	//	require_once( 'modules/Notation/html_tabl.php' );
-		require_once( 'modules/Notation/html_merite.php' );
+	if	( isset( $_REQUEST['stat_view'] ) )
+		{
+		if	( $_REQUEST['stat_view'] == 'tables' )
+			require_once( 'modules/Notation/html_tabl.php' );
+		else if	( $_REQUEST['stat_view'] == 'merite' )
+			require_once( 'modules/Notation/html_merite.php' );
+		}
 	else	require_once( 'modules/Notation/html_bull.php' );
 
 	// convertir en PDF s'il y a lieu
@@ -78,14 +73,17 @@ else	{
 			".hmenu { margin: 20px };\n",
 			'</style>';
 		echo '<div class="hmenu">';
-		if	( isset( $_REQUEST['table_view'] ) )
+		if	( isset( $_REQUEST['stat_view'] ) )
 			{
-			echo '<a class="butgreen" href="' . $url3 . '&table_view'. '" target="_blank">Ce document en PDF</a>';
-			echo '<a class="butgreen" href="' . $url2 .		   '">Les bulletins</a>';
+			echo '<a class="butgreen" href="' . $url3 . '&stat_view=' . $_REQUEST['stat_view']
+			. '" target="_blank">Ce document en PDF</a>';
+			echo '<a class="butgreen" href="' . $url2 . '">Les bulletins</a>';
 			}
 		else	{
-			echo '<a class="butgreen" href="' . $url3 . '&landscape' . '" target="_blank">Ce document en PDF</a>';
-			echo '<a class="butgreen" href="' . $url2 . '&table_view'. '">Les tables</a>';
+			echo '<a class="butgreen" href="' . $url3 . '&landscape'
+			. '" target="_blank">Ce document en PDF</a>';
+			echo '<a class="butgreen" href="' . $url2 . '&stat_view=tables'. '">Tables</a>';
+			echo '<a class="butgreen" href="' . $url2 . '&stat_view=merite'. '">Mérite</a>';
 			}
 		echo '<a class="butgreen" href="' . $url1 . '">Retour aux choix de la classe</a>';
 		echo '</div>';

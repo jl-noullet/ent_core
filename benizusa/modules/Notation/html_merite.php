@@ -12,21 +12,6 @@ $html_stu = $html_css;
 
 $my_prefix = '2020A';	// prefix pour matricule
 
-$LP_level_texts = [ 
-	3 => 'Expert (E)',
-	2 => 'Compétence acquise (CA)',
-	1 => 'En cours d\'acquisition (ECA)',
-	0 => 'Compétence non acquise (NA)'
-	];
-
-function LP_note2level( $note )
-{
-if	( $note >= 14.0 ) return 3;
-else if	( $note >= 12.0 ) return 2;
-else if	( $note >= 10.0 ) return 1;
-else if	( $note >= 0.0 )  return 0;
-else	return -1;
-}
 
 // bandeau
 $lelogo = 'assets/benisuza4_logo.png';
@@ -60,7 +45,7 @@ foreach	( $rangsS as $istu => $rang )
 	}
 $html_stu .= '</table>';
 
-$html_stu .= '<canvas id="myCanvas" width="200" height="200" style="border: 1px solid #c3c3c3; margin-top: 20px">'
+$html_stu .= '<canvas id="myCanvas" width="600" height="200" style="border: 1px solid #c3c3c3; margin-top: 20px">'
 . 'Your browser does not support the canvas element.</canvas>';
 
 // javascript
@@ -74,7 +59,13 @@ $html_stu .= '<script>'
 . 'var canvas = document.getElementById("myCanvas");'
 . 'var ctx = canvas.getContext("2d");'
 . 'LP_pie( ctx, 200, [';
-foreach	( $histo as $k => $v )
+foreach	( $histo as $v )
 	$html_stu .= $v . ',';
-$html_stu .= '], ["#08F", "#0E0", "#FB0", "#F44" ], 0 );'
+$html_stu .= '], [';
+foreach	( $LP_level_colors as $c )
+	$html_stu .= '"' . $c . '",';
+$html_stu .= '], [';
+foreach	( $LP_level_texts as $c )
+	$html_stu .= '"' . $c . '",';
+$html_stu .= ']  );'
 . '</script>';

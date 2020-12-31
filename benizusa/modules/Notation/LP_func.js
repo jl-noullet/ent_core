@@ -33,8 +33,8 @@ x1 = off *  sin1; y1 = off * -cos1;	// off @ ang1 - pi/2
 return LP_cramer2( d0, d1 );
 }
 
-function LP_pie( ctx, diam, vals, colors, labels ) {
-// normaliser les valeurs, en radian
+function LP_pie( ctx, h, vals, colors, labels ) {
+// normaliser les valeurs d'angles, en radian
 var tot = 0;
 for	( i in vals )
 	tot += vals[i];
@@ -42,23 +42,23 @@ var k = 2 * Math.PI / tot;
 for	( i in vals )
 	vals[i] *= k;
 // preparer layout
-var radius = diam/2;
-var x0 = radius;
-var y0 = radius;
 var offset = 2;
+var radius = h/2 - offset;
 var da = ( offset / radius );
 var a0 = -0.5 * Math.PI;	// mettre origine en haut
 var a1, pic;
 // tracer les parts de tarte
+ctx.save();
+ctx.translate( h/2, h/2 );
 for	( i in vals )
 	{
 	if	( vals[i] > 0.0 )
 		{
 		a1 = a0 + vals[i];
 		ctx.beginPath();
-		ctx.arc( x0, y0, radius, a0+da, a1-da );
+		ctx.arc( 0, 0, radius, a0+da, a1-da );
 		pic = LP_peak( a0, a1, offset )
-		ctx.lineTo( x0 + pic[0], y0 + pic[1] );
+		ctx.lineTo( pic[0], pic[1] );
 		ctx.closePath();
 		ctx.fillStyle = colors[i];
 		ctx.fill();
@@ -66,6 +66,36 @@ for	( i in vals )
 		a0 = a1;
 		}
 	}
+ctx.restore();
+// tracer la legende
+ctx.font = "14px Arial";
+var dy = h / ( ( vals.length * 2 ) + 1 );	// intervalle pour legende
+k = 100.0 / (2.0 * Math.PI);
+var percent;
+ctx.translate( dy + h, dy );
+for	( i in vals )
+	{
+	ctx.fillStyle = colors[i];
+	ctx.fillRect(0,0,dy,dy);
+	ctx.strokeRect(0,0,dy,dy);
+	ctx.fillStyle = "#000";
+	percent = k * vals[i]; 
+	ctx.fillText( percent.toFixed(1).padStart(4, ' ') + '% ' + labels[i], dy+10, dy );
+	ctx.translate( 0, dy*2 );
+	}
+
+/*var x = dy + h; var y = dy; 
+for	( i in vals )
+	{
+	ctx.fillStyle = colors[i];
+	ctx.fillRect(x,y,dy,dy);
+	ctx.strokeRect(x,y,dy,dy);
+	ctx.fillStyle = "#000";
+	percent = k * vals[i]; 
+	ctx.fillText( percent.toFixed(1).padStart(4, ' ') + ' ', x+dy+10, y+dy );
+	y += dy*2;
+	} */
+
 }
 
 //ctx.font = "12px Arial"; ctx.fillStyle = "#F00";
