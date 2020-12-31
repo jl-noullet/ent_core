@@ -49,7 +49,7 @@ $html_stu .= '<canvas id="myCanvas" width="600" height="200" style="border: 1px 
 . 'Your browser does not support the canvas element.</canvas>';
 
 // javascript
-$le_script = 'modules/Notation/LP_func.js';
+$le_script = 'modules/Notation/LP_func.js?1001';
 if	( isset( $_REQUEST['_ROSARIO_PDF'] ) )
 	$le_script = 'file:///' . $RosarioPath . $le_script;
 

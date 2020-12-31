@@ -79,8 +79,11 @@ for	( i in vals )
 	ctx.fillRect(0,0,dy,dy);
 	ctx.strokeRect(0,0,dy,dy);
 	ctx.fillStyle = "#000";
-	percent = k * vals[i]; 
-	ctx.fillText( percent.toFixed(1).padStart(4, ' ') + '% ' + labels[i], dy+10, dy );
+	percent = k * vals[i];
+	percent = percent.toFixed(1) + '% ' + labels[i];
+//	ctx.fillText( percent.toFixed(1).padStart(4, ' ') + '% ' + labels[i], dy+10, dy );
+// 	padStart not supported by wkhtmltopdf !!!
+	ctx.fillText( percent, dy+10, dy );
 	ctx.translate( 0, dy*2 );
 	}
 
