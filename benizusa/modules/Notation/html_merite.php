@@ -58,14 +58,13 @@ $html_stu .= '<script src="' . $le_script . '"></script>';
 $html_stu .= '<script>'
 . 'var canvas = document.getElementById("myCanvas");'
 . 'var ctx = canvas.getContext("2d");'
-. 'LP_pie( ctx, 200, [';
-foreach	( $histo as $v )
-	$html_stu .= $v . ',';
-$html_stu .= '], [';
-foreach	( $LP_level_colors as $c )
-	$html_stu .= '"' . $c . '",';
-$html_stu .= '], [';
-foreach	( $LP_level_texts as $c )
-	$html_stu .= '"' . $c . '",';
-$html_stu .= ']  );'
+. 'LP_pie( ctx, 200, '
+. LP_n_array_to_JS( $histo )
+. ', ';
+if	( isset( $_REQUEST['BW'] ) )
+	$html_stu .= 'false';
+else	$html_stu .= LP_t_array_to_JS( $LP_level_colors );
+$html_stu .= ', '
+. LP_t_array_to_JS( $LP_level_texts )
+. ' );'
 . '</script>';

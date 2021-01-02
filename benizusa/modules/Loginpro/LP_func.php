@@ -424,3 +424,22 @@ else if	( $note >= 0.0 )  return 0;
 else	return -1;
 }
 
+// convertir un array PHP en JS, du '[' ou ']' inclus (strings)
+function LP_t_array_to_JS( $a )
+{
+$js = '[';
+foreach	( $a as $v )
+	$js .= "\"$v\",";
+$js .= ']';
+return $js;
+}
+
+// convertir un array PHP en JS, du '[' ou ']' inclus (numbers)
+function LP_n_array_to_JS( $a )
+{
+$js = '[';
+foreach	( $a as $v )
+	$js .= "$v,";
+$js .= ']';
+return $js;
+}
