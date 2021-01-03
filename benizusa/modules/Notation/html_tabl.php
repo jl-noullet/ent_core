@@ -16,6 +16,7 @@
 		. '-webkit-transform: rotate(-90deg); -ms-transform: rotate(-90deg); transform: rotate(-90deg);'
 		. '-webkit-transform-origin: top left; -ms-transform-origin: top left; transform-origin: top left;'
 		. 'width:  ' . $css_subject_width . 'px; text-align: right; }'
+		. '.lilbox { display: inline-block; padding: 4px;  margin: 8px; border: solid 2px; border-color: #888; }'
 		. '</style>';
 
 $html_stu = $html_css;
@@ -24,7 +25,7 @@ $html_stu = $html_css;
 // les notes des 2 evals
 
 $html_stu .= '<div class="bul"><table class="lp"><tr><td>'
-	. $class_name . '<br>' . $evals[$ieva_1] . '/' . $evals[$ieva_2] . '</td>';
+	. $class_name . '<br><br><div class="lilbox">' . $evals[$ieva_1] . '<br>--------<br>' . $evals[$ieva_2] . '</div></td>';
 
 // la boucle des subjects
 foreach	( $subject_names as $isub => $subject_name )
@@ -56,7 +57,7 @@ $html_stu .= '</table></div>';
 // les moyennes des 2 evals, avec les rangs
 
 $html_stu .= '<div class="bul"><table class="lp"><tr><td>'
-	. $class_name . '<br>' . $trim_name . '<br>moy / rang</td>';
+	. $class_name . '<br>' . $trim_name . '<br><br><div class="lilbox">Moy.<br>------<br>Rang</div></td>';
 // la double boucle des cours
 foreach	( $subject_names as $isub => $subject_name )
 	foreach	( $subjects_activities[$isub] as $idi )

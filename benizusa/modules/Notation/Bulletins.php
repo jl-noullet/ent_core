@@ -75,15 +75,25 @@ else	{
 		echo '<div class="hmenu">';
 		if	( isset( $_REQUEST['stat_view'] ) )
 			{
-			echo '<a class="butgreen" href="' . $url3 . '&stat_view=' . $_REQUEST['stat_view']
-			. '" target="_blank">Ce document en PDF</a>';
-			echo '<a class="butgreen" href="' . $url2 . '">Les bulletins</a>';
+			if	( $_REQUEST['stat_view'] == 'merite' )
+				{
+				echo '<a class="butgreen" href="' . $url3 . '&stat_view=' . $_REQUEST['stat_view']
+				. '" target="_blank">PDF couleur</a>';
+				echo '<a class="butgreen" href="' . $url3 . '&stat_view=' . $_REQUEST['stat_view']
+				. '&BW" target="_blank">PDF N/B</a>';
+				}
+			else if	( $_REQUEST['stat_view'] == 'tables' )
+				{
+				echo '<a class="butgreen" href="' . $url3 . '&stat_view=' . $_REQUEST['stat_view']
+				. '" target="_blank">PDF</a>';
+				echo '<a class="butgreen" href="' . $url2 . '">Les bulletins</a>';
+				}
 			}
 		else	{
 			echo '<a class="butgreen" href="' . $url3 . '&landscape'
-			. '" target="_blank">Ce document en PDF</a>';
-			echo '<a class="butgreen" href="' . $url2 . '&stat_view=tables'. '">Tables</a>';
-			echo '<a class="butgreen" href="' . $url2 . '&stat_view=merite'. '">Mérite</a>';
+			. '" target="_blank">PDF</a>';
+			echo '<a class="butgreen" href="' . $url2 . '&stat_view=tables'. '">Tables Vérif.</a>';
+			echo '<a class="butgreen" href="' . $url2 . '&stat_view=merite'. '">Classt. / Mérite</a>';
 			}
 		echo '<a class="butgreen" href="' . $url1 . '">Retour aux choix de la classe</a>';
 		echo '</div>';
