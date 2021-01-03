@@ -403,16 +403,16 @@ return $retval;
 
 // appreciation textuelle
 $LP_level_texts = [ 
-	3 => 'Expert (E)',
-	2 => 'Compétence acquise (CA)',
+	0 => 'Compétence non acquise (NA)',
 	1 => 'En cours d\'acquisition (ECA)',
-	0 => 'Compétence non acquise (NA)'
+	2 => 'Compétence acquise (CA)',
+	3 => 'Expert (E)'
 	];
 $LP_level_colors = [ 
-	3 => '#08F',
-	2 => '#0E0',
+	0 => '#F44',
 	1 => '#FB0',
-	0 => '#F44'
+	2 => '#0E0',
+	3 => '#08F'
 	];
 
 function LP_note2level( $note )
@@ -425,6 +425,7 @@ else	return -1;
 }
 
 // convertir un array PHP en JS, du '[' ou ']' inclus (strings)
+// attention : utilise l'ordre de creation des elements, danger s'il est different de l'ordre des clefs
 function LP_t_array_to_JS( $a )
 {
 $js = '[';
@@ -435,6 +436,7 @@ return $js;
 }
 
 // convertir un array PHP en JS, du '[' ou ']' inclus (numbers)
+// attention : utilise l'ordre de creation des elements,  danger s'il est different de l'ordre des clefs
 function LP_n_array_to_JS( $a )
 {
 $js = '[';

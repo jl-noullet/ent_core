@@ -55,26 +55,26 @@ for	( var i = 0; i < quant; i++ )
 	myctx.beginPath();
 	switch	( i % 4 )
 		{
-		case 0:	// les plus
-			myctx.moveTo( 3, 0 ); myctx.lineTo( 3, 6 );
-			myctx.moveTo( 0, 3 ); myctx.lineTo( 6, 3 );
-			myctx.moveTo( 9, 6 ); myctx.lineTo( 9, 12 );
-			myctx.moveTo( 6, 9 ); myctx.lineTo( 12, 9 ); myctx.stroke();
+		case 0:	// les ronds
+			myctx.arc( 3, 3, 2.5, 0, Math.PI * 2 ); myctx.stroke(); myctx.beginPath();
+			myctx.arc( 9, 9, 2.5, 0, Math.PI * 2 ); myctx.stroke();
 		break;
-		case 1:	// les hachures obliques
-			myctx.moveTo( 0, 12 ); myctx.lineTo( 12, 0 );
-			myctx.moveTo( 0, 6 ); myctx.lineTo( 6, 0 );
-			myctx.moveTo( 6, 12 ); myctx.lineTo( 12, 6 ); myctx.stroke();
-		break;
-		case 2:	// les vagues
+		case 1:	// les vagues
 			myctx.arc( 9, 3, 2.5, 0, Math.PI );
 			myctx.arc( 3, 3, 2.5, 0, Math.PI, true ); myctx.stroke(); myctx.beginPath();
 			myctx.arc( 9, 9, 2.5, 0, Math.PI );
 			myctx.arc( 3, 9, 2.5, 0, Math.PI, true ); myctx.stroke();
 		break;
-		case 3:	// les ronds
-			myctx.arc( 3, 3, 2.5, 0, Math.PI * 2 ); myctx.stroke(); myctx.beginPath();
-			myctx.arc( 9, 9, 2.5, 0, Math.PI * 2 ); myctx.stroke();
+		case 2:	// les hachures obliques
+			myctx.moveTo( 0, 12 ); myctx.lineTo( 12, 0 );
+			myctx.moveTo( 0, 6 ); myctx.lineTo( 6, 0 );
+			myctx.moveTo( 6, 12 ); myctx.lineTo( 12, 6 ); myctx.stroke();
+		break;
+		case 3:	// les plus
+			myctx.moveTo( 3, 0 ); myctx.lineTo( 3, 6 );
+			myctx.moveTo( 0, 3 ); myctx.lineTo( 6, 3 );
+			myctx.moveTo( 9, 6 ); myctx.lineTo( 9, 12 );
+			myctx.moveTo( 6, 9 ); myctx.lineTo( 12, 9 ); myctx.stroke();
 		break;
 		}
 	// pour debug seulement : afficher les petits canvas
@@ -86,7 +86,7 @@ return mypat;
 
 function LP_pie( ctx, h, vals, colors, labels ) {
 // normaliser les valeurs d'angles, en radian
-var tot = 0;
+var i, tot = 0;
 for	( i in vals )
 	tot += vals[i];
 var k = 2 * Math.PI / tot;
@@ -101,10 +101,10 @@ var da = ( offset / radius );
 var a0 = -0.5 * Math.PI;	// mettre origine en haut
 var a1, pic;
 var pat = new Array();
-// tracer les parts de tarte
+// tracer les parts de tarte, en commençant par les meilleurs 
 ctx.save();
 ctx.translate( h/2, h/2 );
-for	( i in vals )
+for	( i = vals.length - 1; i >=0; i-- )
 	{
 	if	( vals[i] > 0.0 )
 		{
@@ -121,13 +121,13 @@ for	( i in vals )
 		}
 	}
 ctx.restore();
-// tracer la legende
+// tracer la legende, les meilleurs en haut
 ctx.font = "14px Arial";
 var dy = Math.round( h / ( ( vals.length * 2 ) + 1 ) );	// intervalle pour legende
 k = 100.0 / (2.0 * Math.PI);
 var percent;
 ctx.translate( dy + h, dy );
-for	( i in vals )
+for	( i = vals.length - 1; i >=0; i-- )
 	{
 	ctx.fillStyle = colors[i];
 	ctx.fillRect(0,0,dy,dy);
@@ -142,15 +142,72 @@ for	( i in vals )
 	}
 }
 
+// histogramme de notes en barres, une barre pour chaque intervalle [N N+1[
+// levels[N] = index dans colors[]
+// en notation sur 20, vals[] et levels[] ont 21 elements
+function LP_histo_notes( ctx, w, h, vals, levels, colors ) {
+const hfoot = 18;
+var qnotes = vals.length;
+var dx = w / qnotes;
+var h0 = h - hfoot;
+var vmax = 0;
+for	( i in vals )
+	if	( vals[i] > vmax )
+		vmax = vals[i];
+var dy = ( h0 - 2 ) / vmax;
+// tracer les barres
+ctx.fillStyle = '#ddd';
+ctx.strokeStyle = '#666';
+var hbar, x = 1;
+for	( i in vals )
+	{
+	ctx.fillStyle = colors[levels[i]];
+	hbar = vals[i] * dy;
+	ctx.fillRect( x, h0 - hbar , dx-3 , hbar );
+	ctx.strokeRect( x, h0 - hbar , dx-3 , hbar );
+	x += dx;
+	}
+// tracer les graduations
+ctx.lineWidth = 2;
+ctx.strokeStyle = '#000';
+ctx.beginPath();
+ctx.moveTo( 0, h0 ); ctx.lineTo( w, h0 ); ctx.stroke();
+ctx.font = "14px Arial";
+ctx.fillStyle = '#000';
+ctx.lineWidth = 1;
+ctx.beginPath();
+for	( i in vals )
+	{
+	ctx.moveTo( i * dx, h0 ); ctx.lineTo( i * dx, h0+4 );
+	ctx.fillText( i, i * dx, h0 + hfoot - 2 );
+	}
+ctx.stroke();
+}
+
 /* petit HTML pour les test du canvas
 <!DOCTYPE html>
 <script src="./LP_func.js"></script>
-<canvas id="myCanvas" width="600" height="200" style="border: 1px solid #c3c3c3;" >
+
+<canvas id="myCanvas1" width="600" height="200" style="border: 1px solid #c3c3c3;"></canvas>
+<hr>
+<canvas id="myCanvas2" width="600" height="200" style="border: 1px solid #c3c3c3;"></canvas>
+<hr>
+<canvas id="myCanvas3" width="600" height="160" style="border: 1px solid #c3c3c3;"></canvas>
 
 <script>
-var canvas = document.getElementById("myCanvas");
+var canvas = document.getElementById("myCanvas1");
 var ctx = canvas.getContext("2d");
-// LP_pie( ctx, 200, [ 1, 2, 4, 7 ], ['#08F', '#0E0', '#FB0', '#F44'], ['super', 'good', 'not good', 'bad'] );
-LP_pie( ctx, 200, [ 1, 2, 4, 7 ], false, ['super', 'good', 'not good', 'bad'] );
+LP_pie( ctx, 200, [ 7, 4, 2, 1 ], [ '#F44', '#FB0', '#0E0', '#08F' ], ['bad', 'no good', 'good', 'super'] );
+
+canvas = document.getElementById("myCanvas2");
+ctx = canvas.getContext("2d");
+LP_pie( ctx, 200, [ 7, 4, 2, 1 ], false, ['bad', 'no good', 'good', 'super'] );
+
+canvas = document.getElementById("myCanvas3");
+ctx = canvas.getContext("2d");
+LP_histo_notes( ctx, 600, 160, [ 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0 ],
+[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3 ],
+[ '#F44', '#FB0', '#0E0', '#08F' ] );
+
 </script>
 */

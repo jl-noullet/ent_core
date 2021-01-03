@@ -25,6 +25,8 @@ $html_stu .= '<table class="nobo cen"><tr><td width="40%">COMPLEXE ACADÉMIQUE B
 $html_stu .= '<h2 class="cen">CLASSEMENT PAR ORDRE DE MÉRITE, CLASSE DE ' . strtoupper($class_name) . '</h2>'
 	. '<h2 class="cen">TRIMESTRE ' . $trim_num . '</h2>';
 // initialiser stats
+// N.B. l'ordre de creation des elements de $histo est celui de ceux de $LP_level_texts
+// c'est l'ordre des clefs a condition que $LP_level_texts soit dans l'ordre des clefs
 $histo = array();
 foreach	( $LP_level_texts as $k => $v )
 	$histo[$k] = 0; 
