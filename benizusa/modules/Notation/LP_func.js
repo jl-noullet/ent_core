@@ -149,12 +149,24 @@ function LP_histo_notes( ctx, w, h, vals, levels, colors ) {
 const hfoot = 18;
 var qnotes = vals.length;
 var dx = w / qnotes;
-var h0 = h - hfoot;
+var h0 = h - hfoot;	// h0 est la position du "pied" du graphe
 var vmax = 0;
 for	( i in vals )
 	if	( vals[i] > vmax )
 		vmax = vals[i];
-var dy = ( h0 - 2 ) / vmax;
+var dy = h0 / vmax;
+ctx.translate( 0, 2 );	// petite marge en haut
+// tracer les lignes horizontales
+ctx.lineWidth = 1;
+ctx.strokeStyle = '#AAA';
+var y = h0 - dy;
+ctx.beginPath();
+for	( i = 0; i < vmax; ++i )
+	{
+	ctx.moveTo( 0, y ); ctx.lineTo( w, y );
+	y -= dy;
+	}
+ctx.stroke();
 // tracer les barres
 ctx.fillStyle = '#ddd';
 ctx.strokeStyle = '#666';
@@ -167,7 +179,7 @@ for	( i in vals )
 	ctx.strokeRect( x, h0 - hbar , dx-3 , hbar );
 	x += dx;
 	}
-// tracer les graduations
+// tracer l'echelle horizontale
 ctx.lineWidth = 2;
 ctx.strokeStyle = '#000';
 ctx.beginPath();

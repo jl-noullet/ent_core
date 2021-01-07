@@ -17,10 +17,12 @@
 		. '-webkit-transform-origin: top left; -ms-transform-origin: top left; transform-origin: top left;'
 		. 'width:  ' . $css_subject_width . 'px; text-align: right; }'
 		. '.lilbox { display: inline-block; padding: 4px;  margin: 8px; border: solid 2px; border-color: #888; }'
+		. '.red { background-color: #F66; }'
 		. '</style>';
 
 $html_stu = $html_css;
 
+$errcnt = 0;
 
 // les notes des 2 evals
 
@@ -46,13 +48,20 @@ foreach	( $noms_complets as $istu => $nom )
 			{
 			$note1 = $ptrnote1D[$idi];
 			$note2 = $ptrnote2D[$idi];
-			$html_stu .= '<td>' . (($note1 < 0.0)?(''):($note1))
-				. '<br>' . (($note2 < 0.0)?(''):($note2)) . '</td>';
+			if	( ( $note1 > 20.0 ) || ( $note2 > 20.0 ) )
+				{
+				$errcnt ++;
+				$html_stu .= '<td class="red">';
+				}
+			else	$html_stu .= '<td>';
+			$html_stu .= (($note1 < 0.0)?(''):($note1)) . '<br>' . (($note2 < 0.0)?(''):($note2)) . '</td>';
 			}
 	$html_stu .= '</tr>';
 	}
 $html_stu .= '</table></div>';
 
+if	( $errcnt > 0 )
+	$html_stu .= '<h2 class="red">Alerte : ' . $errcnt . ' erreur(s)</h2>';
 
 // les moyennes des 2 evals, avec les rangs
 

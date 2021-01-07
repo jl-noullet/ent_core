@@ -37,6 +37,8 @@ else	{
 			require_once( 'modules/Notation/html_tabl.php' );
 		else if	( $_REQUEST['stat_view'] == 'merite' )
 			require_once( 'modules/Notation/html_merite.php' );
+		else if	( $_REQUEST['stat_view'] == 'stats' )
+			require_once( 'modules/Notation/html_stats.php' );
 		}
 	else	require_once( 'modules/Notation/html_bull.php' );
 
@@ -75,7 +77,7 @@ else	{
 		echo '<div class="hmenu">';
 		if	( isset( $_REQUEST['stat_view'] ) )
 			{
-			if	( $_REQUEST['stat_view'] == 'merite' )
+			if	( ( $_REQUEST['stat_view'] == 'merite' ) || ( $_REQUEST['stat_view'] == 'stats' ) )
 				{
 				echo '<a class="butgreen" href="' . $url3 . '&stat_view=' . $_REQUEST['stat_view']
 				. '" target="_blank">PDF couleur</a>';
@@ -94,6 +96,7 @@ else	{
 			. '" target="_blank">PDF</a>';
 			echo '<a class="butgreen" href="' . $url2 . '&stat_view=tables'. '">Tables Vérif.</a>';
 			echo '<a class="butgreen" href="' . $url2 . '&stat_view=merite'. '">Classt. / Mérite</a>';
+			echo '<a class="butgreen" href="' . $url2 . '&stat_view=stats'.  '">Statistiques</a>';
 			}
 		echo '<a class="butgreen" href="' . $url1 . '">Retour aux choix de la classe</a>';
 		echo '</div>';
