@@ -77,12 +77,21 @@ else	{
 		echo '<div class="hmenu">';
 		if	( isset( $_REQUEST['stat_view'] ) )
 			{
-			if	( ( $_REQUEST['stat_view'] == 'merite' ) || ( $_REQUEST['stat_view'] == 'stats' ) )
+			if	( $_REQUEST['stat_view'] == 'merite' )
 				{
 				echo '<a class="butgreen" href="' . $url3 . '&stat_view=' . $_REQUEST['stat_view']
 				. '" target="_blank">PDF couleur</a>';
 				echo '<a class="butgreen" href="' . $url3 . '&stat_view=' . $_REQUEST['stat_view']
 				. '&BW" target="_blank">PDF N/B</a>';
+				echo '<a class="butgreen" href="' . $url2 . '">Les bulletins</a>';
+				}
+			else if	( $_REQUEST['stat_view'] == 'stats' )
+				{
+				echo '<a class="butgreen" href="' . $url3 . '&stat_view=' . $_REQUEST['stat_view']
+				. '" target="_blank">PDF couleur</a>';
+				// echo '<a class="butgreen" href="' . $url3 . '&stat_view=' . $_REQUEST['stat_view']
+				// . '&BW" target="_blank">PDF N/B</a>';
+				echo '<a class="butgreen" href="' . $url2 . '">Les bulletins</a>';
 				}
 			else if	( $_REQUEST['stat_view'] == 'tables' )
 				{
