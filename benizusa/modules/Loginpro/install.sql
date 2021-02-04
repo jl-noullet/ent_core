@@ -44,6 +44,19 @@ WHERE NOT EXISTS (SELECT profile_id
     WHERE modname='Loginpro/Programmes.php'
     AND profile_id=1);
 
+INSERT INTO profile_exceptions (profile_id, modname, can_use, can_edit)
+SELECT 1, 'Loginpro/ListeSoldes.php', 'Y', 'Y'
+WHERE NOT EXISTS (SELECT profile_id
+    FROM profile_exceptions
+    WHERE modname='Loginpro/ListeSoldes.php'
+    AND profile_id=1);
+INSERT INTO profile_exceptions (profile_id, modname, can_use, can_edit)
+SELECT 1, 'Loginpro/StatSoldes.php', 'Y', 'Y'
+WHERE NOT EXISTS (SELECT profile_id
+    FROM profile_exceptions
+    WHERE modname='Loginpro/StatSoldes.php'
+    AND profile_id=1);
+
 -- Teacher
 INSERT INTO profile_exceptions (profile_id, modname, can_use, can_edit)
 SELECT 2, 'Loginpro/ListeEleves.php', 'Y', null

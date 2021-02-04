@@ -38,3 +38,10 @@ if ( $RosarioModules['Students'] ) // Verify target module is activated.
 		'Loginpro/ListeEleves.php' => 'Liste Elèves en PDF' );
 */
 }
+if ( $RosarioModules['Student_Billing'] ) // Verify target module is activated.
+{
+	$menu['Student_Billing']['admin'] += array(
+		2 => 'Loginpro',
+		'Loginpro/ListeSoldes.php' => 'Listes Soldes Élèves',
+		'Loginpro/StatSoldes.php' => 'Statistiques Paiements' );
+}
