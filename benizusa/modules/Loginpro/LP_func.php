@@ -445,3 +445,13 @@ foreach	( $a as $v )
 $js .= ']';
 return $js;
 }
+
+// convertir date big-endian (SQL) en little-endian (frenchy)
+// avec non-breaking hyphen &#8209;
+function LP_date_reverse( $date_big_endian )
+{
+$YMD = explode("-", $date_big_endian );
+if	( ( count($YMD) == 3 ) && ( (int)$YMD[0] > 1900 ) )
+	return ( $YMD[2] . '&#8209;' . $YMD[1] . '&#8209;' . $YMD[0] );
+else	return $date_big_endian;
+}

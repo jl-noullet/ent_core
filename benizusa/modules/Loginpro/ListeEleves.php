@@ -149,12 +149,8 @@ else	{
 		     "\n";
 		$cnt = 1;
 		foreach	( $noms_complets as $k => $v ) {
-			$YMD = explode("-", $dates_naissance[$k] );
-			if	( ( count($YMD) == 3 ) && ( (int)$YMD[0] > 1950 ) )
-				$date = $YMD[2] . '-' . $YMD[1] . '-' . $YMD[0];
-			else	$date = $dates_naissance[$k];
 			echo '<tr><td>', $cnt, '</td><td>', $my_prefix, sprintf( "%04u", $k ), '</td><td>', $v, '</td><td>',
-			     $date, '</td><td>', $sexes[$k], '</td><td>', $statuses[$k], "</td></tr>\n";	
+			     LP_date_reverse($dates_naissance[$k]), '</td><td>', $sexes[$k], '</td><td>', $statuses[$k], "</td></tr>\n";	
 			$cnt++;
 			}
 		echo "</table>\n";
