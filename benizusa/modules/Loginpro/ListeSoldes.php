@@ -134,13 +134,14 @@ else	{
 			. 'table.lp td.le { text-align: left }'
 			. 'table.lp tr.ce td { text-align: center }'
 			. '.bo1 { font-weight: bold }'
-			. '.red { background-color: #F66; }'
+			. '.red { background-color: #Fa9; }'
+			. '.green { background-color: #6F6; }'
 			. '</style>';
 
-		echo $html_css, '<div id=pdfpage><h3>CLASSE: ', $class_name, '</h3>';
+		echo $html_css, '<div id=pdfpage><h3>CLASSE: ', $class_name, 'ajouter date et effectif</h3>';
 		echo '<table class="lp">';
 		echo '<tr class="ce"><td>Nom complet</td><td>Total<br>facturé</td><td colspan="', $paycnt,
-			'">Versements</td><td>Total payé</td><td>Reste dû</td></tr>';
+			'">Versements</td><td>Total payé</td><td><b>Reste dû</b></td></tr>';
 			
 		foreach	( $noms_complets as $k => $v ) {
 			echo '<tr><td class="le">', $v, '</td><td>', $totalfee[$k], '</td>';
@@ -155,7 +156,14 @@ else	{
 					}
 				echo '</td>';
 				}
-			echo '<td>', $totalpaid[$k], '</td><td>', $totalfee[$k] - $totalpaid[$k], '</td></tr>';
+			$solde = $totalfee[$k] - $totalpaid[$k];
+			echo '<td>', $totalpaid[$k], '</td>';
+			if	( ( $solde == 0 ) && ( $totalfee[$k] != 0 ) )
+				echo '<td class="green">';
+			else if	( ( $totalpaid[$k] == 0 ) && ( $totalfee[$k] != 0 ) )
+				echo '<td class="red">';
+			else	echo '<td>';
+			echo '<b>', $solde, '</b></td></tr>';
 			}
 		echo '</table></div>';
 		// convertir en PDF s'il y a lieu
