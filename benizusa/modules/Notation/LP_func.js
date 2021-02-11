@@ -196,6 +196,67 @@ for	( i in vals )
 ctx.stroke();
 }
 
+// jeu de N barres simples
+// names, vals, colors sont des arrays de N elements
+// tick est l'intervalle de l'echelle verticale, dans la meme unite que vals
+// valmax determine la hauteur graduee qui êut depasser le max effectif des data
+// unit est un suffuxe optionnel t.q. ' %'
+function LP_N_bars( ctx, w, h, names, vals, colors, tick, valmax, unit ) {
+const mbot = 22;	// marge bottotm
+const mtop = 20;	// marge top
+const mleft = 40;	// marge left
+var qbars = vals.length;
+var dx = ( w - mleft ) / qbars;
+var h0 = h - mbot - mtop;	// h0 est la position du "pied" du graphe
+var ky = h0 / valmax;		// echelle verticale
+var dy = tick * ky;		// intervalle graduations verticales
+ctx.translate( 0, mtop );		// petite marge en haut
+// tracer les labels et les lignes horizontales de l'echelle verticale
+ctx.lineWidth = 1;
+ctx.strokeStyle = '#AAA';
+ctx.font = "12px Arial";
+ctx.fillStyle = '#000';
+var y = h0 - dy;
+var p = tick;
+ctx.beginPath();
+while	( y >= 0 )
+	{
+	ctx.moveTo( mleft - 3, y ); ctx.lineTo( w, y );
+	ctx.fillText( p+unit, 3, y + 1 );
+	y -= dy; p += tick;
+	}
+ctx.stroke();
+
+// tracer les barres et leurs labels
+ctx.fillStyle = '#ddd';
+ctx.strokeStyle = '#666';
+ctx.font = "16px Arial";
+ctx.fillStyle = '#000';
+var hbar, x = mleft + 1;
+for	( i in vals )
+	{
+	hbar = vals[i] * ky;
+	ctx.fillStyle = colors[i];
+	ctx.fillRect( x, h0 - hbar , dx-3 , hbar );
+	ctx.strokeRect( x, h0 - hbar , dx-3 , hbar );
+	ctx.fillStyle = '#000';
+	ctx.font = "16px Arial";
+	ctx.fillText( names[i], x + 3, h0 + mbot - 4 );
+	ctx.font = "14px Arial";
+	ctx.fillText( vals[i]+unit, x + 3, h0 - hbar - 4 );
+	x += dx;
+	}
+// tracer les axes principaux
+ctx.lineWidth = 2;
+ctx.strokeStyle = '#000';
+ctx.beginPath();
+ctx.moveTo( 0, h0 ); ctx.lineTo( w, h0 );
+ctx.moveTo( mleft, -mtop ); ctx.lineTo( mleft, h );
+ctx.stroke();
+
+}
+
+
 /* petit HTML pour les test du canvas
 <!DOCTYPE html>
 <script src="./LP_func.js"></script>
@@ -223,3 +284,5 @@ LP_histo_notes( ctx, 600, 160, [ 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 20, 18, 16, 
 
 </script>
 */
+
+

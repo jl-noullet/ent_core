@@ -138,32 +138,35 @@ else	{
 			. '.green { background-color: #6F6; }'
 			. '</style>';
 
-		echo $html_css, '<div id=pdfpage><h3>CLASSE: ', $class_name, 'ajouter date et effectif</h3>';
+		$today = date( "d-m-Y" );
+		echo $html_css, '<div id=pdfpage>';
+		echo '<h2>Etat des frais de scolarité par classe au ', $today, '</h2>';
+		echo '<h2>CLASSE: ', $class_name, ' (', count($my_students), ' élèves)</h2>';
 		echo '<table class="lp">';
 		echo '<tr class="ce"><td>Nom complet</td><td>Total<br>facturé</td><td colspan="', $paycnt,
 			'">Versements</td><td>Total payé</td><td><b>Reste dû</b></td></tr>';
 			
 		foreach	( $noms_complets as $k => $v ) {
-			echo '<tr><td class="le">', $v, '</td><td>', $totalfee[$k], '</td>';
+			echo '<tr><td class="le">', $v, '</td><td>', LP_thousands($totalfee[$k]), '</td>';
 			for	( $i = 0; $i < $paycnt; ++$i )
 				{
 				echo '<td>';
 				if	( isset( $paid[$k][$i] ) )
 					{
-					echo $paid[$k][$i];
+					echo LP_thousands($paid[$k][$i]);
 					if ( $date_flag ) echo '<br>', LP_date_reverse( $dates[$k][$i] );
 					if ( $comm_flag ) echo '<br>', $comments[$k][$i];
 					}
 				echo '</td>';
 				}
 			$solde = $totalfee[$k] - $totalpaid[$k];
-			echo '<td>', $totalpaid[$k], '</td>';
+			echo '<td>', LP_thousands($totalpaid[$k]), '</td>';
 			if	( ( $solde == 0 ) && ( $totalfee[$k] != 0 ) )
 				echo '<td class="green">';
 			else if	( ( $totalpaid[$k] == 0 ) && ( $totalfee[$k] != 0 ) )
 				echo '<td class="red">';
 			else	echo '<td>';
-			echo '<b>', $solde, '</b></td></tr>';
+			echo '<b>', LP_thousands($solde), '</b></td></tr>';
 			}
 		echo '</table></div>';
 		// convertir en PDF s'il y a lieu

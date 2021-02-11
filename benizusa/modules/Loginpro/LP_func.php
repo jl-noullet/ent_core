@@ -455,3 +455,16 @@ if	( ( count($YMD) == 3 ) && ( (int)$YMD[0] > 1900 ) )
 	return ( $YMD[2] . '&#8209;' . $YMD[1] . '&#8209;' . $YMD[0] );
 else	return $date_big_endian;
 }
+
+// separate thousands : 30000000 -> 30 000 000
+function LP_thousands( $number )
+{
+while	( true )
+	{
+        $replaced = preg_replace('/(-?\d+)(\d\d\d)/', '$1&nbsp;$2', $number);
+	if	($replaced != $number)
+		$number = $replaced;
+	else	break;
+        }
+return $number;
+}

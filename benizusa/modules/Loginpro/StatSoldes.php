@@ -12,6 +12,7 @@ $my_year = UserSyear();
 
 // tableaux indexes par id de school_gradelevels
 $class_names = array();
+$class_effectif = array();
 $class_totalfee = array();
 $class_totalpaid = array();
 
@@ -20,7 +21,8 @@ $sqlrequest = 'SELECT id, short_name FROM school_gradelevels WHERE school_id=' .
 $result = db_query( $sqlrequest, true );
 while	( $row = @pg_fetch_array( $result, null, PGSQL_ASSOC ) )
 	{
-	$class_names[$row['id']] = $row['short_name'];
+	if	( $row['short_name'][0] != '_' )
+		$class_names[$row['id']] = $row['short_name'];
 	}
 // boucle sur les classes pour acquisition des donnees
 foreach	( $class_names as $lp_classe => $s_name )
@@ -29,6 +31,7 @@ foreach	( $class_names as $lp_classe => $s_name )
 	// des arrays tous indexes par le meme index arbitraire
 	$my_students = array();
 	LP_liste_classe( $lp_classe, $class_name, $class_short_name, $my_students );
+	$class_effectif[$lp_classe] = count($my_students);
 	if	( count($my_students) )
 		{
 		$class_totalfee[$lp_classe] = 0;
@@ -78,9 +81,14 @@ else	{	// Le contenu interactif, exclu du PDF
 	}
 // echo '<pre>'; var_dump( $class_totalfee ); echo '</pre>';
 
-
 // produire le HTML
 
+// javascript commun
+$le_script = 'modules/Notation/LP_func.js?1001';
+if	( isset( $_REQUEST['_ROSARIO_PDF'] ) )
+	$le_script = 'file:///' . $RosarioPath . $le_script;
+
+// css
 $html_css = '<style type="text/css">'
 	. '#pdfpage { background-color: #FFF }'
 	. 'table.lp { border-collapse:collapse; font-family: \'Lato\', sans-serif; }'
@@ -92,20 +100,51 @@ $html_css = '<style type="text/css">'
 	. '.green { background-color: #6F6; }'
 	. '</style>';
 
-echo $html_css, '<div id=pdfpage><h3>STATISTIQUES DES FRAIS DE SCOLARITE ajouter date du jour et effectifs</h3>';
+$today = date( "d-m-Y" );
+echo $html_css, '<script src="' . $le_script . '"></script>', '<div id=pdfpage>';
+echo '<h2>Statistiques des frais de scolarité au ', $today, '</h2>';
+
+echo '<p>Pourcentage de recouvrement par classe</p>';
+
+// graphique en barres
+echo '<canvas id="myCanvas1" width="800" height="250" style="border: 0;"></canvas><br><br>';
+// preparer les arrays en javascript
+$js_names ='['; $js_vals = '['; $js_colors = '[';
+foreach	( $class_names as $k => $v )
+	{
+	$js_names .= "'$v',";
+	if	( $class_totalfee[$k] > 0 )
+		$pourcent = sprintf( "%.1f,", 100.0 * ($class_totalpaid[$k] / $class_totalfee[$k]) );
+	else	$pourcent = "0,";
+	$js_vals .= $pourcent;
+	if	( $pourcent < 25 )
+		$color = '#F44';
+	else if	( $pourcent < 50 )
+		$color = '#FB0';
+	else if	( $pourcent < 80 )
+		$color = '#0E0';
+	else	$color = '#08F';
+	$js_colors .= "'$color',";
+	}
+$js_names .= '],'; $js_vals .= '],'; $js_colors .= '],';
+echo '<script>var canvas = document.getElementById("myCanvas1"); var ctx = canvas.getContext("2d");';
+echo 'LP_N_bars( ctx, 800, 250, ', $js_names, $js_vals, $js_colors, '10, 100.1, "%" );</script>';
+	
+// echo 'test{', LP_thousands(-450000000), '}<br>';
+
+// resultats sous forme de table
 echo '<table class="lp">';
 echo '<tr class="ce"><td>Classe</td><td>Effectif</td><td>Total facturé</td><td>Total payé</td><td><b>Reste dû</b></td><td>% payé</td></tr>';
 	
 // boucle sur les classes pour presentation en tableau
-
 foreach	( $class_names as $k => $v )
 	{
 	if	( $class_totalfee[$k] > 0 )
 		$pourcent = sprintf( "%.1f%%", 100.0 * ($class_totalpaid[$k] / $class_totalfee[$k]) );
 	else	$pourcent = "";
 
-	echo '<tr><td class="le">', $v, '</td><td>', '!', '</td><td>', $class_totalfee[$k], '</td><td>', $class_totalpaid[$k],
-		'</td><td><b>', $class_totalfee[$k] - $class_totalpaid[$k], '</td><td>', $pourcent, '</b></td></tr>';
+	echo '<tr><td class="le">', $v, '</td><td>', $class_effectif[$k], '</td><td>',
+		LP_thousands($class_totalfee[$k]), '</td><td>', LP_thousands($class_totalpaid[$k]), '</td><td><b>', LP_thousands($class_totalfee[$k] - $class_totalpaid[$k]), '</td><td>', $pourcent, '</b></td></tr>';
 	}
 echo '</table></div>';
 
