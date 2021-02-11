@@ -2,7 +2,7 @@
 /**
   les pourcentages de recouvrement en fonction des classes
   (les classes en abscisses et les pourcentages de recouvrement en ordonnées)
-  toujours organisés en tranches <-- cela ce n'est pas possible
+  toujours organisés en tranches <-- cela, ce n'est pas possible
  */
 
 require_once( 'LP_func.php' );
@@ -84,7 +84,7 @@ else	{	// Le contenu interactif, exclu du PDF
 // produire le HTML
 
 // javascript commun
-$le_script = 'modules/Notation/LP_func.js?1001';
+$le_script = 'modules/Notation/LP_func.js?1002';
 if	( isset( $_REQUEST['_ROSARIO_PDF'] ) )
 	$le_script = 'file:///' . $RosarioPath . $le_script;
 
