@@ -20,12 +20,12 @@ echo	'<style type="text/css">', "\n",
 	"table.lp { border-collapse:collapse; }\n",
 	"table.lp td { border:1px solid black; padding: 2px 8px 2px 10px; }\n",
 	"table.fn td { border:0; padding: 2px 8px 10px 10px; }\n",
-	"td.note { width: 5em }\n",
+	"td.note { width: 5em } td.red { background-color: #f66 }\n",
 	".butgreen { cursor: pointer; padding: 6px 18px;  margin: 8px 8px; border: solid 2px; ",
 	"border-color: #4D4; background: #AFA; color: #048; font-weight: bold; font-size: 16px }\n",
 	".butamber { cursor: pointer; padding: 6px 18px;  margin: 8px 8px; border: solid 2px; ",
 	"border-color: #DA4; background: #FDA; color: #840; font-weight: bold; font-size: 16px }\n",
-	".hmenu { margin: 20px }\n",
+	".hmenu { margin: 20px } input[type=text].red { background-color: #F66 }\n",
 	'</style>';
 
 if	( isset( $_REQUEST['reset'] ) )
@@ -219,7 +219,18 @@ else	{
 		$edit_flag = isset($_REQUEST['edit_flag']);
 		if	( $edit_flag )
 			{
-			echo '<form action="', $url0, '" method="POST">';
+			// le script qui peut bloquer le submit si note > 20.0
+			echo '<script>function check_notes() {',
+			'var entrees = document.getElementsByTagName("input");',
+			'for (var ii = 0; ii < entrees.length; ii++) {',
+			'var name = String(entrees[ii].name);',
+			'if	( name.match(/^note/) ) {',
+			'if	( Number(entrees[ii].value) > 20.0 ) {',
+			'entrees[ii].className = "red";',
+			'alert( "Erreur: note " + entrees[ii].value ); return false;',
+			'}}} return true; } </script>';
+			// la form
+			echo '<form action="', $url0, '" method="POST" onSubmit="return check_notes();">';
 			echo '<input type="hidden" name="lp_les_notes" value="', $_SESSION['lp_cours'], '">';
 			echo '<table class="lp">';
 			foreach	( $noms_complets as $k => $v )
@@ -228,12 +239,18 @@ else	{
 				'<input type="text" name="note', $k, '" size="5" maxlength="5" value="', $note[$k], '">',
 				"</td></tr>\n";
 				}
-			echo '</table><div class="hmenu"><button type="submit" class="butamber"> Enregistrer </button></div></form>';
+			echo '</table><div class="hmenu"><button type="submit" name="save" class="butamber"> Enregistrer </button></div></form>';
 			}
 		else	{
 			echo '<table class="lp">';
 			foreach	( $noms_complets as $k => $v )
-				echo '<tr><td>', $v, '</td><td class="note">', $note[$k], '</td></tr>';
+				{
+				echo '<tr><td>', $v, '</td>';
+				if	( (float)$note[$k] > 20.0 )
+					echo '<td class="note red">';
+				else	echo '<td class="note">';
+				echo $note[$k], '</td></tr>';
+				}
 			echo '</table>';
 			echo '<hr><div class="hmenu"><a class="butamber" href="' . $url0 . '&edit_flag">Introduire ou modifier les notes</a></div>';
 			}

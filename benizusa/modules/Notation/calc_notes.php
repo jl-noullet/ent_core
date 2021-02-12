@@ -284,7 +284,7 @@
 			}
 		}
 	$effectif = $cnt - 1;
-	if	( $cnt > 0 )
+	if	( $effectif > 0 )
 		$class_moy = round( $class_moy / $effectif, 2 );
 
 	// 7. lire les heures d'absence non justifiées pour la periode courante
