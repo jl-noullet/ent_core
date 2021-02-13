@@ -223,11 +223,17 @@ else	{
 			echo '<script>function check_notes() {',
 			'var entrees = document.getElementsByTagName("input");',
 			'for (var ii = 0; ii < entrees.length; ii++) {',
-			'var name = String(entrees[ii].name);',
-			'if	( name.match(/^note/) ) {',
-			'if	( Number(entrees[ii].value) > 20.0 ) {',
+			'var name = String(entrees[ii].name); var val = String(entrees[ii].value); ',
+			'if	( ( name.match(/^note/) ) && ( val ) ) {',
+			'val = val.trim();',
+			// accepter seulement nombre ou seulement lettres
+			'if	( !val.match(/^([.,0-9]+|[A-Za-z]+)$/) ) {',
+			//'if	( !val.match(/^[.,0-9]+$/) ) {',
 			'entrees[ii].className = "red";',
-			'alert( "Erreur: note " + entrees[ii].value ); return false;',
+			'alert( "Erreur: note non conforme : " + entrees[ii].value ); return false;}',
+			'if	( Number(val) > 20.0 ) {',
+			'entrees[ii].className = "red";',
+			'alert( "Erreur: note supérieure à 20 : " + entrees[ii].value ); return false;',
 			'}}} return true; } </script>';
 			// la form
 			echo '<form action="', $url0, '" method="POST" onSubmit="return check_notes();">';
