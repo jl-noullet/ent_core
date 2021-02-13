@@ -219,8 +219,26 @@ else	{
 		$edit_flag = isset($_REQUEST['edit_flag']);
 		if	( $edit_flag )
 			{
+			echo '<style>',
+			// le CSS pour la fenetre modale (popup) pour les erreurs
+			'.modal { display: none;position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%;',
+			'background-color: rgba(0,0,80,0.3); overflow: auto; }',
+			'.modal_box { background-color: #fff; margin: 5% auto auto auto; width: 300px;',
+			'border: 5px solid #F00; padding: 0px; }',
+			'.modal_content { padding: 40px }',
+			'.closeX { float: right; margin-right: 10px; cursor: pointer; color: #F00; font-size: 32px; font-weight: bold; }',
+			'</style>';
+			echo '<script>',
+			// les fonctions pour la fenetre modale (popup) pour les erreurs
+			'function show_modal(message) {',
+			'document.getElementById("lemessage").innerHTML = message;',
+			'document.getElementById("lemodal").style["display"]="block";',
+			'}',
+			'function hide_modal() {',
+			'document.getElementById("lemodal").style["display"]="none";',
+			'}',
 			// le script qui peut bloquer le submit si note > 20.0
-			echo '<script>function check_notes() {',
+			'function check_notes() {',
 			'var entrees = document.getElementsByTagName("input");',
 			'for (var ii = 0; ii < entrees.length; ii++) {',
 			'var name = String(entrees[ii].name); var val = String(entrees[ii].value); ',
@@ -230,10 +248,10 @@ else	{
 			'if	( !val.match(/^([.,0-9]+|[A-Za-z]+)$/) ) {',
 			//'if	( !val.match(/^[.,0-9]+$/) ) {',
 			'entrees[ii].className = "red";',
-			'alert( "Erreur: note non conforme : " + entrees[ii].value ); return false;}',
+			'show_modal( "Note non conforme : " + entrees[ii].value ); return false;}',
 			'if	( Number(val) > 20.0 ) {',
 			'entrees[ii].className = "red";',
-			'alert( "Erreur: note supérieure à 20 : " + entrees[ii].value ); return false;',
+			'show_modal( "Note supérieure à 20 : " + entrees[ii].value ); return false;',
 			'}}} return true; } </script>';
 			// la form
 			echo '<form action="', $url0, '" method="POST" onSubmit="return check_notes();">';
@@ -246,6 +264,12 @@ else	{
 				"</td></tr>\n";
 				}
 			echo '</table><div class="hmenu"><button type="submit" name="save" class="butamber"> Enregistrer </button></div></form>';
+			// la fenetre modale pour les erreurs (normalement invisible)
+			echo '<div id="lemodal" class="modal"><div class="modal_box"><div onclick="hide_modal()" class="closeX">&times;</div>';
+			echo '<div class="modal_content"><h3>Erreur à corriger</h3><div id="lemessage"></div></div></div></div>';
+			// le script qui permet de fermer la fenetre modale en cliquant à coté
+			echo '<script>window.onclick = ',
+			'function(event) { if ( event.target == document.getElementById("lemodal") ) hide_modal();}</script>';
 			}
 		else	{
 			echo '<table class="lp">';
