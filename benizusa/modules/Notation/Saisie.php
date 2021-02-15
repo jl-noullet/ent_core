@@ -237,7 +237,7 @@ else	{
 			'function hide_modal() {',
 			'document.getElementById("lemodal").style["display"]="none";',
 			'}',
-			// le script qui peut bloquer le submit si note > 20.0
+			// la fonction qui peut bloquer le submit si note > 20.0
 			'function check_notes() {',
 			'var entrees = document.getElementsByTagName("input");',
 			'for (var ii = 0; ii < entrees.length; ii++) {',
@@ -245,8 +245,9 @@ else	{
 			'if	( ( name.match(/^note/) ) && ( val ) ) {',
 			'val = val.trim();',
 			// accepter seulement nombre ou seulement lettres
-			'if	( !val.match(/^([.,0-9]+|[A-Za-z]+)$/) ) {',
-			//'if	( !val.match(/^[.,0-9]+$/) ) {',
+			'val = val.replace( ",", "." );',
+			'if	( !val.match(/^(\d+[.]?\d*|[A-Za-z]+)$/) ) {',
+			//'if	( !val.match(/^\d+[.]?\d*$/) ) {',
 			'entrees[ii].className = "red";',
 			'show_modal( "Note non conforme : " + entrees[ii].value ); return false;}',
 			'if	( Number(val) > 20.0 ) {',
